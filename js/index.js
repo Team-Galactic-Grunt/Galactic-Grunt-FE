@@ -1,0 +1,252 @@
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+
+const SCALE = 0.3;
+const TILE = 24;
+const SPEED = 2.2;
+const HOLD_THRESHOLD_MS = 100; // 이 시간(ms)만큼 꾹 눌러야 걷기 시작
+const BUMP_FRAMES = Math.ceil(TILE / SPEED); // 부딪힘 모션 지속 프레임
+
+const COLS = Math.floor(canvas.width / TILE);
+const ROWS = Math.floor(canvas.height / TILE);
+
+const WALK_CYCLE = ['right', 'idle', 'left', 'idle'];
+
+const obstacles = [
+  { c: 0, r: 0, w: 4, h: 100 },
+  { c: 0, r: 0, w: 36, h: 2 },
+  { c: 0, r: 2, w: 35, h: 1 },
+  { c: 0, r: 3, w: 24, h: 1 },
+  { c: 0, r: 4, w: 24, h: 4 },
+  { c: 22, r: 8, w: 5, h: 2 },
+  { c: 29, r: 8, w: 4, h: 2 },
+  { c: 33, r: 2, w: 2, h: 8 },
+  { c: 14, r: 9, w: 8, h: 1 },
+  { c: 27, r: 23, w: 2, h: 2 },
+  { c: 22, r: 19, w: 1, h: 2 },
+  { c: 37, r: 17, w: 1, h: 8 },
+  { c: 16, r: 21, w: 7, h: 4 },
+  { c: 4, r: 25, w: 34, h: 5 },
+  { c: 22, r: 19, w: 10, h: 1 },
+  { c: 31, r: 18, w: 1, h: 1 },
+  { c: 31, r: 17, w: 2, h: 1 },
+  { c: 35, r: 17, w: 2, h: 1 },
+  { c: 37, r: 0, w: 1, h: 5 },
+  { c: 38, r: 0, w: 1, h: 6 },
+  { c: 39, r: 0, w: 1, h: 7 },
+  { c: 40, r: 0, w: 1, h: 18 },
+  { c: 41, r: 0, w: 1, h: 19 },
+  { c: 42, r: 0, w: 1, h: 23 },
+  { c: 43, r: 0, w: 2, h: 30 },
+  //   { c: 10, r: 5, w: 2, h: 1 },
+  //   { c: 5, r: 7, w: 1, h: 2 },
+  //   { c: 8, r: 1, w: 1, h: 1 },
+  //   { c: 1, r: 5, w: 1, h: 2 },
+  //   { c: 11, r: 2, w: 2, h: 2 },
+];
+
+const spriteMap = {
+  front: {
+    idle: 'dawn_front',
+    left: 'dawn_front_left',
+    right: 'dawn_front_right',
+  },
+  back: { idle: 'dawn_back', left: 'dawn_back_left', right: 'dawn_back_right' },
+  left: { idle: 'dawn_left', left: 'dawn_left_left', right: 'dawn_left_right' },
+  right: {
+    idle: 'dawn_right',
+    left: 'dawn_right_left',
+    right: 'dawn_right_right',
+  },
+};
+
+const images = {};
+Object.values(spriteMap).forEach((dir) => {
+  Object.values(dir).forEach((name) => {
+    if (images[name]) return;
+    const img = new Image();
+    img.src = `../assets/images/character_images/${name}.png`;
+    images[name] = img;
+  });
+});
+
+// 시작 위치를 타일 그리드에 정렬 (충돌 판정과 렌더링 좌표 일치)
+const startCol = Math.round(canvas.width / 2 / TILE);
+const startRow = Math.round(canvas.height / 2 / TILE);
+const startX = startCol * TILE + TILE / 2; // 타일 중앙
+const startY = startRow * TILE + TILE / 2;
+
+const player = {
+  x: startX,
+  y: startY,
+  targetX: startX,
+  targetY: startY,
+  direction: 'front',
+  isMoving: false,
+  isBumping: false,
+  bumpTimer: 0,
+  cycleIndex: 0,
+  currentFrame: 'idle',
+  holdStartTime: 0,
+  activeDirection: null,
+};
+
+const keys = {};
+window.addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+  e.preventDefault();
+});
+window.addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+function getCurrentSpriteName() {
+  return spriteMap[player.direction][player.currentFrame];
+}
+
+function roundPos(val) {
+  return Math.round(val * 10) / 10;
+}
+function isBlocked(col, row) {
+  if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return true;
+  for (const o of obstacles) {
+    if (col >= o.c && col < o.c + o.w && row >= o.r && row < o.r + o.h)
+      return true;
+  }
+  return false;
+}
+
+function startTileMove() {
+  const deltas = {
+    back: [0, -TILE],
+    front: [0, TILE],
+    left: [-TILE, 0],
+    right: [TILE, 0],
+  };
+  const [dx, dy] = deltas[player.direction];
+  const nextX = roundPos(player.x + dx);
+  const nextY = roundPos(player.y + dy);
+  const nextCol = Math.floor(nextX / TILE); // 타일 중앙 좌표엔 Math.floor
+  const nextRow = Math.floor(nextY / TILE);
+
+  // 이동 프레임 (벽 충돌 여부 관계없이 스프라이트는 전환)
+  player.currentFrame = WALK_CYCLE[player.cycleIndex];
+  player.cycleIndex = (player.cycleIndex + 1) % 4;
+
+  if (isBlocked(nextCol, nextRow)) {
+    // 제자리 부딪힘 모션
+    player.isBumping = true;
+    player.bumpTimer = 0;
+    return;
+  }
+
+  player.targetX = nextX;
+  player.targetY = nextY;
+  player.isMoving = true;
+}
+
+function update() {
+  // 부딪힘 모션 진행
+  if (player.isBumping) {
+    player.bumpTimer++;
+    if (player.bumpTimer >= BUMP_FRAMES) {
+      player.isBumping = false;
+      player.currentFrame = 'idle';
+    }
+    return;
+  }
+
+  // 슬라이드 진행 (입력과 무관하게 끝까지)
+  if (player.isMoving) {
+    const dx = player.targetX - player.x;
+    const dy = player.targetY - player.y;
+
+    if (Math.abs(dx) + Math.abs(dy) <= SPEED) {
+      player.x = player.targetX;
+      player.y = player.targetY;
+      player.isMoving = false;
+    } else {
+      player.x = roundPos(
+        player.x + Math.sign(dx) * Math.min(Math.abs(dx), SPEED),
+      );
+      player.y = roundPos(
+        player.y + Math.sign(dy) * Math.min(Math.abs(dy), SPEED),
+      );
+      return; // 슬라이드 중엔 입력 처리 스킵
+    }
+  }
+
+  // 눌린 방향키 감지
+  let pressedDir = null;
+  if (keys['ArrowUp']) pressedDir = 'back';
+  if (keys['ArrowDown']) pressedDir = 'front';
+  if (keys['ArrowLeft']) pressedDir = 'left';
+  if (keys['ArrowRight']) pressedDir = 'right';
+
+  if (!pressedDir) {
+    // 키 없음 - 완전 정지
+    player.currentFrame = 'idle';
+    player.cycleIndex = 0;
+    player.holdStartTime = 0;
+    player.activeDirection = null;
+    return;
+  }
+
+  if (pressedDir !== player.activeDirection) {
+    // 방향 전환: 즉시 방향 변경, 타이머 리셋
+    const wasWalking =
+      player.activeDirection !== null &&
+      performance.now() - player.holdStartTime >= HOLD_THRESHOLD_MS;
+    player.activeDirection = pressedDir;
+    player.direction = pressedDir;
+    player.currentFrame = 'idle';
+    player.holdStartTime = performance.now();
+    // 항상 _right(index 0)부터 시작
+    player.cycleIndex = 0;
+    return; // 이번 프레임은 방향만 바꾸고 대기
+  }
+
+  // 누른 시간이 threshold 미만이면 방향만 보임 (이동 안 함)
+  if (performance.now() - player.holdStartTime < HOLD_THRESHOLD_MS) return;
+
+  // threshold 넘었으면 걷기
+  startTileMove();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 장애물 렌더링
+  ctx.fillStyle = 'rgba(80, 50, 20, 0)';
+  ctx.strokeStyle = 'rgba(50, 30, 10, 0)';
+  ctx.lineWidth = 1;
+  for (const o of obstacles) {
+    const ox = o.c * TILE;
+    const oy = o.r * TILE;
+    const ow = o.w * TILE;
+    const oh = o.h * TILE;
+    ctx.fillRect(ox, oy, ow, oh);
+    ctx.strokeRect(ox, oy, ow, oh);
+  }
+
+  const img = images[getCurrentSpriteName()];
+  if (!img || !img.complete || img.naturalWidth === 0) return;
+
+  const w = img.naturalWidth * SCALE;
+  const h = img.naturalHeight * SCALE;
+  ctx.drawImage(
+    img,
+    Math.round(player.x - w / 2), // 수평: 타일 중앙 기준
+    Math.round(player.y + TILE / 2 - h - 2), // 수직: 발이 타일 하단에 위치
+    w,
+    h,
+  );
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+requestAnimationFrame(gameLoop);

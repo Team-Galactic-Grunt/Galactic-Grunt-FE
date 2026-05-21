@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#wrap {
+  min-width: 1340px;
+  background-color: #94d0f8;
+  padding: 20px 0px;
+}
+#game-canvas {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  border: 0.5px solid var(--color-border-secondary);
+  display: block;
+  image-rendering: pixelated;
+  border: 5px solid #707890;
+  border-radius: 10px;
+  background-image: url('../assets/images/main_map.png');
+  background-size: cover;
+  background-position: bottom;
+  margin: 0 auto;
+}
