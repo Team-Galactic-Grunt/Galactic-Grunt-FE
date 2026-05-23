@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>포켓몬 가방 시스템</title>
+    <link rel="stylesheet" href="../styles/bag.css" />
+  </head>
+  <body>
+
+    <div class="bag-overlay">
+      <div id="game-screen">
+        
+        <!-- 상단 구역 -->
+        <div class="top-section">
+          <div class="left-panel">
+            <div class="bag-title">BAG</div>
+            <div class="bag-image-container">
+              <div class="bag-sprite dp-bag-blue"></div>
+            </div>
+            <div class="pocket-selector-bg">
+              <div class="pocket-icons-viewport">
+                <div class="pocket-icons" id="pocket-icons"></div>
+              </div>
+              <div class="pocket-name-box" id="pocket-name">도구</div>
+              <div class="pocket-label">POCKET</div>
+            </div>
+          </div>
+          <div class="right-panel">
+            <div class="item-list-container" id="item-list"></div>
+          </div>
+        </div>
+
+        <!-- 하단 구역 -->
+        <div class="bottom-section">
+          <div class="desc-icon-box">
+            <span id="desc-icon">🪨</span>
+          </div>
+          <div class="desc-text-box" id="desc-text">
+            아이템을 선택해주세요.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/bag.js"></script>
+  </body>
+</html>
