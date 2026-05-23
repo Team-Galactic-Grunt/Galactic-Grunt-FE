@@ -38,12 +38,83 @@ const obstacles = [
   { c: 41, r: 0, w: 1, h: 19 },
   { c: 42, r: 0, w: 1, h: 23 },
   { c: 43, r: 0, w: 2, h: 30 },
-  //   { c: 10, r: 5, w: 2, h: 1 },
-  //   { c: 5, r: 7, w: 1, h: 2 },
-  //   { c: 8, r: 1, w: 1, h: 1 },
-  //   { c: 1, r: 5, w: 1, h: 2 },
-  //   { c: 11, r: 2, w: 2, h: 2 },
 ];
+
+const grass1 = [
+  { c: 4, r: 8, w: 10, h: 2 },
+  { c: 4, r: 10, w: 8, h: 4 },
+  { c: 4, r: 14, w: 6, h: 2 },
+];
+
+const grass2 = [
+  { c: 18, r: 13, w: 5, h: 1 },
+  { c: 16, r: 14, w: 9, h: 1 },
+  { c: 15, r: 15, w: 11, h: 4 },
+];
+
+const snow = [
+  { c: 26, r: 3, w: 7, h: 1 },
+  { c: 24, r: 4, w: 9, h: 2 },
+  { c: 24, r: 6, w: 6, h: 1 },
+  { c: 32, r: 6, w: 1, h: 1 },
+  { c: 24, r: 7, w: 2, h: 1 },
+  { c: 30, r: 7, w: 3, h: 1 },
+];
+
+const sea = [
+  { c: 31, r: 11, w: 3, h: 1 },
+  { c: 31, r: 12, w: 5, h: 2 },
+  { c: 4, r: 20, w: 8, h: 1 },
+  { c: 4, r: 21, w: 11, h: 4 },
+];
+
+const cave = [
+  { c: 33, r: 19, w: 3, h: 1 },
+  { c: 27, r: 20, w: 9, h: 1 },
+  { c: 25, r: 21, w: 11, h: 1 },
+  { c: 23, r: 22, w: 13, h: 1 },
+  { c: 23, r: 23, w: 4, h: 2 },
+  { c: 29, r: 23, w: 7, h: 2 },
+];
+
+// 지형 zone을 개별 타일 셀 키 목록으로 확장
+function zoneToCells(zone) {
+  const cells = [];
+  for (const rect of zone) {
+    for (let r = rect.r; r < rect.r + rect.h; r++) {
+      for (let c = rect.c; c < rect.c + rect.w; c++) {
+        cells.push(`${c},${r}`);
+      }
+    }
+  }
+  return cells;
+}
+
+// 배열에서 n개 무작위 추출 (Fisher-Yates, 중복 없음)
+function pickRandom(arr, n) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return new Set(copy.slice(0, Math.min(n, copy.length)));
+}
+
+const EVENT_COUNT = 10;
+
+const grass1Events = pickRandom(zoneToCells(grass1), EVENT_COUNT);
+const grass2Events = pickRandom(zoneToCells(grass2), EVENT_COUNT);
+const snowEvents = pickRandom(zoneToCells(snow), EVENT_COUNT);
+const seaEvents = pickRandom(zoneToCells(sea), EVENT_COUNT);
+const caveEvents = pickRandom(zoneToCells(cave), EVENT_COUNT);
+
+// 타일키 → zone 이름 통합 맵 (발생 후 삭제로 중복 방지)
+const eventTileMap = new Map();
+for (const k of grass1Events) eventTileMap.set(k, 'grass1');
+for (const k of grass2Events) eventTileMap.set(k, 'grass2');
+for (const k of snowEvents) eventTileMap.set(k, 'snow');
+for (const k of seaEvents) eventTileMap.set(k, 'sea');
+for (const k of caveEvents) eventTileMap.set(k, 'cave');
 
 const spriteMap = {
   front: {
@@ -76,12 +147,49 @@ const startRow = Math.round(canvas.height / 2 / TILE);
 const startX = startCol * TILE + TILE / 2; // 타일 중앙
 const startY = startRow * TILE + TILE / 2;
 
+function loadSavedPosition() {
+  // 맨처음에 서버에서 받아온 위치로 초기화 (유효성 검사 포함)
+  // sessionStorage에 값이 없으면 서버에서 받아온 위치로 초기화
+  // sessionStorage에 값이 있으면 해당 위치로 초기화 (유효성 검사 포함, 이상하면 null 반환)
+  try {
+    const saved = sessionStorage.getItem('position');
+    if (!saved) return null;
+    const { x, y, direction } = JSON.parse(saved);
+    const validDirs = ['front', 'back', 'left', 'right'];
+    if (
+      typeof x !== 'number' ||
+      typeof y !== 'number' ||
+      !isFinite(x) ||
+      !isFinite(y) ||
+      x < 0 ||
+      x > canvas.width ||
+      y < 0 ||
+      y > canvas.height
+    )
+      return null;
+    return {
+      x,
+      y,
+      direction: validDirs.includes(direction) ? direction : 'front',
+    };
+  } catch {
+    return null;
+  }
+}
+
+const savedPos = loadSavedPosition();
+// sessionStorage.removeItem('position');
+// sessionStorage.removeItem('eventZone');
+const initX = savedPos ? savedPos.x : startX;
+const initY = savedPos ? savedPos.y : startY;
+const initDir = savedPos ? savedPos.direction : 'front';
+
 const player = {
-  x: startX,
-  y: startY,
-  targetX: startX,
-  targetY: startY,
-  direction: 'front',
+  x: initX,
+  y: initY,
+  targetX: initX,
+  targetY: initY,
+  direction: initDir,
   isMoving: false,
   isBumping: false,
   bumpTimer: 0,
@@ -91,9 +199,12 @@ const player = {
   activeDirection: null,
 };
 
+// null이면 일반 게임, { alpha, zone }이면 페이드 아웃 진행 중
+let fadeState = null;
+
 const keys = {};
 window.addEventListener('keydown', (e) => {
-  keys[e.key] = true;
+  if (!e.repeat) keys[e.key] = true;
   e.preventDefault();
 });
 window.addEventListener('keyup', (e) => {
@@ -115,6 +226,24 @@ function isBlocked(col, row) {
   }
   return false;
 }
+
+// function startBattleTransition(onComplete) {
+//   const cells = document.querySelectorAll('.bc-cell');
+//   const DELAY = 60; // 각 셀 딜레이 (ms)
+//   const DUR = 300; // 커지는 시간 (ms)
+
+//   cells.forEach((cell, i) => {
+//     setTimeout(() => {
+//       cell.style.transition = `transform ${DUR}ms ease-in`;
+//       cell.style.transform = 'scale(1)';
+
+//       // 마지막 셀이 다 커지면 콜백
+//       if (i === cells.length - 1) {
+//         setTimeout(onComplete, DUR);
+//       }
+//     }, i * DELAY);
+//   });
+// }
 
 function startTileMove() {
   const deltas = {
@@ -165,6 +294,27 @@ function update() {
       player.x = player.targetX;
       player.y = player.targetY;
       player.isMoving = false;
+
+      // 도착 타일 이벤트 확인
+      const arrivedCol = Math.floor(player.x / TILE);
+      const arrivedRow = Math.floor(player.y / TILE);
+      const tileKey = `${arrivedCol},${arrivedRow}`;
+      if (eventTileMap.has(tileKey)) {
+        const zone = eventTileMap.get(tileKey);
+        eventTileMap.delete(tileKey);
+        console.log(`[${zone}] 이벤트 발생!`);
+        // 움직임 즉시 정지
+        player.isMoving = false;
+        player.isBumping = false;
+        player.currentFrame = 'idle';
+        player.cycleIndex = 0;
+        player.activeDirection = null;
+        player.holdStartTime = 0;
+        for (const k of Object.keys(keys)) keys[k] = false;
+        // 페이드 아웃 시작
+        fadeState = { alpha: 0, zone };
+        return;
+      }
     } else {
       player.x = roundPos(
         player.x + Math.sign(dx) * Math.min(Math.abs(dx), SPEED),
@@ -229,6 +379,74 @@ function draw() {
     ctx.strokeRect(ox, oy, ow, oh);
   }
 
+  ctx.fillStyle = 'rgba(136, 255, 136, 0)';
+  ctx.strokeStyle = 'rgba(100, 200, 100, 0)';
+  for (const g of grass1) {
+    const gx = g.c * TILE;
+    const gy = g.r * TILE;
+    const gw = g.w * TILE;
+    const gh = g.h * TILE;
+    ctx.fillRect(gx, gy, gw, gh);
+    ctx.strokeRect(gx, gy, gw, gh);
+  }
+  for (const g of grass2) {
+    const gx = g.c * TILE;
+    const gy = g.r * TILE;
+    const gw = g.w * TILE;
+    const gh = g.h * TILE;
+    ctx.fillRect(gx, gy, gw, gh);
+    ctx.strokeRect(gx, gy, gw, gh);
+  }
+
+  ctx.fillStyle = 'rgba(229, 229, 229, 0)';
+  ctx.strokeStyle = 'rgba(214, 214, 214, 0)';
+  for (const s of snow) {
+    const sx = s.c * TILE;
+    const sy = s.r * TILE;
+    const sw = s.w * TILE;
+    const sh = s.h * TILE;
+    ctx.fillRect(sx, sy, sw, sh);
+    ctx.strokeRect(sx, sy, sw, sh);
+  }
+
+  ctx.fillStyle = 'rgba(80, 179, 255, 0)';
+  ctx.strokeStyle = 'rgba(114, 189, 255, 0)';
+  for (const s of sea) {
+    const sx = s.c * TILE;
+    const sy = s.r * TILE;
+    const sw = s.w * TILE;
+    const sh = s.h * TILE;
+    ctx.fillRect(sx, sy, sw, sh);
+    ctx.strokeRect(sx, sy, sw, sh);
+  }
+
+  ctx.fillStyle = 'rgba(172, 115, 59, 0)';
+  ctx.strokeStyle = 'rgba(182, 137, 86, 0)';
+  for (const s of cave) {
+    const sx = s.c * TILE;
+    const sy = s.r * TILE;
+    const sw = s.w * TILE;
+    const sh = s.h * TILE;
+    ctx.fillRect(sx, sy, sw, sh);
+    ctx.strokeRect(sx, sy, sw, sh);
+  }
+
+  // 이벤트 타일 마커 렌더링
+  // ctx.textAlign = 'center';
+  // ctx.textBaseline = 'middle';
+  for (const [key] of eventTileMap) {
+    const [ec, er] = key.split(',').map(Number);
+    const ex = ec * TILE + TILE / 2;
+    const ey = er * TILE + TILE / 2;
+    // ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
+
+    // ctx.beginPath();
+    // ctx.arc(ex, ey, 5, 0, Math.PI * 2);
+    // ctx.fill();
+    // ctx.fillStyle = '#333';
+    // ctx.fillText('!', ex, ey + 0.5);
+  }
+
   const img = images[getCurrentSpriteName()];
   if (!img || !img.complete || img.naturalWidth === 0) return;
 
@@ -244,8 +462,29 @@ function draw() {
 }
 
 function gameLoop() {
-  update();
-  draw();
+  if (fadeState) {
+    draw();
+    fadeState.alpha = Math.min(1, fadeState.alpha + 1 / 60);
+    ctx.fillStyle = `rgba(0,0,0,${fadeState.alpha})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (fadeState.alpha >= 1) {
+      sessionStorage.setItem(
+        'position',
+        JSON.stringify({
+          x: player.x,
+          y: player.y,
+          direction: player.direction,
+        }),
+      );
+      sessionStorage.setItem('eventZone', fadeState.zone);
+      sessionStorage.setItem('status', 'true');
+      window.location.href = `../pages/test.html`;
+      return;
+    }
+  } else {
+    update();
+    draw();
+  }
   requestAnimationFrame(gameLoop);
 }
 

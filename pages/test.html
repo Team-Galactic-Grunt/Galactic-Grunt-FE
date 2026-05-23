@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="title"></div>
+  </body>
+  <script>
+    const status = sessionStorage.getItem('status');
+    if (status !== 'true') {
+      window.location.replace('../pages/index.html');
+    } else {
+      sessionStorage.setItem('status', 'false');
+      const title = document.getElementById('title');
+      title.innerText = sessionStorage.getItem('eventZone') || 'No text found';
+    }
+  </script>
+</html>
