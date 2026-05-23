@@ -5,13 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <link rel="stylesheet" href="../styles/index.css" />
+    <link rel="stylesheet" href="../styles/battle.css" />
   </head>
   <body>
     <!-- <div>test</div> -->
     <div id="battle_change" class="battle_change"></div>
     <div id="wrap">
+      <div>
+        <div class="ev-title" id="ev-title">포켓몬 배틀 시뮬</div>
+        <div class="ev-desc" id="ev-desc">ESC 메뉴</div>
+      </div>
+
+      <div id="esc-menu">
+        <button class="book">도감</button>
+        <button class="bag">가방</button>
+        <button class="report">리포트</button>
+        <button class="setting">설정</button>
+      </div>
+
       <canvas id="game-canvas" width="1080" height="720"></canvas>
     </div>
     <script src="../js/index.js"></script>
+    <script src="../js/battle.js"></script>
   </body>
 </html>
