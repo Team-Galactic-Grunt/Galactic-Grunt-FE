@@ -1,0 +1,21 @@
+#esc-menu {
+  display: none;
+
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  z-index: 100;
+
+  padding: 16px;
+  border-radius: 12px;
+
+  background: rgba(0, 0, 0, 0.8);
+
+  flex-direction: column;
+  gap: 10px;
+}
+
+#esc-menu.show {
+  display: flex;
+}
