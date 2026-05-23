@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>배틀 화면</title>
+    <link rel="stylesheet" href="../styles/index.css" />
+    <link rel="stylesheet" href="../styles/battle.css" />
+  </head>
+  <body class="battle-mode">
+    <main id="battle-screen" aria-hidden="false">
+      <section class="battle-stage">
+        <div class="battle-sky"></div>
+        <div class="battle-haze"></div>
+        <div class="battle-balls" aria-hidden="true">
+          <img src="../assets/images/bag_images/monsterball.png" alt="" />
+          <img src="../assets/images/bag_images/monsterball.png" alt="" />
+          <img src="../assets/images/bag_images/monsterball.png" alt="" />
+          <img src="../assets/images/bag_images/monsterball.png" alt="" />
+          <img src="../assets/images/bag_images/monsterball.png" alt="" />
+          <img src="../assets/images/bag_images/monsterball.png" alt="" />
+        </div>
+        <div class="battle-grass battle-grass--left"></div>
+        <div class="battle-grass battle-grass--right"></div>
+        <div class="battle-fade-overlay" hidden aria-hidden="true"></div>
+        <div class="battle-defeat-banner" hidden aria-hidden="true"></div>
+
+        <div class="battle-panel battle-panel--enemy">
+          <div class="battle-panel__name-row">
+            <span class="battle-name">찌르꼬</span>
+            <span class="battle-gender battle-gender--female" aria-label="female">♀</span>
+            <span class="battle-level">Lv.17</span>
+          </div>
+          <div class="battle-hp-row">
+            <img
+              class="battle-hp-ball"
+              src="../assets/images/bag_images/monsterball.png"
+              alt=""
+              aria-hidden="true"
+            />
+            <span class="battle-hp-label">HP</span>
+            <div class="battle-hp-bar" aria-label="상대 체력">
+              <span class="battle-hp-fill battle-hp-fill--enemy"></span>
+            </div>
+            <span class="battle-hp-value">60/60</span>
+          </div>
+        </div>
+
+        <div class="battle-panel battle-panel--player">
+          <div class="battle-panel__name-row">
+            <span class="battle-name">팽도리</span>
+            <span class="battle-gender battle-gender--male" aria-label="male">♂</span>
+            <span class="battle-level">Lv.42</span>
+          </div>
+          <div class="battle-hp-row">
+            <img
+              class="battle-hp-ball"
+              src="../assets/images/bag_images/monsterball.png"
+              alt=""
+              aria-hidden="true"
+            />
+            <span class="battle-hp-label">HP</span>
+            <div class="battle-hp-bar" aria-label="플레이어 체력">
+              <span class="battle-hp-fill battle-hp-fill--player"></span>
+            </div>
+            <span class="battle-hp-value">83/83</span>
+          </div>
+        </div>
+
+        <img
+          class="battle-monster battle-monster--enemy"
+          src="../jirgo.webp"
+          alt="적 몬스터"
+        />
+        <img
+          class="battle-monster battle-monster--player"
+          src="../pandori.webp"
+          alt="플레이어 몬스터"
+        />
+
+        <div class="battle-ui">
+          <section class="battle-log" aria-live="polite" aria-label="battle information">
+            <ul class="battle-log__list" id="battle-log-list"></ul>
+          </section>
+          <div class="battle-actions" aria-label="battle command menu">
+            <button type="button" class="battle-action battle-action--pink" data-tab="skills">싸운다</button>
+            <button type="button" class="battle-action battle-action--orange" data-tab="items">가방</button>
+            <button type="button" class="battle-action battle-action--green" data-tab="pokemon">포켓몬</button>
+            <button type="button" class="battle-action battle-action--blue" data-tab="run">도망</button>
+          </div>
+        </div>
+
+        <div
+          class="battle-submenu"
+          id="battle-submenu"
+          hidden
+          aria-live="polite"
+        >
+          <div class="battle-submenu__header">
+            <span class="battle-submenu__title" id="battle-submenu-title">기술 목록</span>
+          </div>
+          <ul class="battle-submenu__list" id="battle-submenu-list"></ul>
+        </div>
+
+        <button class="battle-back" id="battle-close" type="button">맵으로 돌아가기</button>
+      </section>
+      <div class="battle-defeat-dialog" id="battle-defeat-dialog" hidden aria-hidden="true">
+        <div class="battle-defeat-dialog__card">
+          <p class="battle-defeat-dialog__text" id="battle-defeat-text">회복하시겠습니까?</p>
+          <div class="battle-defeat-dialog__actions">
+            <button type="button" class="battle-defeat-dialog__button battle-defeat-dialog__button--yes" id="battle-defeat-yes">예</button>
+            <button type="button" class="battle-defeat-dialog__button battle-defeat-dialog__button--no" id="battle-defeat-no">아니오</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="../js/battle-data.js"></script>
+    <script src="../js/battle-view.js"></script>
+    <script src="../js/battle-combat.js"></script>
+    <script src="../js/battle.js"></script>
+  </body>
+</html>
