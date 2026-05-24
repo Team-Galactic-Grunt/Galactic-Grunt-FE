@@ -7,6 +7,8 @@
   const encounterScriptId = "encounter-script";
   const playerHpStorageKey = "galactic-grunt.playerHp";
   const playerHealPendingKey = "galactic-grunt.playerHealPending";
+  const battleZoneStorageKey = "galactic-grunt.battleZone";
+  const BATTLE_ZONE_THEMES = new Set(["grass", "snow", "sea", "cave"]);
 
   const elements = {
     battleLogList: document.getElementById("battle-log-list"),
@@ -36,7 +38,10 @@
 
   function readStoredPlayerHp(fallbackHp, maxHp) {
     if (!window.sessionStorage) return fallbackHp;
-    const rawHp = Number(window.sessionStorage.getItem(playerHpStorageKey));
+    const rawText = window.sessionStorage.getItem(playerHpStorageKey);
+    if (rawText === null) return fallbackHp;
+
+    const rawHp = Number(rawText);
     if (!Number.isFinite(rawHp)) return fallbackHp;
     return Math.max(0, Math.min(rawHp, maxHp));
   }
@@ -59,6 +64,28 @@
   function isPlayerHealPending() {
     if (!window.sessionStorage) return false;
     return window.sessionStorage.getItem(playerHealPendingKey) === "1";
+  }
+
+  function normalizeBattleZone(zone) {
+    if (zone === "grass1" || zone === "grass2") return "grass";
+    if (zone === "water") return "sea";
+    if (BATTLE_ZONE_THEMES.has(zone)) return zone;
+    return "grass";
+  }
+
+  function readBattleZone() {
+    const params = new URLSearchParams(window.location.search);
+    const fromQuery = params.get("zone");
+    const fromStorage = window.sessionStorage
+      ? window.sessionStorage.getItem(battleZoneStorageKey)
+      : null;
+
+    return normalizeBattleZone(fromQuery || fromStorage || "grass");
+  }
+
+  function writeBattleZone(zone) {
+    if (!window.sessionStorage) return;
+    window.sessionStorage.setItem(battleZoneStorageKey, normalizeBattleZone(zone));
   }
 
   function ensureEncounterScript() {
@@ -84,6 +111,13 @@
 
   if (!data || !window.createBattleView || !window.createBattleCombat) {
     return;
+  }
+
+  const battleZone = readBattleZone();
+  writeBattleZone(battleZone);
+  document.body.dataset.battleZone = battleZone;
+  if (battleScreen) {
+    battleScreen.dataset.battleZone = battleZone;
   }
 
   const enemyName =
@@ -123,6 +157,10 @@
     },
   };
 
+  if (!window.sessionStorage?.getItem(playerHpStorageKey)) {
+    writeStoredPlayerHp(state.player.currentHp);
+  }
+
   const view = window.createBattleView(elements, state, data);
   const combat = window.createBattleCombat(elements, state, data, view);
 
@@ -138,7 +176,8 @@
   }
 
   function goToBattlePage() {
-    window.location.href = "./battle.html";
+    writeBattleZone("grass");
+    window.location.href = "./battle.html?zone=grass";
   }
 
   function goToMapPage() {

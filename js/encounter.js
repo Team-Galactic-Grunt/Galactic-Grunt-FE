@@ -6,22 +6,64 @@
   const TILE = 24;
   const CHANCE_RATE = 0.1;
   const SCAN_INTERVAL_MS = 140;
-  const ACTIVE_BATTLE_ZONES = new Set(['grass']);
+  const BATTLE_ZONE_STORAGE_KEY = 'galactic-grunt.battleZone';
 
-  const BATTLE_ZONES = {
-    grass: [
-      { x: 78, y: 206, w: 238, h: 238 },
-      { x: 320, y: 348, w: 248, h: 200 },
-      { x: 736, y: 276, w: 164, h: 92 },
-      { x: 620, y: 484, w: 302, h: 178 },
+  const BATTLE_ZONE_LAYOUTS = {
+    grass1: [
+      { c: 4, r: 8, w: 10, h: 2 },
+      { c: 4, r: 10, w: 8, h: 4 },
+      { c: 4, r: 14, w: 6, h: 2 },
     ],
-    water: [
-      { x: 96, y: 548, w: 252, h: 128 },
+    grass2: [
+      { c: 18, r: 13, w: 5, h: 1 },
+      { c: 16, r: 14, w: 9, h: 1 },
+      { c: 15, r: 15, w: 11, h: 4 },
+    ],
+    snow: [
+      { c: 26, r: 3, w: 7, h: 1 },
+      { c: 24, r: 4, w: 9, h: 2 },
+      { c: 24, r: 6, w: 6, h: 1 },
+      { c: 32, r: 6, w: 1, h: 1 },
+      { c: 24, r: 7, w: 2, h: 1 },
+      { c: 30, r: 7, w: 3, h: 1 },
     ],
     sea: [
-      { x: 928, y: 0, w: 152, h: 744 },
+      { c: 31, r: 11, w: 3, h: 1 },
+      { c: 31, r: 12, w: 5, h: 2 },
+      { c: 4, r: 20, w: 8, h: 1 },
+      { c: 4, r: 21, w: 11, h: 4 },
+    ],
+    cave: [
+      { c: 33, r: 19, w: 3, h: 1 },
+      { c: 27, r: 20, w: 9, h: 1 },
+      { c: 25, r: 21, w: 11, h: 1 },
+      { c: 23, r: 22, w: 13, h: 1 },
+      { c: 23, r: 23, w: 4, h: 2 },
+      { c: 29, r: 23, w: 7, h: 2 },
     ],
   };
+
+  const BATTLE_ZONE_THEME = {
+    grass1: 'grass',
+    grass2: 'grass',
+    snow: 'snow',
+    sea: 'sea',
+    cave: 'cave',
+  };
+
+  const ACTIVE_BATTLE_ZONES = new Set(Object.keys(BATTLE_ZONE_LAYOUTS));
+
+  const BATTLE_ZONES = Object.fromEntries(
+    Object.entries(BATTLE_ZONE_LAYOUTS).map(([zoneType, rects]) => [
+      zoneType,
+      rects.map(({ c, r, w, h }) => ({
+        x: c * TILE,
+        y: r * TILE,
+        w: w * TILE,
+        h: h * TILE,
+      })),
+    ]),
+  );
 
   const offscreen = document.createElement('canvas');
   const offscreenCtx = offscreen.getContext('2d', { willReadFrequently: true });
@@ -103,6 +145,18 @@
     return null;
   }
 
+  function saveBattleZone(zoneType) {
+    const battleZone = BATTLE_ZONE_THEME[zoneType] || 'grass';
+
+    try {
+      window.sessionStorage?.setItem(BATTLE_ZONE_STORAGE_KEY, battleZone);
+    } catch {
+      // Ignore storage failures and keep the redirect working.
+    }
+
+    return battleZone;
+  }
+
   function findPlayerFootPoint() {
     const { width, height } = canvas;
     offscreen.width = width;
@@ -159,7 +213,8 @@
 
       if (Math.random() < CHANCE_RATE) {
         isTransitioning = true;
-        window.location.href = './battle.html';
+        const battleZone = saveBattleZone(zoneType);
+        window.location.href = `./battle.html?zone=${encodeURIComponent(battleZone)}`;
       }
       return;
     }
