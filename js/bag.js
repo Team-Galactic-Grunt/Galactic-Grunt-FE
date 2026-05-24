@@ -3,20 +3,18 @@
 // pp.js의 최상단 데이터 부분만 덮어씌워 주세요
 
 const pockets = [
-  { id: "items", name: "도구", img: "../assets/images/bag_images/item_icon.png" },
-  { id: "medicine", name: "회복약", img: "../assets/images/bag_images/heal_icon.png" },
-  { id: "pokeballs", name: "몬스터볼", img: "../assets/images/bag_images/ball_icon.png" },
-//   { id: "tmhm", name: "기술머신", img: "../assets/images/bag_images/disc_icon.png" },
-  { id: "berries", name: "나무열매", img: "../assets/images/bag_images/fruit_icon.png" },
-  { id: "keyitems", name: "중요한물건", img: "../assets/images/bag_images/important_icon.png" }
+  { id: "medicine", name: "회복약", img: "../assets/images/bag_images/heal_icon.png", bagImg: "../assets/images/bag_images/medicine_bag.png" },
+  { id: "pokeballs", name: "몬스터볼", img: "../assets/images/bag_images/ball_icon.png", bagImg: "../assets/images/bag_images/pokeballs_bag.png" },
+  { id: "berries", name: "나무열매", img: "../assets/images/bag_images/fruit_icon.png", bagImg: "../assets/images/bag_images/berries_bag.png" },
+  { id: "keyitems", name: "중요한물건", img: "../assets/images/bag_images/important_icon.png", bagImg: "../assets/images/bag_images/keyitems_bag.png" }
 ];
 
 const inventoryData = {
-  items: [
-    { name: "금강옥", count: 1, icon: "../assets/images/bag_images/adamant_orb.png", desc: "디아루가에게 지니게 하면 드래곤과 강철 타입 기술의 위력이 올라간다." },
-    { name: "백옥", count: 1, icon: "../assets/images/bag_images/lustrous_orb.png", desc: "펄기아에게 지니게 하면 드래곤과 물 타입 기술의 위력이 올라간다." },
-    { name: "백금옥", count: 1, icon: "../assets/images/bag_images/griseous_orb.png", desc: "기라티나에게 지니게 하면 드래곤과 고스트 타입 기술의 위력이 올라가며, 오리진폼으로 변한다." }
-  ],
+  // items: [
+  //   { name: "금강옥", count: 1, icon: "../assets/images/bag_images/adamant_orb.png", desc: "디아루가에게 지니게 하면 드래곤과 강철 타입 기술의 위력이 올라간다." },
+  //   { name: "백옥", count: 1, icon: "../assets/images/bag_images/lustrous_orb.png", desc: "펄기아에게 지니게 하면 드래곤과 물 타입 기술의 위력이 올라간다." },
+  //   { name: "백금옥", count: 1, icon: "../assets/images/bag_images/griseous_orb.png", desc: "기라티나에게 지니게 하면 드래곤과 고스트 타입 기술의 위력이 올라가며, 오리진폼으로 변한다." }
+  // ],
   medicine: [
     { name: "고급상처약", count: 15, icon: "../assets/images/bag_images/hyper_potion.png", desc: "포켓몬 1마리의 HP를 200 회복한다." },
     { name: "기력의덩어리", count: 2, icon: "../assets/images/bag_images/max_revive.png", desc: "기절한 포켓몬 1마리를 HP가 모두 회복된 상태로 살린다." }
@@ -33,7 +31,10 @@ const inventoryData = {
     { name: "자뭉열매", count: 8, icon: "../assets/images/bag_images/sitrus_berry.png", desc: "포켓몬에게 지니게 하거나 사용하면 HP를 조금 회복한다." }
   ],
   keyitems: [
-    { name: "천계의피리", count: 1, icon: "../assets/images/bag_images/azure_flute.png", desc: "천공에 울려 퍼지는 음색을 낸다는 피리. 누가 만들었는지 알 수 없다." }
+    { name: "천계의피리", count: 1, icon: "../assets/images/bag_images/azure_flute.png", desc: "천공에 울려 퍼지는 음색을 낸다는 피리. 누가 만들었는지 알 수 없다." },
+    { name: "금강옥", count: 1, icon: "../assets/images/bag_images/adamant_orb.png", desc: "디아루가에게 지니게 하면 드래곤과 강철 타입 기술의 위력이 올라간다." },
+    { name: "백옥", count: 1, icon: "../assets/images/bag_images/lustrous_orb.png", desc: "펄기아에게 지니게 하면 드래곤과 물 타입 기술의 위력이 올라간다." },
+    { name: "백금옥", count: 1, icon: "../assets/images/bag_images/griseous_orb.png", desc: "기라티나에게 지니게 하면 드래곤과 고스트 타입 기술의 위력이 올라가며, 오리진폼으로 변한다." }
   ]
 };
 
@@ -68,11 +69,21 @@ for (let i = 0; i < REPEAT_SETS; i++) {
 const pocketIconElements = document.querySelectorAll(".p-icon");
 
 const updateUI = () => {
-  // 현재 글로벌 인덱스를 진짜 카테고리 인덱스로 변환
   const realIndex = getRealIndex(currentGlobalIndex);
   const currentPocket = pockets[realIndex];
 
   pocketName.innerText = currentPocket.name;
+
+  const bagSprite = document.querySelector('.bag-sprite');
+  if (bagSprite && currentPocket.bagImg) {
+    // 배경 이미지 경로를 정확히 적용
+    bagSprite.style.backgroundImage = `url('${currentPocket.bagImg}')`;
+    bagSprite.style.backgroundPosition = 'center';
+    bagSprite.style.backgroundSize = 'contain';
+  }
+
+
+
 
   // 600개의 아이콘 중 현재 선택된 딱 하나의 아이콘만 확대
   pocketIconElements.forEach((el, idx) => {

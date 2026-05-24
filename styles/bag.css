@@ -105,8 +105,11 @@ body {
   height: 100%;
 }
 
+/* bag.css 파일에서 .dp-bag-blue 클래스 수정 */
 .dp-bag-blue {
-  background-position: -234px -14px;
+  /* background-image: url('...'); 이 줄을 삭제하거나 주석 처리하세요 */
+  background-repeat: no-repeat;
+  /* ... 나머지 속성은 유지 ... */
 }
 
 .pocket-selector-bg {
