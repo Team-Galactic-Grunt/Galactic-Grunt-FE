@@ -110,7 +110,13 @@ code {
   background: var(--code-bg);
 } */
 
+@font-face {
+  font-family: 'pokemon_font';
+  src: url('./assets/fonts/pokemon-dppt.woff2') format('woff2');
+}
+
 body {
   margin: 0;
   padding: 0;
+  font: 'pokemon_font', sans-serif;
 }

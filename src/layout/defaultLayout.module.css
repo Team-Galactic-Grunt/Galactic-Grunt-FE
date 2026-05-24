@@ -1,0 +1,19 @@
+.wrap {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 1180px;
+  height: 100vh;
+  background-color: #525252;
+  padding: 0 50px;
+}
+
+.wrap_outlet {
+  width: 1080px;
+  height: 720px;
+  background-color: #fff;
+  /* border: 5px solid #000; */
+  border-radius: 10px;
+  margin: 40px auto;
+}

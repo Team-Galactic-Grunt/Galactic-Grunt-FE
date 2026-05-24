@@ -1,0 +1,50 @@
+.battle_change {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.bc_cell {
+  background: #000;
+  transform: scale(0);
+  transform-origin: center;
+}
+
+.wrap {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  height: 720px;
+  width: 1080px;
+  border-radius: 10px;
+  border: 5px solid #000;
+  /* border: 1px solid red; */
+}
+
+.menu {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* transform: translate(-50%, 0%); */
+  top: 6px;
+  right: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 5px solid #b3c6e1;
+  outline: 3px solid #757575;
+  width: 200px;
+  /* height: calc(100% - 40px); */
+  height: fit-content;
+  border-radius: 8px;
+  padding: 20px;
+  z-index: 990;
+  font-family: 'pokemon_font';
+}
