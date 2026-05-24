@@ -849,9 +849,10 @@ function update() {
             }),
           );
           sessionStorage.setItem('eventZone', fadeState.zone);
+          sessionStorage.setItem('battleZone', fadeState.zone);
           sessionStorage.setItem('status', 'true');
           stopLoop();
-          window.location.href = `../pages/test.html`;
+          window.location.href = `../pages/battle.html?zone=${encodeURIComponent(fadeState.zone)}`;
         });
         return;
       }
