@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="title"></div>
+    <div id="hp"></div>
+    <button type="button" id="decrease-hp" onclick="decreaseHp()">
+      hp 감소
+    </button>
+  </body>
+  <script>
+    const status = sessionStorage.getItem('status');
+    if (status !== 'true') {
+      window.location.replace('../pages/index.html');
+    } else {
+      sessionStorage.setItem('status', 'false');
+      console.log('status:', status);
+      const title = document.getElementById('title');
+      const hp = document.getElementById('hp');
+      let fullHp = 100;
+      title.innerText = sessionStorage.getItem('eventZone') || 'No text found';
+      hp.innerText = `HP: ${fullHp}`; // 예시로 HP를 100으로 설정
+
+      function decreaseHp() {
+        fullHp -= 10; // HP를 10씩 감소
+        if (fullHp < 0) fullHp = 0; // HP가 음수가 되지 않도록 처리
+        hp.innerText = `HP: ${fullHp}`;
+      }
+    }
+  </script>
+</html>
