@@ -238,7 +238,7 @@ export default function MapPage() {
           const next = (menuIndexRef.current + 1) % MENU_ITEMS.length;
           menuIndexRef.current = next;
           setMenuIndex(next);
-        } else if (e.key === 'z') {
+        } else if (e.key === 'z' || e.key === 'Z') {
           console.log('선택:', MENU_ITEMS[menuIndexRef.current]);
           if (MENU_ITEMS[menuIndexRef.current] === '닫는다') {
             menuOpenRef.current = false;
@@ -278,7 +278,7 @@ export default function MapPage() {
           } else if (MENU_ITEMS[menuIndexRef.current] === '리포트') {
             alert('리포트 화면은 아직 구현되지 않았습니다.');
           }
-        } else if (e.key === 'x') {
+        } else if (e.key === 'x' || e.key === 'X') {
           menuOpenRef.current = false;
           setMenuOpen(false);
           menuIndexRef.current = 0;
@@ -288,16 +288,22 @@ export default function MapPage() {
         return;
       }
 
-      if (e.key === 'c' && !e.repeat) {
+      if (e.key === 'c' || e.key === 'C') {
         menuOpenRef.current = true;
         menuIndexRef.current = 0;
         setMenuIndex(0);
         setMenuOpen(true);
       }
       if (
-        ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Escape'].includes(
-          e.key,
-        )
+        [
+          'ArrowUp',
+          'ArrowDown',
+          'ArrowLeft',
+          'ArrowRight',
+          'Escape',
+          'x',
+          'X',
+        ].includes(e.key)
       ) {
         e.preventDefault();
       }

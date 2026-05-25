@@ -116,8 +116,8 @@ const inventoryData = {
 const REPEAT_SETS = 100;
 const POCKETS_LEN = pockets.length;
 const INIT_INDEX = Math.floor(REPEAT_SETS / 2) * POCKETS_LEN;
-const ICON_WIDTH = 34;
-const VIEWPORT_W = 120;
+const ICON_WIDTH = 46;
+const VIEWPORT_W = 360;
 
 const getRealIndex = (index) =>
   ((index % POCKETS_LEN) + POCKETS_LEN) % POCKETS_LEN;
@@ -179,7 +179,7 @@ export default function BagPage() {
       {/* 상단 구역 */}
       <div className={styles['top-section']}>
         <div className={styles['left-panel']}>
-          <div className={styles['bag-title']}>BAG</div>
+          <div className={styles['bag-title']}>가방</div>
           <div className={styles['bag-image-container']}>
             <div
               className={`${styles['bag-sprite']} ${styles['dp-bag-blue']}`}
@@ -205,7 +205,7 @@ export default function BagPage() {
                     return (
                       <img
                         key={idx}
-                        className={`p-icon${idx === globalIndex ? ' active' : ''}`}
+                        className={`${styles['p-icon']}${idx === globalIndex ? ` ${styles['active']}` : ''}`}
                         src={pocket.img}
                         alt={pocket.name}
                       />
@@ -226,10 +226,24 @@ export default function BagPage() {
             <div
               key={idx}
               ref={idx === itemIndex ? focusedRowRef : null}
+              style={{ display: 'flex', alignItems: 'center' }}
               className={`${styles['item-row']}${idx === itemIndex ? ` ${styles['focused']}` : ''}`}
             >
               <span>{item.name}</span>
-              <span>x {item.count}</span>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ display: 'inline-block', height: '45px' }}>
+                  x
+                </span>
+                <span
+                  style={{
+                    width: '45px',
+                    display: 'inline-block',
+                    textAlign: 'right',
+                  }}
+                >
+                  {item.count}
+                </span>
+              </span>
             </div>
           ))}
         </div>

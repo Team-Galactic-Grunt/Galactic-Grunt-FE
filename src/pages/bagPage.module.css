@@ -28,7 +28,7 @@
   width: 1028px;
   height: 560px;
   margin: 0 auto;
-  border: 1px solid red;
+  /* border: 1px solid red; */
   background-image: url('/src/assets/images/bag_images/bag_container.png');
   background-size: 100%;
   background-color: black;
@@ -42,21 +42,28 @@
 .left-panel {
   position: absolute;
   width: 398px;
-  border: 1px solid rgb(255, 0, 132);
+  /* border: 1px solid rgb(255, 0, 132); */
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .bag-title {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  transform: translateX(0);
   background: #aadeff;
-  border: 2px solid #fff;
+  border: 4px solid #88b2cc;
   border-radius: 10px;
-  padding: 0px 15px;
+  padding: 13px 50px 15px 50px;
   font-weight: 900;
-  color: white;
-  text-shadow: 1px 1px 0 #555;
-  margin-bottom: 5px;
+  color: rgb(236, 236, 236);
+  font-size: 20px;
+  line-height: 20px;
+  text-shadow: 2px 2px 0px #88b2cc;
+  font-family: 'pokemon_font';
+  /* margin-bottom: 5px; */
 }
 
 .bag-image-container {
@@ -69,13 +76,15 @@
 }
 
 .bag-sprite {
+  position: absolute;
+  top: 38px;
   background-image: url('http://pokefans.net/downloads/dp/presents/dppro_bags.png');
   background-repeat: no-repeat;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  width: 100%;
+  /* image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges; */
+  /* image-rendering: pixelated; */
+  /* image-rendering: crisp-edges; */
+  width: 90%;
   height: 100%;
 }
 
@@ -96,15 +105,19 @@
   align-items: center;
   border: 2px solid transparent;
   box-sizing: border-box;
+  margin-top: 30px;
 }
 
 .pocket-icons-viewport {
-  width: 350px;
+  width: 360px;
+  height: 50px;
   overflow: hidden;
-  /* background: #5c7ee6; */
+  background: #5c7ee6;
   border-radius: 3px;
   margin-bottom: 5px;
   position: relative;
+  box-sizing: border-box;
+  padding: 2px 0 0 0;
 }
 
 .pocket-icons-viewport::after {
@@ -113,7 +126,7 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 32px;
+  width: 50px;
   height: 100%;
   background: rgba(255, 255, 255, 0.25);
   border-radius: 3px;
@@ -129,8 +142,8 @@
 }
 
 .p-icon {
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   margin: 0 5px;
   opacity: 0.4;
   transition: 0.2s;
@@ -189,7 +202,7 @@
   /* width: calc(100% - 85px); */
   height: 508px;
   width: 585px;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   box-sizing: border-box;
   /* margin: 26px 8px 10px 70px; */
   top: 27px;
@@ -216,8 +229,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 15px 5px 15px;
-  font-size: 24px;
+  padding: 0 30px 5px 30px;
+  font-size: 26px;
   font-family: 'pokemon_font';
   font-weight: 700;
   box-sizing: border-box;
