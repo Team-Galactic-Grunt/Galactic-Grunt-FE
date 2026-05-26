@@ -38,7 +38,7 @@ export const DEFAULT_BAG = {
   pokeballs: [
     {
       id: 'monster_ball',
-      name: 'Pokeball',
+      name: 'Poke Ball',
       count: 20,
       icon: monsterBallIcon,
       desc: 'A device for catching wild Pokemon.',

@@ -1,34 +1,117 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { loadAdminState } from '../admin/adminStorage';
 import styles from './bagPage.module.css';
 
 const pockets = [
   {
     id: 'medicine',
-    name: '의료품',
+    name: '?뚮났??',
     img: '/src/assets/images/bag_images/heal_icon.png',
     bagImg: '/src/assets/images/bag_images/medicine_bag.png',
   },
   {
     id: 'pokeballs',
-    name: '몬스터볼',
+    name: '紐ъ뒪?곕낵',
     img: '/src/assets/images/bag_images/ball_icon.png',
     bagImg: '/src/assets/images/bag_images/pokeballs_bag.png',
   },
   {
     id: 'berries',
-    name: '나무열매',
+    name: '?섎Т?대ℓ',
     img: '/src/assets/images/bag_images/fruit_icon.png',
     bagImg: '/src/assets/images/bag_images/berries_bag.png',
   },
   {
     id: 'keyitems',
-    name: '중요물건',
+    name: '以묒슂?쒕Ъ嫄?',
     img: '/src/assets/images/bag_images/important_icon.png',
     bagImg: '/src/assets/images/bag_images/keyitems_bag.png',
   },
 ];
+
+const inventoryData = {
+  medicine: [
+    {
+      name: '怨좉툒?곸쿂??',
+      count: 15,
+      icon: '/src/assets/images/bag_images/hyper_potion.png',
+      desc: '?ъ폆紐?1留덈━??HP瑜?200 ?뚮났?쒕떎.',
+    },
+    {
+      name: '湲곕젰?섎뜦?대━',
+      count: 2,
+      icon: '/src/assets/images/bag_images/max_revive.png',
+      desc: '湲곗젅???ъ폆紐?1留덈━瑜?HP媛 紐⑤몢 ?뚮났???곹깭濡??대┛??',
+    },
+  ],
+  pokeballs: [
+    {
+      name: '紐ъ뒪?곕낵',
+      count: 20,
+      icon: '/src/assets/images/bag_images/monsterball.png',
+      desc: `?쇱깮 ?ъ폆紐ъ뿉寃??섏졇???↔린 ?꾪븳 蹂?\n罹≪뒓?앹쑝濡??섏뼱 ?덈떎.`,
+    },
+    {
+      name: '?섑띁蹂?',
+      count: 10,
+      icon: '/src/assets/images/bag_images/superball.png',
+      desc: `紐ъ뒪?곕낵蹂대떎 ?ы쉷瑜좎씠 ?믪? 醫뗭? 蹂?`,
+    },
+    {
+      name: '?섏씠?쇰낵',
+      count: 5,
+      icon: '/src/assets/images/bag_images/hyperball.png',
+      desc: `?섑띁蹂쇰낫???ы쉷瑜좎씠 ?믪? 留ㅼ슦 醫뗭? 蹂?`,
+    },
+  ],
+  tmhm: [],
+  berries: [
+    {
+      name: '?ㅻ젋?대ℓ',
+      count: 12,
+      icon: '/src/assets/images/bag_images/oran_berry.png',
+      desc: `?ъ폆紐ъ뿉寃?吏?덇쾶 ?섍굅???ъ슜?섎㈃\nHP瑜?10 ?뚮났?쒕떎.`,
+    },
+    {
+      name: '?쒕가?대ℓ',
+      count: 5,
+      icon: '/src/assets/images/bag_images/presim_berry.png',
+      desc: `?ъ폆紐ъ뿉寃?吏?덇쾶 ?섍굅???ъ슜?섎㈃\n?쇰? ?곹깭瑜??뚮났?쒕떎.`,
+    },
+    {
+      name: '?먮춬?대ℓ',
+      count: 8,
+      icon: '/src/assets/images/bag_images/sitrus_berry.png',
+      desc: `?ъ폆紐ъ뿉寃?吏?덇쾶 ?섍굅???ъ슜?섎㈃\nHP瑜?議곌툑 ?뚮났?쒕떎.`,
+    },
+  ],
+  keyitems: [
+    {
+      name: '泥쒓퀎?섑뵾由?',
+      count: 1,
+      icon: '/src/assets/images/bag_images/azure_flute.png',
+      desc: `泥쒓났???몃젮 ?쇱????뚯깋???몃떎???쇰━.\n?꾧? 留뚮뱾?덈뒗吏 ?????녿떎.`,
+    },
+    {
+      name: '湲덇컯??',
+      count: 1,
+      icon: '/src/assets/images/bag_images/adamant_orb.png',
+      desc: `?붿븘猷④??먭쾶 吏?덇쾶 ?섎㈃\n?쒕옒怨ㅺ낵 媛뺤쿋 ???湲곗닠???꾨젰???щ씪媛꾨떎.`,
+    },
+    {
+      name: '諛깆삦',
+      count: 1,
+      icon: '/src/assets/images/bag_images/lustrous_orb.png',
+      desc: `?꾧린?꾩뿉寃?吏?덇쾶 ?섎㈃\n?쒕옒怨ㅺ낵 臾????湲곗닠???꾨젰???щ씪媛꾨떎.`,
+    },
+    {
+      name: '諛깃툑??',
+      count: 1,
+      icon: '/src/assets/images/bag_images/griseous_orb.png',
+      desc: `湲곕씪?곕굹?먭쾶 吏?덇쾶 ?섎㈃\n?쒕옒怨ㅺ낵 怨좎뒪?????湲곗닠???꾨젰???щ씪媛硫?\n?ㅻ━吏꾪뤌?쇰줈 蹂?쒕떎.`,
+    },
+  ],
+};
 
 const REPEAT_SETS = 100;
 const POCKETS_LEN = pockets.length;
@@ -43,31 +126,14 @@ export default function BagPage() {
   const navigate = useNavigate();
   const [globalIndex, setGlobalIndex] = useState(INIT_INDEX);
   const [itemIndex, setItemIndex] = useState(0);
-  const [bagState, setBagState] = useState(() => loadAdminState().bag);
   const focusedRowRef = useRef(null);
 
   const realIndex = getRealIndex(globalIndex);
   const currentPocket = pockets[realIndex];
-  const items = bagState[currentPocket.id] ?? [];
-  const safeItemIndex = items.length === 0 ? 0 : Math.min(itemIndex, items.length - 1);
-  const currentItem = items[safeItemIndex];
+  const items = inventoryData[currentPocket.id] ?? [];
+  const currentItem = items[itemIndex];
 
   const translateX = VIEWPORT_W / 2 - ICON_WIDTH / 2 - globalIndex * ICON_WIDTH;
-
-  useEffect(() => {
-    const syncBagState = () => {
-      setBagState(loadAdminState().bag);
-    };
-
-    syncBagState();
-    window.addEventListener('storage', syncBagState);
-    window.addEventListener('focus', syncBagState);
-
-    return () => {
-      window.removeEventListener('storage', syncBagState);
-      window.removeEventListener('focus', syncBagState);
-    };
-  }, []);
 
   useEffect(() => {
     focusedRowRef.current?.scrollIntoView({ block: 'nearest' });
@@ -95,10 +161,8 @@ export default function BagPage() {
         setGlobalIndex((prev) => prev - 1);
         setItemIndex(0);
       } else if (e.key === 'ArrowDown') {
-        if (items.length === 0) return;
         setItemIndex((prev) => Math.min(prev + 1, items.length - 1));
       } else if (e.key === 'ArrowUp') {
-        if (items.length === 0) return;
         setItemIndex((prev) => Math.max(prev - 1, 0));
       }
     };
@@ -122,7 +186,9 @@ export default function BagPage() {
               }}
             />
           </div>
-          <div className={styles['pocket-selector-bg']}>
+          <div
+            className={styles['pocket-selector-bg']}
+          >
             <div className={styles['pocket-icons-viewport']}>
               <div
                 className={styles['pocket-icons']}
@@ -143,21 +209,25 @@ export default function BagPage() {
                 )}
               </div>
             </div>
-            <div className={styles['pocket-name-box']}>{currentPocket.name}</div>
+            <div className={styles['pocket-name-box']}>
+              {currentPocket.name}
+            </div>
           </div>
         </div>
 
         <div className={styles['item-list-container']} id='item-list'>
           {items.map((item, idx) => (
             <div
-              key={item.id ?? idx}
-              ref={idx === safeItemIndex ? focusedRowRef : null}
+              key={idx}
+              ref={idx === itemIndex ? focusedRowRef : null}
               style={{ display: 'flex', alignItems: 'center' }}
-              className={`${styles['item-row']}${idx === safeItemIndex ? ` ${styles['focused']}` : ''}`}
+              className={`${styles['item-row']}${idx === itemIndex ? ` ${styles['focused']}` : ''}`}
             >
               <span>{item.name}</span>
               <span style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ display: 'inline-block', height: '45px' }}>x</span>
+                <span style={{ display: 'inline-block', height: '45px' }}>
+                  x
+                </span>
                 <span
                   style={{
                     width: '45px',
@@ -187,11 +257,11 @@ export default function BagPage() {
               }}
             />
           ) : (
-            <span>?</span>
+            <span>?え</span>
           )}
         </div>
         <div className={styles['desc-text-box']}>
-          {currentItem ? currentItem.desc : '아이템을 선택해주세요.'}
+          {currentItem ? currentItem.desc : '?꾩씠?쒖쓣 ?좏깮?댁＜?몄슂.'}
         </div>
       </div>
     </div>
