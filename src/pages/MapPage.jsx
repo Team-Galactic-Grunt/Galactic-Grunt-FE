@@ -92,7 +92,7 @@ const spriteMap = {
   },
 };
 
-const MENU_ITEMS = ['포켓몬', '도감', '가방', '리포트', '닫는다'];
+const MENU_ITEMS = ['포켓몬', '도감', '가방', '리포트', '관리자', '닫는다'];
 
 // --- 유틸리티 ---
 function zoneToCells(zone) {
@@ -240,12 +240,9 @@ export default function MapPage() {
           setMenuIndex(next);
         } else if (e.key === 'z' || e.key === 'Z') {
           console.log('선택:', MENU_ITEMS[menuIndexRef.current]);
-          if (MENU_ITEMS[menuIndexRef.current] === '닫는다') {
-            menuOpenRef.current = false;
-            setMenuOpen(false);
-            menuIndexRef.current = 0;
-            setMenuIndex(0);
-          } else if (MENU_ITEMS[menuIndexRef.current] === '포켓몬') {
+          const selectedItem = MENU_ITEMS[menuIndexRef.current];
+
+          if (selectedItem === '포켓몬') {
             sessionStorage.setItem(
               'position',
               JSON.stringify({
@@ -255,7 +252,7 @@ export default function MapPage() {
               }),
             );
             navigate('/pokemon');
-          } else if (MENU_ITEMS[menuIndexRef.current] === '도감') {
+          } else if (selectedItem === '도감') {
             sessionStorage.setItem(
               'position',
               JSON.stringify({
@@ -265,7 +262,7 @@ export default function MapPage() {
               }),
             );
             navigate('/pokedex');
-          } else if (MENU_ITEMS[menuIndexRef.current] === '가방') {
+          } else if (selectedItem === '가방') {
             sessionStorage.setItem(
               'position',
               JSON.stringify({
@@ -275,8 +272,23 @@ export default function MapPage() {
               }),
             );
             navigate('/bag');
-          } else if (MENU_ITEMS[menuIndexRef.current] === '리포트') {
+          } else if (selectedItem === '리포트') {
             alert('리포트 화면은 아직 구현되지 않았습니다.');
+          } else if (selectedItem === '관리자') {
+            sessionStorage.setItem(
+              'position',
+              JSON.stringify({
+                x: playerRef.current.x,
+                y: playerRef.current.y,
+                direction: playerRef.current.direction,
+              }),
+            );
+            navigate('/admin');
+          } else if (selectedItem === '닫는다') {
+            menuOpenRef.current = false;
+            setMenuOpen(false);
+            menuIndexRef.current = 0;
+            setMenuIndex(0);
           }
         } else if (e.key === 'x' || e.key === 'X') {
           menuOpenRef.current = false;

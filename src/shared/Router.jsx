@@ -5,6 +5,7 @@ import BattlePage from '../pages/BattlePage';
 import BagPage from '../pages/BagPage';
 import PokemonPage from '../pages/PokemonPage';
 import DexPage from '../pages/DexPage';
+import AdminPage from '../admin/AdminPage';
 import DefaultLayout from '../layout/DefaultLayout';
 
 export function Router() {
@@ -17,6 +18,7 @@ export function Router() {
         <Route path='/bag' element={<BagPage />} />
         <Route path='/pokemon' element={<PokemonPage />} />
         <Route path='/pokedex' element={<DexPage />} />
+        <Route path='/admin' element={<AdminPage />} />
       </Route>
     </Routes>
   );
