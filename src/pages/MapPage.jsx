@@ -92,7 +92,7 @@ const spriteMap = {
   },
 };
 
-const MENU_ITEMS = ['포켓몬', '도감', '가방', '리포트', '닫는다'];
+const MENU_ITEMS = ['포켓몬', '도감', '가방', '리포트', '???', '닫는다'];
 
 // --- 유틸리티 ---
 function zoneToCells(zone) {
@@ -255,6 +255,17 @@ export default function MapPage() {
               }),
             );
             navigate('/pokemon');
+          } else if (MENU_ITEMS[menuIndexRef.current] === '???') {
+            // sessionStorage.setItem(
+            //   'position',
+            //   JSON.stringify({
+            //     x: playerRef.current.x,
+            //     y: playerRef.current.y,
+            //     direction: playerRef.current.direction,
+            //   }),
+            // );
+            console.log('맵 이동');
+            // navigate('/pokemon');
           } else if (MENU_ITEMS[menuIndexRef.current] === '도감') {
             sessionStorage.setItem(
               'position',
@@ -289,6 +300,7 @@ export default function MapPage() {
       }
 
       if (e.key === 'c' || e.key === 'C') {
+        console.log(`메뉴 열기`);
         menuOpenRef.current = true;
         menuIndexRef.current = 0;
         setMenuIndex(0);

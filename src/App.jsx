@@ -10,9 +10,9 @@ function getFunction() {
   });
 }
 function App() {
-  useEffect(() => {
-    getFunction();
-  }, []);
+  // useEffect(() => {
+  //   getFunction();
+  // }, []);
   return (
     <BrowserRouter>
       <Router />
