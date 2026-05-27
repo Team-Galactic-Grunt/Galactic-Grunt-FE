@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import styles from './bagPage.module.css';
+import PokemonPage from './PokemonPage';
 
 const pockets = [
   {
@@ -119,6 +120,8 @@ const INIT_INDEX = Math.floor(REPEAT_SETS / 2) * POCKETS_LEN;
 const ICON_WIDTH = 46;
 const VIEWPORT_W = 360;
 
+const isModal = true;
+
 const getRealIndex = (index) =>
   ((index % POCKETS_LEN) + POCKETS_LEN) % POCKETS_LEN;
 
@@ -176,6 +179,7 @@ export default function BagPage() {
   return (
     // <div className={styles['bag-overlay']}>
     <div id='game-screen' style={{ backgroundColor: 'black' }}>
+      {isModal && <PokemonPage />}
       {/* 상단 구역 */}
       <div className={styles['top-section']}>
         <div className={styles['left-panel']}>

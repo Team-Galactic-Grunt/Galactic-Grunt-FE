@@ -10,22 +10,29 @@
   user-select: none;
 } */
 
-#game-screen {
+.game-screen {
   display: flex;
   gap: 20px;
+  border: 1px solid pink;
+  width: 1080px;
+  /* display: flex;
+  
   background-color: #e6ecd4;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   align-items: stretch;
+  border: 1px solid #d0d0d0;
+  height: 720px; */
 }
 
 .party-area {
-  width: 150px;
+  width: 200px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-color: #ff3b3b;
+  /* background-color: #ff3b3b; */
+  /* border: 1px solid red; */
 }
 
 /* 기존 party-slot 수정 */
@@ -33,9 +40,11 @@
   flex: 1;
   margin-bottom: 8px;
   display: flex;
-  justify-content: flex-start; /* 기존 center에서 변경: 왼쪽 정렬 */
+  justify-content: flex-start;
+  /* 기존 center에서 변경: 왼쪽 정렬 */
   align-items: center;
-  padding-left: 15px; /* 왼쪽 여백 추가 */
+  padding-left: 15px;
+  /* 왼쪽 여백 추가 */
   background: white;
   border: 3px solid transparent;
   border-radius: 20px;
@@ -50,13 +59,17 @@
   margin-right: 10px; /* 이름과 이미지 사이 간격 */
 }
 
-.party-slot:last-child {
+/* .party-slot:last-child {
   margin-bottom: 0;
-}
+} */
 
 .box-section {
   display: flex;
+
+  /* width: 500px; */
   flex-direction: column;
+  border: 1px solid blue;
+  /* margin-left: 200px; */
 }
 
 .box-header {
@@ -70,6 +83,7 @@
   margin-bottom: 10px;
   font-weight: bold;
   font-size: 1.1rem;
+  border: 1px solid green;
 }
 
 .arrow {
@@ -86,15 +100,17 @@
 /* 🔥 박스 영역 그림자 추가 */
 .box-area {
   display: grid;
-  grid-template-columns: repeat(6, 60px);
-  grid-template-rows: repeat(5, 60px);
+  grid-template-columns: repeat(6, 80px);
+  grid-template-rows: repeat(5, 80px);
   gap: 5px;
   background: rgba(255, 255, 255, 0.7);
   padding: 10px;
+  box-sizing: border-box;
+  width: fit-content;
   border-radius: 10px;
   border: 1px solid #d0d0d0;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15); /* 배경과 구분되는 그림자 */
-  flex: 1;
+  /* flex: 1; */
 }
 
 .box-slot {
@@ -135,6 +151,19 @@
   75% {
     transform: rotate(15deg);
   }
+}
+
+.occupied {
+  background-color: #ffd54f;
+
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 0.9rem;
 }
 
 /* 🔥 3. 포커스 상태이거나 마우스가 올라갔을 때 포켓몬 이미지에 애니메이션 적용 */
