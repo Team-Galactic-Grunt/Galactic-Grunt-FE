@@ -1,0 +1,152 @@
+/* pp.css */
+/* body {
+  font-family: sans-serif;
+  background-color: #2c2f33;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  user-select: none;
+} */
+
+#game-screen {
+  display: flex;
+  gap: 20px;
+  background-color: #e6ecd4;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  align-items: stretch;
+}
+
+.party-area {
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #ff3b3b;
+}
+
+/* 기존 party-slot 수정 */
+.party-slot {
+  flex: 1;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: flex-start; /* 기존 center에서 변경: 왼쪽 정렬 */
+  align-items: center;
+  padding-left: 15px; /* 왼쪽 여백 추가 */
+  background: white;
+  border: 3px solid transparent;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+/* 새로 추가: 파티 포켓몬 이미지 스타일 */
+.party-pokemon-img {
+  width: 40px; /* 이미지 크기 조절 */
+  height: 40px;
+  object-fit: contain;
+  margin-right: 10px; /* 이름과 이미지 사이 간격 */
+}
+
+.party-slot:last-child {
+  margin-bottom: 0;
+}
+
+.box-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 8px 20px;
+  border: 3px solid transparent; /* 포커스를 위해 테두리 투명으로 설정 */
+  border-radius: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.arrow {
+  cursor: pointer;
+  color: #555;
+  transition: 0.1s;
+}
+
+.arrow:hover {
+  color: #ff3b3b;
+  transform: scale(1.2);
+}
+
+/* 🔥 박스 영역 그림자 추가 */
+.box-area {
+  display: grid;
+  grid-template-columns: repeat(6, 60px);
+  grid-template-rows: repeat(5, 60px);
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #d0d0d0;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15); /* 배경과 구분되는 그림자 */
+  flex: 1;
+}
+
+.box-slot {
+  background: white;
+  border: 3px solid transparent;
+  border-radius: 8px;
+}
+
+/* 🔥 활성화된 포커스 효과 (파티, 박스, 헤더 공통 적용) */
+.focused {
+  border-color: #ff3b3b !important;
+  box-shadow: 0 0 10px rgba(255, 59, 59, 0.6) !important;
+  transform: scale(1.05);
+  transition: all 0.1s ease-in-out;
+  background-color: #fff0f0;
+  z-index: 10;
+}
+
+/* 🔥 1. 통통 튀는 애니메이션 (Keyframes) 정의 */
+@keyframes hop {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-6px); /* 위로 6px만큼 뜀 */
+  }
+}
+
+/* 🔥 2. 좌우로 갸우뚱거리는 애니메이션 (대체용) */
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-15deg);
+  }
+  75% {
+    transform: rotate(15deg);
+  }
+}
+
+/* 🔥 3. 포커스 상태이거나 마우스가 올라갔을 때 포켓몬 이미지에 애니메이션 적용 */
+.party-slot.focused .party-pokemon-img,
+.party-slot:hover .party-pokemon-img {
+  /* 원하는 애니메이션으로 선택해서 사용하세요! */
+
+  /* [옵션 A] 위아래로 통통 뛰기 */
+  animation: hop 0.6s infinite;
+
+  /* [옵션 B] 좌우로 갸우뚱거리기 (이걸 원하시면 위 코드를 지우고 주석을 푸세요) */
+  /* animation: wiggle 0.4s infinite ease-in-out; */
+}
+
+/* 박스 고치기 / 교체하기 순서바꾸기 / 교체할때 세션스토리지 반영  */
