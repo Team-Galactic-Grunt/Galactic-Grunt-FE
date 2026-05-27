@@ -1,6 +1,6 @@
 #game-screen {
   width: 1080px;
-  height: '100%';
+  height: "100%";
   /* height: 720px; */
 
   border-radius: 10px;
@@ -29,7 +29,7 @@
   height: 560px;
   margin: 0 auto;
   /* border: 1px solid red; */
-  background-image: url('/src/assets/images/bag_images/bag_container.png');
+  background-image: url("/src/assets/images/bag_images/bag_container.png");
   background-size: 100%;
   background-color: black;
   background-color: #d0e8f8;
@@ -62,7 +62,7 @@
   font-size: 20px;
   line-height: 20px;
   text-shadow: 2px 2px 0px #88b2cc;
-  font-family: 'pokemon_font';
+  font-family: "pokemon_font";
   /* margin-bottom: 5px; */
 }
 
@@ -78,7 +78,7 @@
 .bag-sprite {
   position: absolute;
   top: 38px;
-  background-image: url('http://pokefans.net/downloads/dp/presents/dppro_bags.png');
+  background-image: url("http://pokefans.net/downloads/dp/presents/dppro_bags.png");
   background-repeat: no-repeat;
   /* image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges; */
@@ -121,7 +121,7 @@
 }
 
 .pocket-icons-viewport::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 50%;
@@ -162,7 +162,7 @@
   height: 55px;
   line-height: 55px;
   text-align: center;
-  font-family: 'pokemon_font';
+  font-family: "pokemon_font";
   font-weight: 700;
   font-size: 22px;
   padding: 2px 0px 0 0;
@@ -205,8 +205,8 @@
   /* border: 1px solid black; */
   box-sizing: border-box;
   /* margin: 26px 8px 10px 70px; */
-  top: 27px;
-  right: 15px;
+  top: -10px;
+  left: 425px;
   /* background: repeating-linear-gradient(
     to bottom,
     rgba(244, 253, 244, 0.5),
@@ -231,7 +231,7 @@
   align-items: center;
   padding: 0 30px 5px 30px;
   font-size: 26px;
-  font-family: 'pokemon_font';
+  font-family: "pokemon_font";
   font-weight: 700;
   box-sizing: border-box;
   line-height: 40px;
@@ -295,7 +295,7 @@
   padding-right: 5px;
   word-break: keep-all;
   white-space: pre-line;
-  font-family: 'pokemon_font';
+  font-family: "pokemon_font";
 }
 
 /* .desc-text-box::-webkit-scrollbar {
