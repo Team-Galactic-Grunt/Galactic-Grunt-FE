@@ -23,10 +23,14 @@ export default function BattlePage() {
       <div
         style={{
           backgroundImage: `url(${enemy?.frontSprite})`,
-          width: '100px',
-          height: '100px',
+          width: '200px',
+          height: '200px',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
         }}
       ></div>
+      <div>{enemy?.koName}</div>
     </div>
   );
 }
