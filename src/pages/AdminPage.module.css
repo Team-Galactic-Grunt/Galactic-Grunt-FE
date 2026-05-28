@@ -2,25 +2,30 @@
   min-height: 100vh;
   padding: 32px;
   color: #f5f3ee;
-  font-family: 'pokemon_font', sans-serif;
+  font-family: "pokemon_font", sans-serif;
   font-size: 15px;
   letter-spacing: 0.04em;
   background:
-    radial-gradient(circle at 10% 10%, rgba(108, 165, 255, 0.22), transparent 28%),
-    radial-gradient(circle at 90% 12%, rgba(255, 190, 120, 0.14), transparent 24%),
-    radial-gradient(circle at 50% 100%, rgba(145, 214, 180, 0.08), transparent 28%),
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(108, 165, 255, 0.22),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 12%,
+      rgba(255, 190, 120, 0.14),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(145, 214, 180, 0.08),
+      transparent 28%
+    ),
     linear-gradient(180deg, #13101b 0%, #0f1220 55%, #090b12 100%);
 }
 
 .page * {
-  font-family: 'pokemon_font', sans-serif;
-}
-
-.shell {
-  max-width: 1360px;
-  margin: 0 auto;
-  display: grid;
-  gap: 20px;
+  font-family: "pokemon_font", sans-serif;
 }
 
 .hero {
@@ -28,6 +33,7 @@
   grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.95fr);
   gap: 18px;
   padding: 26px;
+  margin: 10px 0px;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 28px;
   background:
@@ -87,8 +93,11 @@
   gap: 6px;
   padding: 16px 18px;
   border-radius: 20px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.07),
+    rgba(255, 255, 255, 0.04)
+  );
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
@@ -118,23 +127,6 @@
   color: #b8f4cf;
   background: rgba(65, 196, 111, 0.14);
   border: 1px solid rgba(65, 196, 111, 0.28);
-  font-size: 10px;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  white-space: nowrap;
-  max-width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 24px;
-}
-
-.statusBadgeSoft {
-  padding: 5px 9px;
-  border-radius: 999px;
-  color: #d8e4ff;
-  background: rgba(159, 179, 255, 0.14);
-  border: 1px solid rgba(159, 179, 255, 0.26);
   font-size: 10px;
   letter-spacing: 0.02em;
   line-height: 1;
@@ -195,21 +187,10 @@
     box-shadow 180ms ease;
 }
 
-.tabActive {
-  color: #0b1020;
-  background: linear-gradient(180deg, #f4d49c 0%, #e9b36a 100%);
-  border-color: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 10px 20px rgba(233, 179, 106, 0.18);
-}
-
 .tab:hover {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.08);
-}
-
-.tabActive:hover {
-  background: linear-gradient(180deg, #f6dcaf 0%, #ecbc74 100%);
 }
 
 .panel {
@@ -242,7 +223,7 @@
     border-color 180ms ease,
     box-shadow 180ms ease,
     background-color 180ms ease;
-  font-family: 'pokemon_font', sans-serif;
+  font-family: "pokemon_font", sans-serif;
   font-size: 13px;
   letter-spacing: 0.04em;
 }
@@ -259,7 +240,7 @@
     transform 180ms ease,
     box-shadow 180ms ease,
     background-color 180ms ease;
-  font-family: 'pokemon_font', sans-serif;
+  font-family: "pokemon_font", sans-serif;
   font-size: 13px;
   letter-spacing: 0.04em;
 }
@@ -292,9 +273,13 @@
 
 .sectionCard {
   padding: 18px;
+  margin: 10px 0px;
   border-radius: 20px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.03)
+  );
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
@@ -319,7 +304,7 @@
 }
 
 .itemRow {
-  display: grid;
+  display: flex;
   grid-template-columns: 56px minmax(0, 1fr) auto auto;
   gap: 12px;
   align-items: center;
@@ -335,33 +320,18 @@
   object-fit: contain;
 }
 
-.itemName {
-  margin: 0 0 6px;
-  font-weight: 700;
-  color: #fff8ef;
-  font-size: 14px;
-  letter-spacing: 0.03em;
-}
-
-.itemDesc {
-  margin: 0;
-  color: rgba(245, 243, 238, 0.62);
-  font-size: 12px;
-  line-height: 1.5;
-  letter-spacing: 0.03em;
-}
-
 .countControls {
   display: flex;
   gap: 8px;
   align-items: center;
 }
 
-.countButton {
-  width: 36px;
-  height: 36px;
+.countBtn {
+  align-items: center;
+  width: 32px;
+  height: 24px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   color: #0b1020;
   background: linear-gradient(180deg, #f0f5ff 0%, #d8e3ff 100%);
   cursor: pointer;
@@ -376,68 +346,9 @@
   color: #fff8ef;
   background: rgba(255, 255, 255, 0.05);
   padding: 10px 12px;
-  font-family: 'pokemon_font', sans-serif;
+  font-family: "pokemon_font", sans-serif;
   font-size: 13px;
   letter-spacing: 0.04em;
-}
-
-.dexRow {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.dexId {
-  font-variant-numeric: tabular-nums;
-  color: rgba(245, 243, 238, 0.6);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-}
-
-.dexName {
-  font-weight: 700;
-  color: #fff8ef;
-  font-size: 14px;
-  letter-spacing: 0.03em;
-}
-
-.dexFlagOn,
-.dexFlagOff {
-  border: 0;
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    opacity 180ms ease;
-  font-family: 'pokemon_font', sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-}
-
-.dexFlagOn {
-  color: #0b1020;
-  background: linear-gradient(180deg, #e6f8d2 0%, #b9ec92 100%);
-  box-shadow: 0 10px 20px rgba(185, 236, 146, 0.16);
-}
-
-.dexFlagOff {
-  color: #fff8ef;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-.dexFlagOn:hover,
-.dexFlagOff:hover {
-  transform: translateY(-1px);
 }
 
 .emptyState {
@@ -447,6 +358,69 @@
   border-radius: 16px;
   border: 1px dashed rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.02);
+}
+
+.changeBar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.changeButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  cursor: pointer;
+  color: #0b1020;
+  background: linear-gradient(180deg, #f4d49c 0%, #e9b36a 100%);
+}
+
+.saveCard {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 8, 14, 0.72);
+}
+
+.isSave {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.saveCancel,
+.saveConfirm {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-family: "pokemon_font", sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.saveCancel {
+  color: #fff8ef;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.saveConfirm {
+  color: #0b1020;
+  background: linear-gradient(180deg, #f4d49c 0%, #e9b36a 100%);
+  box-shadow: 0 10px 20px rgba(233, 179, 106, 0.18);
+}
+
+.saveCancel:hover,
+.saveConfirm:hover {
+  transform: translateY(-1px);
 }
 
 @media (max-width: 820px) {

@@ -1,4 +1,4 @@
-import axios from 'axios';
+/*import axios from 'axios';
 
 export const getAllPokemon = async () => {
   try {
@@ -12,4 +12,4 @@ export const getAllPokemon = async () => {
     console.error('Error fetching Pokémon:', error);
     return [];
   }
-};
+};*/

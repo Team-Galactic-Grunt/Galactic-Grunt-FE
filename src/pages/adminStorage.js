@@ -1,9 +1,12 @@
-import { DEFAULT_BAG, DEFAULT_DEX } from './adminData';
+import { DEFAULT_BAG, DEFAULT_DEX } from "./adminData";
+
+const ADMIN_STORAGE_KEY = "galactic-grunt-admin-state";
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+// 기본 상태
 export function createDefaultAdminState() {
   return {
     bag: clone(DEFAULT_BAG),
@@ -11,19 +14,32 @@ export function createDefaultAdminState() {
   };
 }
 
+// 상태 불러오기
 export function loadAdminState() {
-  return createDefaultAdminState();
+  try {
+    const saved = localStorage.getItem(ADMIN_STORAGE_KEY);
+    if (!saved) return createDefaultAdminState();
+
+    const parsed = JSON.parse(saved);
+    return {
+      bag: parsed.bag ?? clone(DEFAULT_BAG),
+      dex: parsed.dex ?? clone(DEFAULT_DEX),
+    };
+  } catch {
+    return createDefaultAdminState();
+  }
 }
 
-export function saveAdminState() {
-  return undefined;
+// 상태 저장
+export function saveAdminState(state) {
+  try {
+    localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-export function clampCount(value) {
-  const next = Number.isFinite(value) ? Math.trunc(value) : 0;
-  return Math.max(0, next);
-}
-
+// 도감 데이터 정리
 export function normalizePokemonRow(raw, index) {
   if (!raw) {
     return {
@@ -35,12 +51,17 @@ export function normalizePokemonRow(raw, index) {
 
   const id = Number(raw.id ?? raw.pokedexId ?? raw.dexNo ?? index + 1);
   const name =
-    raw.name ?? raw.englishName ?? raw.koreanName ?? raw.species ?? `Pokemon ${id}`;
+    raw.name ??
+    raw.englishName ??
+    raw.koreanName ??
+    raw.species ??
+    `Pokemon ${id}`;
 
   return {
     id: Number.isFinite(id) ? id : index + 1,
     name,
-    unlocked: Boolean(raw.unlocked ?? raw.enabled ?? raw.active ?? raw.seen ?? raw.caught),
+    unlocked: Boolean(
+      raw.unlocked ?? raw.enabled ?? raw.active ?? raw.seen ?? raw.caught,
+    ),
   };
 }
-
