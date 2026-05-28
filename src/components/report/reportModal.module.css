@@ -1,0 +1,20 @@
+.menu {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* transform: translate(-50%, 0%); */
+  top: 6px;
+  left: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 5px solid #b3c6e1;
+  outline: 3px solid #757575;
+  width: 200px;
+  /* height: calc(100% - 40px); */
+  height: fit-content;
+  border-radius: 8px;
+  padding: 20px;
+  z-index: 990;
+  font-family: 'pokemon_font';
+}

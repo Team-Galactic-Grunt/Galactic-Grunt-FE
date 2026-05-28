@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { postReport } from '../api/postReport';
 import mainMapUrl from '/src/assets/images/main_map.png';
 import styles from './mapPage.module.css';
 
@@ -92,7 +93,7 @@ const spriteMap = {
   },
 };
 
-const MENU_ITEMS = ['포켓몬', '도감', '가방', '리포트', '???', '닫는다'];
+const MENU_ITEMS = ['포켓몬', '도감', '가방', '레포트', '???', '닫는다'];
 
 // --- 유틸리티 ---
 function zoneToCells(zone) {
@@ -145,8 +146,32 @@ export default function MapPage() {
   const menuOpenRef = useRef(false);
   const [menuIndex, setMenuIndex] = useState(0);
   const menuIndexRef = useRef(0);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const reportModalOpenRef = useRef(false);
+  const [saveToast, setSaveToast] = useState(false);
+
+  const position = sessionStorage.getItem('position')
+    ? JSON.parse(sessionStorage.getItem('position'))
+    : null;
+  const bag = sessionStorage.getItem('bag')
+    ? JSON.parse(sessionStorage.getItem('bag'))
+    : null;
+  const isMyPokemon = sessionStorage.getItem('isMyPokemon')
+    ? JSON.parse(sessionStorage.getItem('isMyPokemon'))
+    : null;
+  const pokemonBox = sessionStorage.getItem('pokemonBox')
+    ? JSON.parse(sessionStorage.getItem('pokemonBox'))
+    : null;
 
   useEffect(() => {
+    if (
+      position === null ||
+      bag === null ||
+      isMyPokemon === null ||
+      pokemonBox === null
+    ) {
+      navigate('/'); // 필요한 데이터가 없으면 홈으로 이동
+    }
     sessionStorage.setItem('status', 'false');
 
     // let timer = 0;
@@ -189,6 +214,7 @@ export default function MapPage() {
       const saved = sessionStorage.getItem('position');
       if (saved) {
         const { x, y, direction } = JSON.parse(saved);
+        console.log(`initX : ${x}, initY : ${y}, direction : ${direction}`);
         const validDirs = ['front', 'back', 'left', 'right'];
         if (
           typeof x === 'number' &&
@@ -225,8 +251,39 @@ export default function MapPage() {
     };
 
     // 키보드 이벤트
-    const handleKeyDown = (e) => {
+    const handleKeyDown = async (e) => {
       if (!e.repeat) keysRef.current[e.key] = true;
+
+      if (reportModalOpenRef.current) {
+        if (e.code === 'KeyZ') {
+          // const position = JSON.parse(sessionStorage.getItem('position') || '{}');
+          // const bag = JSON.parse(sessionStorage.getItem('bag') || '[]');
+          // const isMyPokemon = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
+          // const pokemonBox = JSON.parse(sessionStorage.getItem('pokemonBox') || '[]');
+          const result = await postReport({
+            position: {
+              x: playerRef.current.x,
+              y: playerRef.current.y,
+              direction: playerRef.current.direction,
+            },
+            bag,
+            isMyPokemon,
+            pokemonBox,
+          });
+          console.log(result);
+          if (result.ok === true) {
+            setSaveToast(true);
+            setTimeout(() => setSaveToast(false), 1000);
+          }
+          reportModalOpenRef.current = false;
+          setReportModalOpen(false);
+        } else if (e.code === 'KeyX') {
+          reportModalOpenRef.current = false;
+          setReportModalOpen(false);
+        }
+        e.preventDefault();
+        return;
+      }
 
       if (menuOpenRef.current) {
         if (e.key === 'ArrowUp') {
@@ -238,7 +295,7 @@ export default function MapPage() {
           const next = (menuIndexRef.current + 1) % MENU_ITEMS.length;
           menuIndexRef.current = next;
           setMenuIndex(next);
-        } else if (e.key === 'z' || e.key === 'Z') {
+        } else if (e.code === 'KeyZ') {
           console.log('선택:', MENU_ITEMS[menuIndexRef.current]);
           if (MENU_ITEMS[menuIndexRef.current] === '닫는다') {
             menuOpenRef.current = false;
@@ -286,10 +343,13 @@ export default function MapPage() {
               }),
             );
             navigate('/bag');
-          } else if (MENU_ITEMS[menuIndexRef.current] === '리포트') {
-            alert('리포트 화면은 아직 구현되지 않았습니다.');
+          } else if (MENU_ITEMS[menuIndexRef.current] === '레포트') {
+            menuOpenRef.current = false;
+            setMenuOpen(false);
+            reportModalOpenRef.current = true;
+            setReportModalOpen(true);
           }
-        } else if (e.key === 'x' || e.key === 'X') {
+        } else if (e.code === 'KeyX') {
           menuOpenRef.current = false;
           setMenuOpen(false);
           menuIndexRef.current = 0;
@@ -299,7 +359,7 @@ export default function MapPage() {
         return;
       }
 
-      if (e.key === 'c' || e.key === 'C') {
+      if (e.code === 'KeyC') {
         console.log(`메뉴 열기`);
         menuOpenRef.current = true;
         menuIndexRef.current = 0;
@@ -380,7 +440,7 @@ export default function MapPage() {
     }
 
     function update() {
-      if (menuOpenRef.current) return;
+      if (menuOpenRef.current || reportModalOpenRef.current) return;
       const now = performance.now();
       const player = playerRef.current;
       const keys = keysRef.current;
@@ -616,6 +676,13 @@ export default function MapPage() {
             ))}
           </div>
         )}
+        {reportModalOpen && (
+          <div className={styles.report_modal}>
+            <p>저장하시겠습니까?</p>
+            <p>z: 예&nbsp;&nbsp;x: 아니오</p>
+          </div>
+        )}
+        {saveToast && <div className={styles.save_toast}>저장했습니다</div>}
         <canvas ref={canvasRef} id='game-canvas' width='1080' height='720' />
       </div>
     </>
