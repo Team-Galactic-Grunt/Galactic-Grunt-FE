@@ -48,3 +48,32 @@
   z-index: 990;
   font-family: 'pokemon_font';
 }
+
+.report_modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: 5px solid #b3c6e1;
+  outline: 3px solid #757575;
+  width: 300px;
+  height: fit-content;
+  border-radius: 8px;
+  padding: 20px;
+  z-index: 1000;
+  font-family: 'pokemon_font';
+}
+.save_toast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-family: 'pokemon_font';
+  font-size: 20px;
+  padding: 12px 28px;
+  border-radius: 8px;
+  z-index: 1001;
+}
