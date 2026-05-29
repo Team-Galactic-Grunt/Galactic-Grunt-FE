@@ -294,7 +294,7 @@
   /* overflow-y: auto; */
   padding-right: 5px;
   word-break: keep-all;
-  white-space: pre-line;
+  white-space: pre-wrap;
   font-family: "pokemon_font";
 }
 

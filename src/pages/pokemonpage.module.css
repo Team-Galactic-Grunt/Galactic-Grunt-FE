@@ -1,75 +1,54 @@
-/* pp.css */
-/* body {
-  font-family: sans-serif;
-  background-color: #2c2f33;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  user-select: none;
-} */
+/* pokemonpage.module.css */
+/* pokemonpage.module.css 맨 위쪽 부분 교체 */
 
 .game-screen {
   display: flex;
   gap: 20px;
-  border: 1px solid pink;
   width: 1080px;
-  /* display: flex;
-  
-  background-color: #e6ecd4;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  align-items: stretch;
-  border: 1px solid #d0d0d0;
-  height: 720px; */
+  box-sizing: border-box;
+  /* 왼쪽/중간/오른쪽 박스가 똑같은 높이로 억지로 늘어나는거 방지 */
+  align-items: flex-start;
+  background-color: black;
+  height: 100%;
 }
 
 .party-area {
   width: 200px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  /* background-color: #ff3b3b; */
-  /* border: 1px solid red; */
+
+  gap: 8px;
+  margin-top: 40px;
 }
 
-/* 기존 party-slot 수정 */
 .party-slot {
-  flex: 1;
-  margin-bottom: 8px;
+  height: 80px; /* 모든 박스의 높이를 똑같이 고정 */
+  overflow: hidden; /* 글자가 박스를 삐져나가면 잘라냄 */
+  white-space: nowrap; /* 글자가 다음 줄로 넘어가는 것 방지 */
+
+  margin-left: 10px;
   display: flex;
   justify-content: flex-start;
-  /* 기존 center에서 변경: 왼쪽 정렬 */
   align-items: center;
   padding-left: 15px;
-  /* 왼쪽 여백 추가 */
-  background: white;
+  background: gray;
   border: 3px solid transparent;
   border-radius: 20px;
   font-weight: bold;
 }
-
-/* 새로 추가: 파티 포켓몬 이미지 스타일 */
-.party-pokemon-img {
-  width: 40px; /* 이미지 크기 조절 */
-  height: 40px;
+z .party-pokemon-img {
+  width: 57px;
+  height: 57px;
   object-fit: contain;
-  margin-right: 10px; /* 이름과 이미지 사이 간격 */
+  margin-right: 10px;
+  flex-shrink: 0;
 }
-
-/* .party-slot:last-child {
-  margin-bottom: 0;
-} */
 
 .box-section {
   display: flex;
-
-  /* width: 500px; */
   flex-direction: column;
-  border: 1px solid blue;
-  /* margin-left: 200px; */
+  /* border: 1px solid blue; */
 }
 
 .box-header {
@@ -78,7 +57,7 @@
   align-items: center;
   background: white;
   padding: 8px 20px;
-  border: 3px solid transparent; /* 포커스를 위해 테두리 투명으로 설정 */
+  border: 3px solid transparent;
   border-radius: 20px;
   margin-bottom: 10px;
   font-weight: bold;
@@ -97,65 +76,46 @@
   transform: scale(1.2);
 }
 
-/* 🔥 박스 영역 그림자 추가 */
 .box-area {
   display: grid;
   grid-template-columns: repeat(6, 80px);
   grid-template-rows: repeat(5, 80px);
   gap: 5px;
-  background: rgba(255, 255, 255, 0.7);
+  background: #fad5ea; /* 가운데 박스 색 */
   padding: 10px;
   box-sizing: border-box;
   width: fit-content;
   border-radius: 10px;
   border: 1px solid #d0d0d0;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15); /* 배경과 구분되는 그림자 */
-  /* flex: 1; */
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .box-slot {
-  background: white;
+  background: #fad5ea;
   border: 3px solid transparent;
   border-radius: 8px;
 }
 
-/* 🔥 활성화된 포커스 효과 (파티, 박스, 헤더 공통 적용) */
 .focused {
   border-color: #ff3b3b !important;
   box-shadow: 0 0 10px rgba(255, 59, 59, 0.6) !important;
-  transform: scale(1.05);
+  transform: scale(1.05); /* translateX(10px) 제외: margin-left로 해결 */
   transition: all 0.1s ease-in-out;
-  background-color: #fff0f0;
+  background-color: #fad5ea; /* 포커스 색 */
   z-index: 10;
 }
 
-/* 🔥 1. 통통 튀는 애니메이션 (Keyframes) 정의 */
 @keyframes hop {
   0% {
     transform: translateY(0);
   }
   100% {
-    transform: translateY(-6px); /* 위로 6px만큼 뜀 */
-  }
-}
-
-/* 🔥 2. 좌우로 갸우뚱거리는 애니메이션 (대체용) */
-@keyframes wiggle {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-15deg);
-  }
-  75% {
-    transform: rotate(15deg);
+    transform: translateY(-6px);
   }
 }
 
 .occupied {
-  background-color: #ffd54f;
-
+  background-color: #fad5ea; /* 중앙 개별 박스 */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -166,16 +126,188 @@
   font-size: 0.9rem;
 }
 
-/* 🔥 3. 포커스 상태이거나 마우스가 올라갔을 때 포켓몬 이미지에 애니메이션 적용 */
 .party-slot.focused .party-pokemon-img,
 .party-slot:hover .party-pokemon-img {
-  /* 원하는 애니메이션으로 선택해서 사용하세요! */
-
-  /* [옵션 A] 위아래로 통통 뛰기 */
-  animation: hop 0.6s infinite;
-
-  /* [옵션 B] 좌우로 갸우뚱거리기 (이걸 원하시면 위 코드를 지우고 주석을 푸세요) */
-  /* animation: wiggle 0.4s infinite ease-in-out; */
+  animation: hop 0.5s infinite;
 }
 
-/* 박스 고치기 / 교체하기 순서바꾸기 / 교체할때 세션스토리지 반영  */
+/* 오른쪽 상세 정보 영역 */
+.details-section {
+  width: 280px;
+  height: 520px;
+
+  border: 4px solid #333;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: ivory;
+  margin-left: 8px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
+
+  font-family: "pokemon_font", sans-serif;
+  margin-top: 40px;
+}
+.details-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #333;
+}
+
+.details-img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.details-name {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 0px;
+}
+
+.details-level {
+  font-size: 15px;
+  margin-bottom: 0px; /* 기존 10px에서 0으로 변경합니다 */
+}
+
+.name-level-wrap {
+  display: flex;
+  align-items: baseline; /* 이름과 레벨의 글씨 밑선을 보기 좋게 맞춰줍니다 */
+  gap: 10px; /* 이름과 레벨 사이의 간격입니다. 원하시는 대로 조절하세요 */
+  margin-bottom: 10px; /* 묶음 전체의 아래 여백을 줍니다 */
+}
+
+.details-types {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.type-badge {
+  padding: 4px 10px;
+  border-radius: 5px;
+  background-color: #e0e0e0;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.moves-container {
+  width: 100%;
+  border-top: 2px solid #ddd;
+  padding-top: 15px;
+}
+
+.moves-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.move-slot {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f5f5f5;
+  /* padding: 8px 10px; */ /* 기술배치 간격 줄이기 */
+  margin-bottom: 8px;
+  border-radius: 5px;
+  font-size: 15px;
+}
+
+.move-name {
+  font-weight: bold;
+}
+
+.empty-details {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+}
+
+/* 박스 액션 메뉴 (순서바꾸기 창) */
+.box-action-menu {
+  position: absolute;
+  right: 320px;
+  bottom: 50px;
+  background-color: white;
+  border: 5px solid #5a5a5a;
+  border-radius: 10px;
+  padding: 15px 20px;
+  min-width: 140px;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  font-family: "pokemon_font", sans-serif;
+  font-size: 24px;
+  color: #333;
+  z-index: 200;
+}
+
+/* 교체할 포켓몬 선택 시 깜빡임 효과 */
+.swap-source {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.6) !important;
+  animation: swapBlink 1s infinite;
+}
+
+@keyframes swapBlink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+/* 메시지 다이얼로그 영역 */
+.dialog-container {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  background-color: white;
+  border: 5px solid #5a5a5a;
+  border-radius: 10px;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  font-family: "pokemon_font", sans-serif;
+  font-size: 24px;
+  color: #333;
+  z-index: 100;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.confirm-box {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  margin-bottom: 10px;
+  background-color: white;
+  border: 5px solid #5a5a5a;
+  border-radius: 10px;
+  padding: 10px 15px;
+  min-width: 120px;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.confirm-option {
+  display: flex;
+  align-items: center;
+}
+
+.confirm-option:first-child {
+  margin-bottom: 5px;
+}
+
+.confirm-cursor {
+  width: 24px;
+  color: red;
+  display: inline-block;
+}

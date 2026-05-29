@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
-import styles from './bagPage.module.css';
-import PokemonPage from './PokemonPage';
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import styles from "./bagPage.module.css";
+import PokemonPage from "./PokemonPage";
 
 const pockets = [
   {
-    id: "medicine",
+    id: "heal",
     name: "회복약",
     img: "/src/assets/images/bag_images/heal_icon.png",
     bagImg: "/src/assets/images/bag_images/medicine_bag.png",
   },
   {
-    id: "pokeballs",
+    id: "ball",
     name: "몬스터볼",
     img: "/src/assets/images/bag_images/ball_icon.png",
     bagImg: "/src/assets/images/bag_images/pokeballs_bag.png",
@@ -23,104 +23,20 @@ const pockets = [
     bagImg: "/src/assets/images/bag_images/berries_bag.png",
   },
   {
-    id: "keyitems",
+    id: "important",
     name: "중요한물건",
     img: "/src/assets/images/bag_images/important_icon.png",
     bagImg: "/src/assets/images/bag_images/keyitems_bag.png",
   },
 ];
 
-const inventoryData = {
-  medicine: [
-    {
-      name: "고급상처약",
-      count: 15,
-      icon: "/src/assets/images/bag_images/hyper_potion.png",
-      desc: "포켓몬 1마리의 HP를 200 회복한다.",
-    },
-    {
-      name: "기력의덩어리",
-      count: 2,
-      icon: "/src/assets/images/bag_images/max_revive.png",
-      desc: "기절한 포켓몬 1마리를 HP가 모두 회복된 상태로 살린다.",
-    },
-  ],
-  pokeballs: [
-    {
-      name: "몬스터볼",
-      count: 20,
-      icon: "/src/assets/images/bag_images/monsterball.png",
-      desc: `야생 포켓몬에게 던져서 잡기 위한 볼.\n캡슐식으로 되어 있다.`,
-    },
-    {
-      name: "수퍼볼",
-      count: 10,
-      icon: "/src/assets/images/bag_images/superball.png",
-      desc: `몬스터볼보다 포획률이 높은 좋은 볼.`,
-    },
-    {
-      name: "하이퍼볼",
-      count: 5,
-      icon: "/src/assets/images/bag_images/hyperball.png",
-      desc: `수퍼볼보다 포획률이 높은 매우 좋은 볼.`,
-    },
-  ],
-  tmhm: [],
-  berries: [
-    {
-      name: "오렌열매",
-      count: 12,
-      icon: "/src/assets/images/bag_images/oran_berry.png",
-      desc: `포켓몬에게 지니게 하거나 사용하면\nHP를 10 회복한다.`,
-    },
-    {
-      name: "시몬열매",
-      count: 5,
-      icon: "/src/assets/images/bag_images/presim_berry.png",
-      desc: `포켓몬에게 지니게 하거나 사용하면\n혼란 상태를 회복한다.`,
-    },
-    {
-      name: "자뭉열매",
-      count: 8,
-      icon: "/src/assets/images/bag_images/sitrus_berry.png",
-      desc: `포켓몬에게 지니게 하거나 사용하면\nHP를 조금 회복한다.`,
-    },
-  ],
-  keyitems: [
-    {
-      name: "천계의피리",
-      count: 1,
-      icon: "/src/assets/images/bag_images/azure_flute.png",
-      desc: `천공에 울려 퍼지는 음색을 낸다는 피리.\n누가 만들었는지 알 수 없다.`,
-    },
-    {
-      name: "금강옥",
-      count: 1,
-      icon: "/src/assets/images/bag_images/adamant_orb.png",
-      desc: `디아루가에게 지니게 하면\n드래곤과 강철 타입 기술의 위력이 올라간다.`,
-    },
-    {
-      name: "백옥",
-      count: 1,
-      icon: "/src/assets/images/bag_images/lustrous_orb.png",
-      desc: `펄기아에게 지니게 하면\n드래곤과 물 타입 기술의 위력이 올라간다.`,
-    },
-    {
-      name: "백금옥",
-      count: 1,
-      icon: "/src/assets/images/bag_images/griseous_orb.png",
-      desc: `기라티나에게 지니게 하면\n드래곤과 고스트 타입 기술의 위력이 올라가며,\n오리진폼으로 변한다.`,
-    },
-  ],
-};
-
 const REPEAT_SETS = 100;
-const POCKETS_LEN = pockets.length;
+const POCKETS_LEN = 4;
 const INIT_INDEX = Math.floor(REPEAT_SETS / 2) * POCKETS_LEN;
 const ICON_WIDTH = 46;
 const VIEWPORT_W = 360;
 
-const isModal = true;
+// const isModal = true;
 
 const getRealIndex = (index) =>
   ((index % POCKETS_LEN) + POCKETS_LEN) % POCKETS_LEN;
@@ -130,16 +46,25 @@ export default function BagPage() {
   const [globalIndex, setGlobalIndex] = useState(INIT_INDEX);
   const [itemIndex, setItemIndex] = useState(0);
 
-  // 🔥 새롭게 추가된 상태: 모달 열림 여부 및 모달 내 포커스 인덱스
+  // 새롭게 추가된 상태: 모달 열림 여부 및 모달 내 포커스 인덱스
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [actionIndex, setActionIndex] = useState(0);
+
   const actionMenuOptions = ["사용하기", "그만두기"];
+
+  const [isModal, setIsModal] = useState(false); // 첨에는 가방만 보이게 false 특정행동시 true로
+
+  const bag = sessionStorage.getItem("bag")
+    ? JSON.parse(sessionStorage.getItem("bag"))
+    : {};
+
+  console.log(bag.important);
 
   const focusedRowRef = useRef(null);
 
   const realIndex = getRealIndex(globalIndex);
   const currentPocket = pockets[realIndex];
-  const items = inventoryData[currentPocket.id] ?? [];
+  const items = bag[currentPocket.id] ?? [];
   const currentItem = items[itemIndex];
 
   const translateX = VIEWPORT_W / 2 - ICON_WIDTH / 2 - globalIndex * ICON_WIDTH;
@@ -152,34 +77,45 @@ export default function BagPage() {
   // 키보드 입력
   useEffect(() => {
     const handleKeyDown = (e) => {
+      console.log("이벤트 test", e.key);
+      console.log(isModal, isActionMenuOpen);
       // z, Z 키도 기본 동작 방지를 위해 배열에 추가
-      if (
-        [
-          "ArrowUp",
-          "ArrowDown",
-          "ArrowLeft",
-          "ArrowRight",
-          "x",
-          "X",
-          "z",
-          "Z",
-        ].includes(e.key)
-      ) {
-        e.preventDefault();
+      // if (
+      //   [
+      //     "ArrowUp",
+      //     "ArrowDown",
+      //     "ArrowLeft",
+      //     "ArrowRight",
+      //     "x",
+      //     "X",
+      //     "z",
+      //     "Z",
+      //   ].includes(e.key)
+      // ) {
+      //   e.preventDefault();
+      // }
+
+      // PokmonPageModal 열려있을때 제어
+      if (isModal === true) {
+        if (e.key == "x" || e.key == "X") {
+          setIsModal(false); // X를 누르면 모달 닫고 가방으로 복귀
+        }
+        return; // 가방 뒤쪽 로직(방향키 이동, 메뉴 열기 등)이 실행되지 않도록 여기서 함수 종료
       }
 
-      // 🔥 액션 메뉴(사용하기 탭)가 열려있을 때의 로직
-      if (isActionMenuOpen) {
+      //  액션 메뉴(사용하기 탭)가 열려있을 때의 로직
+      if (isActionMenuOpen === true) {
         if (e.key === "x" || e.key === "X") {
           setIsActionMenuOpen(false); // X 누르면 메뉴 닫기
-        } else if (e.key === "z" || e.key === "Z") {
+        } else if (e.key === "z") {
+          console.log(e.key);
           if (actionIndex === 0) {
-            // "사용하기" 로직을 여기에 구현하세요.
-            console.log(`${currentItem?.name} 사용!`);
-
-            setIsActionMenuOpen(false);
+            // 사용하기
+            console.log(`${currentItem?.name} 사용`);
+            setIsModal(true); // 사용누르면 포켓몬박스 창 열림
+            setIsActionMenuOpen(false); // (메뉴는 닫기)
           } else if (actionIndex === 1) {
-            // "그만두기"
+            // 그만두기
             setIsActionMenuOpen(false);
           }
         } else if (e.key === "ArrowUp") {
@@ -192,17 +128,25 @@ export default function BagPage() {
         return; // 메뉴가 열려있을 때는 뒤쪽의 가방 탐색 로직이 실행되지 않도록 리턴
       }
 
-      // 🔥 액션 메뉴가 닫혀있을 때 (기존 가방 탐색 로직)
+      // 모달이 아무것도 안켜진 X 이벤트
+      // if (e.key === "KeyX") {
+      //   navigate("/map");
+      //   return;
+      // }
+
       if (e.key === "x" || e.key === "X") {
         navigate("/map");
         return;
       }
 
-      if (e.key === "z" || e.key === "Z") {
+      // 모달이 아무것도 안켜진 Z
+      if (e.key === "z") {
+        console.log("사용");
         if (
           items.length > 0 &&
-          (currentPocket.id === "medicine" || currentPocket.id === "berries")
+          (currentPocket.id === "heal" || currentPocket.id === "berries")
         ) {
+          console.log("currentPocket : ", currentPocket);
           setIsActionMenuOpen(true);
           setActionIndex(0); // 메뉴 열 때 포커스 초기화
         }
@@ -231,13 +175,37 @@ export default function BagPage() {
     actionIndex,
     currentItem,
     actionMenuOptions.length,
+    isModal, // 회복약 사용 후 가방으로 돌아와서 키 안먹던 문제 해결
   ]);
-  // 이벤트 리스너가 최신 state를 참조할 수 있도록 의존성 배열에 상태값들 추가
 
   return (
-    // <div className={styles['bag-overlay']}>
-    <div id='game-screen' style={{ backgroundColor: 'black' }}>
-      {isModal && <PokemonPage />}
+    // 모달의 기준점이
+    <div
+      id="game-screen"
+      style={{ backgroundColor: "black", position: "relative" }}
+    >
+      {/* 모달 오버레이 설정 */}
+      {isModal && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%", // 전체 화면을 덮고 싶다면 100%, 윗화면만 덮고싶다면 50% 등 조절
+            zIndex: 999, // 가방 UI보다 무조건 위에 오도록 높은 숫자 부여
+            backgroundColor: "black", // 뒷배경 처리
+          }}
+        >
+          {}
+          <PokemonPage
+            onClose={() => setIsModal(false)}
+            usageItem={currentItem} // 가방에서 Z키를 눌러 팝업을 띄울 때,가방에서 포커스 되어 있던 아이템 데이터가 포켓몬 페이지로 배달
+            // 가방 페이지에서는 체력 차는데 메뉴에서 들어가면 체력 안차있는 문제 해결
+          />
+        </div>
+      )}
+
       {/* 상단 구역 */}
       <div className={styles["top-section"]}>
         <div className={styles["left-panel"]}>
@@ -284,32 +252,36 @@ export default function BagPage() {
           id="item-list"
           style={{ position: "relative" }}
         >
-          {items.map((item, idx) => (
-            <div
-              key={idx}
-              ref={idx === itemIndex ? focusedRowRef : null}
-              style={{ display: "flex", alignItems: "center" }}
-              className={`${styles["item-row"]}${idx === itemIndex ? ` ${styles["focused"]}` : ""}`}
-            >
-              <span>{item.name}</span>
-              <span style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ display: "inline-block", height: "45px" }}>
-                  x
-                </span>
-                <span
-                  style={{
-                    width: "45px",
-                    display: "inline-block",
-                    textAlign: "right",
-                  }}
+          {items.map((item, idx) => {
+            return (
+              item.count !== 0 && (
+                <div
+                  key={idx}
+                  ref={idx === itemIndex ? focusedRowRef : null}
+                  style={{ display: "flex", alignItems: "center" }}
+                  className={`${styles["item-row"]}${idx === itemIndex ? ` ${styles["focused"]}` : ""}`}
                 >
-                  {item.count}
-                </span>
-              </span>
-            </div>
-          ))}
+                  <span>{item.name}</span>
+                  <span style={{ display: "flex", alignItems: "center" }}>
+                    <span style={{ display: "inline-block", height: "45px" }}>
+                      x
+                    </span>
+                    <span
+                      style={{
+                        width: "45px",
+                        display: "inline-block",
+                        textAlign: "right",
+                      }}
+                    >
+                      {item.count}
+                    </span>
+                  </span>
+                </div>
+              )
+            );
+          })}
 
-          {/* 🔥 사용하기 메뉴 UI 렌더링 */}
+          {}
           {isActionMenuOpen && (
             <div
               style={{
@@ -357,9 +329,9 @@ export default function BagPage() {
       {/* 하단 구역 */}
       <div className={styles["bottom-section"]}>
         <div className={styles["desc-icon-box"]}>
-          {currentItem ? (
+          {currentItem.count != 0 ? (
             <img
-              src={currentItem.icon}
+              src={`/src/assets/images/bag_images/${currentItem.id}.png`}
               alt="item-icon"
               style={{
                 width: 64,
@@ -369,11 +341,21 @@ export default function BagPage() {
               }}
             />
           ) : (
-            <span>🪨</span>
+            <span></span>
           )}
         </div>
         <div className={styles["desc-text-box"]}>
-          {currentItem ? currentItem.desc : "아이템을 선택해주세요."}
+          {currentItem.count !== 0
+            ? currentItem.desc.split("\\n").map((val, idx) => {
+                console.log(val);
+                return (
+                  <div>
+                    <span>{val}</span>
+                    <br />
+                  </div>
+                );
+              })
+            : "아이템을 선택해주세요."}
         </div>
       </div>
     </div>
