@@ -41,25 +41,7 @@ export function saveAdminState(state) {
 
 // 도감 데이터 정리
 export function normalizePokemonRow(raw, index) {
-  if (!raw) {
-    return {
-      id: index + 1,
-      name: `Pokemon ${index + 1}`,
-      unlocked: false,
-    };
-  }
-
-  const id = Number(raw.id ?? raw.pokedexId ?? raw.dexNo ?? index + 1);
-  const name =
-    raw.name ??
-    raw.englishName ??
-    raw.koreanName ??
-    raw.species ??
-    `Pokemon ${id}`;
-
   return {
-    id: Number.isFinite(id) ? id : index + 1,
-    name,
     unlocked: Boolean(
       raw.unlocked ?? raw.enabled ?? raw.active ?? raw.seen ?? raw.caught,
     ),

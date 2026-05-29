@@ -3,7 +3,7 @@ import axios from "axios";
 export const getBagItems = async () => {
   try {
     const response = await axios.get(
-      //   'http://localhost:3000/api/getAllPokemon',
+      //  'http://localhost:3000/api/getAllPokemon',
       "https://galactic-gruent-be.vercel.app/api/changeItemsApi",
     );
     console.log("get items:", response.data.data);

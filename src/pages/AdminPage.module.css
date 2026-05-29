@@ -1,3 +1,12 @@
+:root {
+  --primary: #f4d49c;
+  --primary-hover: #e9b36a;
+  --text: #fff8ef;
+  --point1: #ffc81e;
+  --point2: #e87f24;
+  --point3: #73a5ca;
+}
+
 .page {
   min-height: 100vh;
   padding: 32px;
@@ -15,11 +24,6 @@
       circle at 90% 12%,
       rgba(255, 190, 120, 0.14),
       transparent 24%
-    ),
-    radial-gradient(
-      circle at 50% 100%,
-      rgba(145, 214, 180, 0.08),
-      transparent 28%
     ),
     linear-gradient(180deg, #13101b 0%, #0f1220 55%, #090b12 100%);
 }
@@ -43,11 +47,6 @@
   box-shadow:
     0 28px 70px rgba(0, 0, 0, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-.heroCopy {
-  display: grid;
-  gap: 16px;
 }
 
 .eyebrow {
@@ -74,7 +73,6 @@
   letter-spacing: 0.03em;
 }
 
-.heroPills,
 .toolbarActions,
 .actions {
   display: flex;
@@ -83,71 +81,8 @@
   align-items: center;
 }
 
-.heroStats {
-  display: grid;
-  gap: 12px;
-}
-
-.statCard {
-  display: grid;
-  gap: 6px;
-  padding: 16px 18px;
-  border-radius: 20px;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.07),
-    rgba(255, 255, 255, 0.04)
-  );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.statLabel {
-  color: rgba(245, 243, 238, 0.66);
-  font-size: 12px;
-  letter-spacing: 0.05em;
-}
-
-.statValue {
-  font-size: 28px;
-  line-height: 1.05;
-  color: #fff8ef;
-  letter-spacing: 0.03em;
-}
-
-.statMeta {
-  color: rgba(245, 243, 238, 0.58);
-  font-size: 12px;
-  letter-spacing: 0.03em;
-}
-
-.statusBadge {
-  padding: 5px 9px;
-  border-radius: 999px;
-  color: #b8f4cf;
-  background: rgba(65, 196, 111, 0.14);
-  border: 1px solid rgba(65, 196, 111, 0.28);
-  font-size: 10px;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  white-space: nowrap;
-  max-width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 24px;
-}
-
 .resetButton {
   align-self: start;
-}
-
-.sectionHeadRow {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: end;
-  padding: 0 6px;
 }
 
 .sectionTitle {
@@ -155,13 +90,6 @@
   font-size: 18px;
   color: #fff8ef;
   letter-spacing: 0.04em;
-}
-
-.sectionLead {
-  margin: 6px 0 0;
-  color: rgba(245, 243, 238, 0.62);
-  font-size: 13px;
-  letter-spacing: 0.03em;
 }
 
 .tabs {
@@ -245,12 +173,6 @@
   letter-spacing: 0.04em;
 }
 
-.buttonSecondary {
-  color: #fff8ef;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-}
-
 .button:hover {
   transform: translateY(-1px);
 }
@@ -258,17 +180,6 @@
 .buttonSecondary:hover {
   background: rgba(255, 255, 255, 0.12);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-}
-
-.field:focus {
-  border-color: rgba(159, 179, 255, 0.55);
-  box-shadow: 0 0 0 3px rgba(159, 179, 255, 0.14);
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.grid {
-  display: grid;
-  gap: 14px;
 }
 
 .sectionCard {
@@ -304,20 +215,14 @@
 }
 
 .itemRow {
-  display: flex;
-  grid-template-columns: 56px minmax(0, 1fr) auto auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
   gap: 12px;
   align-items: center;
   padding: 12px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.itemIcon {
-  width: 56px;
-  height: 56px;
-  object-fit: contain;
 }
 
 .countControls {
@@ -338,19 +243,6 @@
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
-.countInput {
-  width: 96px;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  color: #fff8ef;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px 12px;
-  font-family: "pokemon_font", sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-}
-
 .emptyState {
   padding: 28px 18px;
   text-align: center;
@@ -364,6 +256,15 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+}
+
+.resetButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  cursor: pointer;
+  color: #fff8ef;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .changeButton {
@@ -455,5 +356,38 @@
   .toolbarActions .field {
     width: 100%;
     min-width: 0;
+  }
+}
+
+/* pokedex css */
+
+.card {
+  padding: 16px;
+  border-radius: 16px;
+  background: #222;
+  color: white;
+}
+
+.dexCard {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+@media (max-width: 1400px) {
+  .dexCard {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .dexCard {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .dexCard {
+    grid-template-columns: 1fr;
   }
 }

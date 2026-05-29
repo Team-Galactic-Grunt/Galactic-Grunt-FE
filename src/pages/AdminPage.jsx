@@ -1,63 +1,30 @@
 import { useEffect, useMemo, useState } from "react";
-// import { getAllPokemon } from "../api/getAllPokemon";
 import AdminBagSection from "./AdminBagSection.jsx";
 import AdminDexSection from "./AdminDexSection.jsx";
 import AdminTabs from "./AdminTabs.jsx";
 import styles from "./adminPage.module.css";
 
 export default function AdminPage() {
-  const [items, setItems] = useState([]);
+  // const [items, setItems] = useState([]);
   const [activeTab, setActiveTab] = useState("bag");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState(null);
 
-  //  useEffect(() => {
-  //     let isMounted = true;
+  // const bagItems = useMemo(
+  //   () => items.filter((item) => item.type === "bag"),
+  //   [items],
+  // );
 
-  // async function loadData() {
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
+  // const dexItems = useMemo(
+  //   () => items.filter((item) => item.type === "dex"),
+  //   [items],
+  // );
 
-  //     const result = await getAllPokemon();
-
-  //     if (isMounted) {
-  //       setItems(result ?? []);
-  //     }
-  //   } catch (loadError) {
-  //     if (isMounted) {
-  //       setError("데이터를 불러오지 못했습니다.");
-  //     }
-  //   } finally {
-  //     if (isMounted) {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   // }
-
-  //   loadData();
-
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // }, []);
-
-  /* const bagItems = useMemo(
-    () => items.filter((item) => item.type === "bag"),
-    [items],
-  );
-
-  const dexItems = useMemo(
-    () => items.filter((item) => item.type === "dex"),
-    [items],
-  );
-
-  if (loading) {
-    return <div className={styles.page}>Loading...</div>;
-  }
-
-  if (error) {
-    return <div className={styles.page}>{error}</div>;*/
+  // if (loading) {
+  //   return <div className={styles.page}>Loading...</div>;
+  // }
+  // if (error) {
+  //   return <div className={styles.page}>{error}</div>;
   // }
 
   return (
@@ -73,14 +40,11 @@ export default function AdminPage() {
               </p>
             </div>
           </section>
+          <AdminTabs activeTab={activeTab} onChange={setActiveTab} />
+          {activeTab === "bag" && <AdminBagSection />}
+          {activeTab === "dex" && <AdminDexSection />}
         </div>
-        <AdminBagSection />
-        <AdminDexSection />
-        <AdminTabs activeTab={activeTab} onChange={setActiveTab} />
       </div>
     </>
   );
 }
-/*
-{activeTab === "bag" && <AdminBagSection bagItems={bagItems} />}
-{activeTab === "dex" && <AdminDexSection dexItems={dexItems} />}*/

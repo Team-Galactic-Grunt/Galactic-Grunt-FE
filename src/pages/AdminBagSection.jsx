@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import styles from "./adminPage.module.css";
 import { getBagItems } from "../api/getBagItems";
+import { postBagItems } from "../api/postBagItems";
 
 export default function AdminBagSection() {
   const [bagItems, setBagItems] = useState(null);
@@ -22,6 +23,11 @@ export default function AdminBagSection() {
 
     return result;
   };
+
+  useEffect(() => {
+    fetchBag();
+    // console.log(res);
+  }, []);
 
   //  카운트 증가
   const increaseCount = (itemSectionName, itemIndex) => {
@@ -45,12 +51,8 @@ export default function AdminBagSection() {
       });
     }
     nextBagItems[itemSectionName] = updatedGroup;
-
+    console.log(nextBagItems);
     setBagItems(nextBagItems);
-  };
-
-  const confirmSave = async () => {
-    setSaveModal(false);
   };
 
   // 카운트 감소
@@ -79,10 +81,17 @@ export default function AdminBagSection() {
     setBagItems(nextBagItems);
   };
 
-  useEffect(() => {
-    fetchBag();
-    // console.log(res);
-  }, []);
+  // 서버 반영 확인용
+  const confirmSave = async () => {
+    try {
+      console.log(bagItems);
+      await postBagItems(bagItems);
+      await fetchBag();
+      setSaveModal(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -90,23 +99,27 @@ export default function AdminBagSection() {
         <h2>중요한 물건</h2>
         <div className={styles.itemList}>
           {bagItems &&
-            bagItems.important.map((val, idx) => (
-              <div key={`${val.id}-${idx}`} className={styles.itemRow}>
-                {val.name}
-
-                <button
-                  className={styles.countBtn}
-                  onClick={() => decreaseCount("important", idx)}
-                >
-                  -
-                </button>
-                <span> {val.count} </span>
-                <button
-                  className={styles.countBtn}
-                  onClick={() => increaseCount("important", idx)}
-                >
-                  +
-                </button>
+            bagItems?.important?.map((val, idx) => (
+              <div key={val.id} className={styles.itemRow}>
+                <div className={styles.itemInfo}>
+                  <div className={styles.itemName}>{val.name}</div>
+                  <div className={styles.itemDesc}>{val.desc}</div>
+                </div>
+                <div className={styles.countControls}>
+                  <button
+                    className={styles.countBtn}
+                    onClick={() => decreaseCount("important", idx)}
+                  >
+                    -
+                  </button>
+                  {val.count}
+                  <button
+                    className={styles.countBtn}
+                    onClick={() => increaseCount("important", idx)}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             ))}
         </div>
@@ -117,21 +130,26 @@ export default function AdminBagSection() {
         <div className={styles.itemList}>
           {bagItems &&
             bagItems.ball.map((val, idx) => (
-              <div key={`${val.id}`} className={styles.itemRow}>
-                {val.name}
-                <button
-                  className={styles.countBtn}
-                  onClick={() => decreaseCount("ball", idx)}
-                >
-                  -
-                </button>
-                <span> {val.count} </span>
-                <button
-                  className={styles.countBtn}
-                  onClick={() => increaseCount("ball", idx)}
-                >
-                  +
-                </button>
+              <div key={val.id} className={styles.itemRow}>
+                <div className={styles.itemInfo}>
+                  <div className={styles.itemName}>{val.name}</div>
+                  <div className={styles.itemDesc}>{val.desc}</div>
+                </div>
+                <div className={styles.countControls}>
+                  <button
+                    className={styles.countBtn}
+                    onClick={() => decreaseCount("ball", idx)}
+                  >
+                    -
+                  </button>
+                  <span> {val.count} </span>
+                  <button
+                    className={styles.countBtn}
+                    onClick={() => increaseCount("ball", idx)}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             ))}
         </div>
@@ -142,21 +160,26 @@ export default function AdminBagSection() {
         <div className={styles.itemList}>
           {bagItems &&
             bagItems.berries.map((val, idx) => (
-              <div key={`${val.id}-${idx}`} className={styles.itemRow}>
-                {val.name}
-                <button
-                  className={styles.countBtn}
-                  onClick={() => decreaseCount("berries", idx)}
-                >
-                  -
-                </button>
-                <span> {val.count} </span>
-                <button
-                  className={styles.countBtn}
-                  onClick={() => increaseCount("berries", idx)}
-                >
-                  +
-                </button>
+              <div key={val.id} className={styles.itemRow}>
+                <div className={styles.itemInfo}>
+                  <div className={styles.itemName}>{val.name}</div>
+                  <div className={styles.itemDesc}>{val.desc}</div>
+                </div>
+                <div className={styles.count}>
+                  <button
+                    className={styles.countBtn}
+                    onClick={() => decreaseCount("berries", idx)}
+                  >
+                    -
+                  </button>
+                  <span> {val.count} </span>
+                  <button
+                    className={styles.countBtn}
+                    onClick={() => increaseCount("berries", idx)}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             ))}
         </div>
@@ -167,8 +190,11 @@ export default function AdminBagSection() {
         <div className={styles.itemList}>
           {bagItems &&
             bagItems.heal.map((val, idx) => (
-              <div key={`${val.id}-${idx}`} className={styles.itemRow}>
-                {val.name}
+              <div key={val.id} className={styles.itemRow}>
+                <div className={styles.itemInfo}>
+                  <div className={styles.itemName}>{val.name}</div>
+                  <div className={styles.itemDesc}>{val.desc}</div>
+                </div>
                 <div className={styles.countControls}>
                   <button
                     className={styles.countBtn}
@@ -197,7 +223,6 @@ export default function AdminBagSection() {
           변경
         </button>
       </div>
-
       {saveModal && (
         <div className={styles.saveCard}>
           <div className={styles.isSave}>

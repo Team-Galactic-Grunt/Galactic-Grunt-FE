@@ -1,16 +1,16 @@
 // 지닌 물건 섹션 구분
 export const BAG_SECTIONS = [
-  { id: "medicine", label: "Medicine" },
-  { id: "pokeballs", label: "Pokeballs" },
+  { id: "heal", label: "Heal" },
+  { id: "ball", label: "Ball" },
   { id: "berries", label: "Berries" },
-  { id: "keyitems", label: "Key Items" },
+  { id: "important", label: "Important" },
 ];
 
 export const DEFAULT_BAG = {
-  medicine: [],
-  pokeballs: [],
+  heal: [],
+  ball: [],
   berries: [],
-  keyitems: [],
+  important: [],
 };
 
 export const DEFAULT_DEX = [];
