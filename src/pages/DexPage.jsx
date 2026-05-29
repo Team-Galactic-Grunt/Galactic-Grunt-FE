@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 
 export default function DexPage() {
-  const [dexList, setDexList] = useState([]);
+  const [dexList, setDexList] = useState(() => {
+    const pokedex = sessionStorage.getItem('pokedex');
+    return pokedex ? JSON.parse(pokedex) : [];
+  });
 
-  useEffect(() => {
-    async function fetchDexList() {
-      const response = await fetch(
-        // 'https://galactic-gruent-be.vercel.app/api/getPokemonDex',
-        'http://localhost:3000/api/getPokemonDex',
-      );
-      const data = await response.json();
-      console.log('Fetched Dex List:', data.data);
-      setDexList(data.data);
-    }
-    fetchDexList();
-  }, []);
+  // useEffect(() => {
+  //   async function fetchDexList() {
+  //     const response = await fetch(
+  //       // 'https://galactic-gruent-be.vercel.app/api/getPokemonDex',
+  //       'http://localhost:3000/api/getPokemonDex',
+  //     );
+  //     const data = await response.json();
+  //     console.log('Fetched Dex List:', data.data);
+  //     setDexList(data.data);
+  //   }
+  //   fetchDexList();
+  // }, []);
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>

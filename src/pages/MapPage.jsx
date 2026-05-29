@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { postReport } from '../api/postReport';
+import { useBgm } from '../context/BgmContext';
+import { battleBgm, mainBgm } from '../assets/bgm';
 import mainMapUrl from '/src/assets/images/main_map.png';
 import styles from './mapPage.module.css';
+import BattleTransition from '../components/animation/BattleTransition';
 
 // --- 상수 ---
 const SCALE = 0.3;
@@ -141,7 +144,9 @@ export default function MapPage() {
   const loopRunningRef = useRef(false);
   const fadeStateRef = useRef(null);
 
-  const [cells, setCells] = useState([]);
+  const { play, stop } = useBgm();
+  const transitionRef = useRef(null);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const menuOpenRef = useRef(false);
   const [menuIndex, setMenuIndex] = useState(0);
@@ -170,9 +175,11 @@ export default function MapPage() {
       isMyPokemon === null ||
       pokemonBox === null
     ) {
+      console.log('필요한 데이터가 없습니다. 홈으로 이동합니다.');
       navigate('/'); // 필요한 데이터가 없으면 홈으로 이동
     }
     sessionStorage.setItem('status', 'false');
+    play(mainBgm);
 
     // let timer = 0;
     // const intervalId = setInterval(() => {
@@ -387,31 +394,6 @@ export default function MapPage() {
     window.addEventListener('keyup', handleKeyUp);
 
     // 게임 루프 함수들 (클로저로 ref 접근)
-    function startBattleTransition(onComplete) {
-      const COLS_BC = 4,
-        ROWS_BC = 3;
-      const CELL_COUNT = COLS_BC * ROWS_BC;
-      const DELAY = 60,
-        DUR = 300;
-
-      const newCells = Array.from({ length: CELL_COUNT }, (_, i) => ({
-        id: i,
-        active: false,
-      }));
-      setCells(newCells);
-
-      newCells.forEach((_, i) => {
-        setTimeout(() => {
-          setCells((prev) =>
-            prev.map((cell) =>
-              cell.id === i ? { ...cell, active: true } : cell,
-            ),
-          );
-          if (i === newCells.length - 1) setTimeout(onComplete, DUR);
-        }, i * DELAY);
-      });
-    }
-
     function startTileMove() {
       const player = playerRef.current;
       const deltas = {
@@ -468,6 +450,7 @@ export default function MapPage() {
           const tileKey = `${arrivedCol},${arrivedRow}`;
 
           if (eventTileMapRef.current.has(tileKey)) {
+            // play(battleBgm, 0.2);
             const zone = eventTileMapRef.current.get(tileKey);
             eventTileMapRef.current.delete(tileKey);
 
@@ -480,15 +463,15 @@ export default function MapPage() {
             Object.keys(keys).forEach((k) => (keys[k] = false));
 
             fadeStateRef.current = { zone };
+            play(battleBgm, 0.3);
 
-            startBattleTransition(() => {
+            transitionRef.current.start(() => {
               const VALID_ZONES = ['grass1', 'grass2', 'snow', 'sea', 'cave'];
               if (!VALID_ZONES.includes(fadeStateRef.current?.zone)) {
                 alert(
                   `잘못된 요청입니다. (zone: ${fadeStateRef.current?.zone})`,
                 );
                 fadeStateRef.current = null;
-                setCells([]);
                 return;
               }
               sessionStorage.setItem(
@@ -500,7 +483,6 @@ export default function MapPage() {
                 }),
               );
               sessionStorage.setItem('eventZone', fadeStateRef.current.zone);
-              //   sessionStorage.setItem('battleZone', fadeStateRef.current.zone);
               sessionStorage.setItem('status', 'true');
               loopRunningRef.current = false;
               navigate('/battle');
@@ -647,18 +629,7 @@ export default function MapPage() {
 
   return (
     <>
-      <div id='battle_change' className={styles.battle_change}>
-        {cells.map((cell) => (
-          <div
-            key={cell.id}
-            className={styles.bc_cell}
-            style={{
-              transition: 'transform 300ms ease-in',
-              transform: cell.active ? 'scale(1)' : 'scale(0)',
-            }}
-          />
-        ))}
-      </div>
+      <BattleTransition ref={transitionRef} />
 
       <div id='wrap' className={styles.wrap}>
         {menuOpen && (

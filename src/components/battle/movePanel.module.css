@@ -1,0 +1,29 @@
+.panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 540px;
+  height: 166px;
+  background-image: url('/src/assets/images/battle_images/big_msg.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  padding: 20px 30px;
+  box-sizing: border-box;
+  font-family: 'pokemon_font';
+  font-size: 22px;
+  color: #333;
+}
+
+.move {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: default;
+}
+
+.selected {
+  color: #000;
+}
+
+.cursor {
+  font-size: 18px;
+}
