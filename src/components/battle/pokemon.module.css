@@ -51,7 +51,7 @@
   border: 5px solid rgb(82, 82, 82);
   border-radius: 8px;
   background-color: white;
-  padding: 10px;
+  padding: 10px 20px;
   box-sizing: border-box;
 }
 
@@ -81,7 +81,7 @@
   height: 108px; */
   width: 562px;
   height: 140.5px;
-  bottom: -20px;
+  bottom: -35px;
   /* margin-top: -100px; */
 
   /* right: -60px; */
@@ -107,4 +107,12 @@
 }
 .player_pokemon {
   margin-top: 40px;
+}
+
+.no_bold_font {
+  text-shadow:
+    -0.1px -0.1px 0 #000,
+    0.1px -0.1px 0 #000,
+    -0.1px 0.1px 0 #000,
+    0.1px 0.1px 0 #000;
 }

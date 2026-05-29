@@ -27,7 +27,10 @@ export default function Pokemon({ pokemon, eventZone, isEnemy }) {
           <div>Lv. {pokemon?.level}</div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}
+          className={styles.no_bold_font}
+        >
           HP
           <div
             style={{
@@ -53,7 +56,7 @@ export default function Pokemon({ pokemon, eventZone, isEnemy }) {
           <div
             style={{
               textAlign: 'right',
-              lineHeight: '12px',
+              lineHeight: '20px',
               wordSpacing: '-5px',
               fontWeight: 'bold',
             }}

@@ -4,9 +4,9 @@ import styles from './battleTransition.module.css';
 const COLS = 4,
   ROWS = 3;
 const INITIAL = 500,
-  DELAY = 35,
-  TRANSITION = 500,
-  DUR = 1000;
+  DELAY = 100,
+  TRANSITION = 300,
+  DUR = 2000;
 
 const BattleTransition = forwardRef((_, ref) => {
   const [cells, setCells] = useState([]);

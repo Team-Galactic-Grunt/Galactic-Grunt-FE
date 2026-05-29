@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { postReport } from '../api/postReport';
 import { useBgm } from '../context/BgmContext';
-import { battleBgm } from '../assets/bgm';
+import { battleBgm, mainBgm } from '../assets/bgm';
 import mainMapUrl from '/src/assets/images/main_map.png';
 import styles from './mapPage.module.css';
 import BattleTransition from '../components/animation/BattleTransition';
@@ -144,7 +144,7 @@ export default function MapPage() {
   const loopRunningRef = useRef(false);
   const fadeStateRef = useRef(null);
 
-  const { play } = useBgm();
+  const { play, stop } = useBgm();
   const transitionRef = useRef(null);
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -179,6 +179,7 @@ export default function MapPage() {
       navigate('/'); // 필요한 데이터가 없으면 홈으로 이동
     }
     sessionStorage.setItem('status', 'false');
+    play(mainBgm);
 
     // let timer = 0;
     // const intervalId = setInterval(() => {

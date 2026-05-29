@@ -2,8 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import styles from './battlePage.module.css';
 import { postBattlePokemon } from '../api/postBattlePokemon';
 import { useBattleLog } from '../hooks/useBattleLog';
+import { useBgm } from '../context/BgmContext';
+import { battleBgm } from '../assets/bgm';
 import LogComponent from '../components/LogComponent';
 import Pokemon from '../components/battle/Pokemon';
+import OpenTransition from '../components/animation/OpenTransition';
 
 function eventZoneCheck(zone) {
   const backgroundUrl = zone === 'grass1' || zone === 'grass2' ? 'grass' : zone;
@@ -27,9 +30,22 @@ export default function BattlePage() {
   const [showPlayer, setShowPlayer] = useState(false);
   const audioStepRef = useRef(0);
   const prevWaitingRef = useRef(false);
+  const openRef = useRef(null);
 
   const eventZone = sessionStorage.getItem('eventZone');
   const { displayText, waiting, addLog, advance } = useBattleLog();
+  const { play, stop } = useBgm();
+
+  // 배틀 페이지 로드되면 바로 열기
+  useEffect(() => {
+    play(battleBgm, 0.2);
+    openRef.current.start();
+    return () => {
+      stop();
+    };
+  }, []);
+
+  // JSX
 
   // 인트로 메시지(야생..., 가랏!) 자동 진행
   useEffect(() => {
@@ -78,6 +94,7 @@ export default function BattlePage() {
 
   return (
     <div>
+      <OpenTransition ref={openRef} />
       <div
         className={styles.wrap_battle}
         style={{

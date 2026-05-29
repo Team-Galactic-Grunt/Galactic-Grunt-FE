@@ -1,11 +1,11 @@
-import { createContext, useContext, useRef, useEffect } from 'react';
-import { battleBgm } from '../assets/bgm';
+import { createContext, useContext, useRef, useEffect, useCallback } from 'react';
+import { battleBgm, mainBgm } from '../assets/bgm';
 
 const BgmContext = createContext(null);
 
 // 모듈 로드 시점에 미리 로딩
 const cache = new Map();
-[battleBgm].forEach((src) => {
+[battleBgm, mainBgm].forEach((src) => {
   const audio = new Audio(src);
   audio.preload = 'auto';
   audio.loop = true;
@@ -15,14 +15,15 @@ const cache = new Map();
 export function BgmProvider({ children }) {
   const audioRef = useRef(null);
 
-  // 첫 키 입력 시 모든 오디오를 강제 버퍼링
+  // 첫 키 입력 시 모든 오디오를 강제 버퍼링 + 재생 차단된 BGM retry
   useEffect(() => {
     const unlock = () => {
       cache.forEach((audio) => {
-        audio.play().then(() => {
-          audio.pause();
-          audio.currentTime = 0;
-        }).catch(() => {});
+        if (audio === audioRef.current) {
+          audio.play().catch(() => {});
+        } else {
+          audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(() => {});
+        }
       });
       window.removeEventListener('keydown', unlock);
     };
@@ -30,7 +31,7 @@ export function BgmProvider({ children }) {
     return () => window.removeEventListener('keydown', unlock);
   }, []);
 
-  const play = (src, startTime = 0) => {
+  const play = useCallback((src, startTime = 0) => {
     const next = cache.get(src) ?? new Audio(src);
     if (audioRef.current === next) return;
     audioRef.current?.pause();
@@ -38,12 +39,12 @@ export function BgmProvider({ children }) {
     audioRef.current.loop = true;
     audioRef.current.currentTime = startTime;
     audioRef.current.play().catch(() => {});
-  };
+  }, []);
 
-  const stop = () => {
+  const stop = useCallback(() => {
     audioRef.current?.pause();
     audioRef.current = null;
-  };
+  }, []);
 
   return (
     <BgmContext.Provider value={{ play, stop }}>{children}</BgmContext.Provider>
