@@ -1,13 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './pokemon.module.css';
 
-export default function Pokemon({ pokemon, eventZone, isEnemy }) {
-  //   console.log('Pokemon component received props:', {
-  //     pokemon,
-  //     eventZone,
-  //     isEnemy,
-  //   });
-  const [currentHp, setPokemonHp] = useState(pokemon?.baseStats?.hp || 0);
+export default function Pokemon({ pokemon, eventZone, isEnemy, currentHp: hpProp }) {
+  const currentHp = hpProp ?? pokemon?.baseStats?.hp ?? 0;
 
   return (
     <div

@@ -9,10 +9,14 @@ export function useBattleLog() {
   const isTypingRef = useRef(false);
   const waitingForInputRef = useRef(false);
   const intervalRef = useRef(null);
+  const onEmptyRef = useRef(null);
 
   const startNextMessage = useCallback(() => {
     if (msgQueueRef.current.length === 0) {
       setDisplayText('');
+      const cb = onEmptyRef.current;
+      onEmptyRef.current = null;
+      cb?.();
       return;
     }
     const msg = msgQueueRef.current.shift();
@@ -63,5 +67,9 @@ export function useBattleLog() {
     }
   }, [startNextMessage]);
 
-  return { displayText, waiting, addLog, advance };
+  const onQueueEmpty = useCallback((cb) => {
+    onEmptyRef.current = cb;
+  }, []);
+
+  return { displayText, waiting, addLog, advance, onQueueEmpty };
 }
