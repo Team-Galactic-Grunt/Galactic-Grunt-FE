@@ -19,7 +19,10 @@ export default function LogComponent({
   return (
     <div
       className={styles.log}
-      style={{ width: size === 'long' ? '1080px' : '605px' }}
+      style={{
+        width:
+          size === 'long' ? '1080px' : size === 'short' ? '605px' : '385px',
+      }}
     >
       <div className={styles.inner_log}>
         <p className={styles.log_text}>{displayText}</p>

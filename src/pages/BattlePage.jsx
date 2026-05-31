@@ -7,6 +7,7 @@ import { useBattle } from '../hooks/useBattle';
 import { useBgm } from '../context/BgmContext';
 import { battleBgm } from '../assets/bgm';
 import { navigateToMap } from '../utils/navigateToMap';
+import { tryCatch } from '../utils/calcCatchRate';
 import LogComponent from '../components/LogComponent';
 import MovePanel from '../components/battle/MovePanel';
 import PokemonSelectPanel from '../components/battle/PokemonSelectPanel';
@@ -14,22 +15,15 @@ import FaintPanel from '../components/battle/FaintPanel';
 import Pokemon from '../components/battle/Pokemon';
 import EnemyPokemon from '../components/battle/EnemyPokemon';
 import OpenTransition from '../components/animation/OpenTransition';
+import FightPanel from '../components/battle/FightPanel';
+import BagPanel from '../components/battle/BagPanel';
+import { v4 as uuidv4 } from 'uuid';
 
 const ACTION_MENU = ['싸운다', '포켓몬', '가방', '도망가기'];
 
 function eventZoneCheck(zone) {
   return zone === 'grass1' || zone === 'grass2' ? 'grass' : zone;
 }
-
-// function syncCurrentPokemon() {
-//   const cp = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
-//   if (!cp) return;
-//   const list = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
-//   sessionStorage.setItem(
-//     'isMyPokemon',
-//     JSON.stringify(list.map((p) => (p.catchId === cp.catchId ? cp : p))),
-//   );
-// }
 
 function playAudio(url) {
   const audio = new Audio(url);
@@ -44,21 +38,24 @@ function playAudio(url) {
 
 export default function BattlePage() {
   const eventZone = sessionStorage.getItem('eventZone');
+  // 전설 포켓몬 조우 시 MapPage에서 저장한 ID — 사용 후 즉시 제거
+  const legendaryId = sessionStorage.getItem('legendaryId')
+    ? Number(sessionStorage.getItem('legendaryId'))
+    : null;
+  if (legendaryId) sessionStorage.removeItem('legendaryId');
+
   const myPokemon = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
   const currentIndex = myPokemon.findIndex(
     (pokemon) => pokemon.currentHp !== 0,
   );
-  const bag = JSON.parse(sessionStorage.getItem('bag') || '[]');
-  const avgLevel = myPokemon.length
-    ? myPokemon.reduce((sum, p) => sum + p.level, 0) / myPokemon.length
-    : 1;
+  // const bag = JSON.parse(sessionStorage.getItem('bag') || '[]');
 
   const navigate = useNavigate();
   const [enemy, setEnemy] = useState(null);
   const [currentPokemon, setCurrentPokemon] = useState(null);
   const [showPlayer, setShowPlayer] = useState(false);
-  const [phase, setPhase] = useState('intro'); // 'intro' | 'select' | 'fight' | 'pokemon' | 'bag' | 'executing' | 'end'
-  const [moveIndex, setMoveIndex] = useState(0);
+  const [phase, setPhase] = useState('intro'); // 'intro' | 'select' | 'fight' | 'pokemon' | 'bag' | 'bag-target' | 'executing' | 'end'
+  const [pendingItem, setPendingItem] = useState(null); // { tab, item }
 
   const audioStepRef = useRef(0);
   const prevWaitingRef = useRef(false);
@@ -67,7 +64,7 @@ export default function BattlePage() {
   const { displayText, waiting, addLog, advance, onQueueEmpty } =
     useBattleLog();
   // const { play, stop } = useBgm();
-  const { executeTurn } = useBattle({ addLog });
+  const { executeTurn, executeEnemyTurn } = useBattle({ addLog });
 
   // 마운트: BGM + 화면 열기 + 포켓몬 fetch
   useEffect(() => {
@@ -80,6 +77,12 @@ export default function BattlePage() {
       return;
     }
 
+    const avgLevel = Math.floor(
+      myPokemon.reduce((sum, p) => sum + (p.level ?? 0), 0) / 4,
+    );
+
+    console.log('Calculated average level:', avgLevel);
+
     window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyX') {
         e.preventDefault();
@@ -87,7 +90,7 @@ export default function BattlePage() {
       }
     });
 
-    postBattlePokemon({ eventZone, avgLevel })
+    postBattlePokemon({ eventZone, avgLevel, pokemonId: legendaryId ?? undefined })
       .then((data) => {
         setEnemy(data);
         sessionStorage.setItem('enemyPokemon', JSON.stringify(data));
@@ -146,15 +149,12 @@ export default function BattlePage() {
   const handleActionSelect = (idx) => {
     switch (idx) {
       case 0: // 싸운다
-        setMoveIndex(0);
         setPhase('fight');
         break;
       case 1:
-        setMoveIndex(0);
         setPhase('pokemon');
         break;
       case 2:
-        setMoveIndex(0);
         setPhase('bag');
         break;
       case 3: // 도망가기
@@ -167,14 +167,166 @@ export default function BattlePage() {
 
   // 포켓몬 교체 (sessionStorage 교체는 PokemonSelectPanel이 처리)
   const handlePokemonSelect = (selected, prevHp) => {
-    if (prevHp > 0) addLog(`돌아와! ${currentPokemon.name}!`);
+    const isVoluntary = prevHp > 0; // 기절 교체면 false, 자발적 교체면 true
+
+    if (isVoluntary) addLog(`돌아와! ${currentPokemon.name}!`);
     setCurrentPokemon(selected);
     playAudio(selected.cryUrl);
     addLog(`가랏! ${selected.name}!`);
-    addLog('무엇을 할까?');
     advance();
     setPhase('executing');
-    onQueueEmpty(() => setPhase('select'));
+
+    if (isVoluntary) {
+      // 자발적 교체: 상대도 이번 턴에 공격
+      const result = executeEnemyTurn();
+      onQueueEmpty(() => {
+        if (result === 'player-faint') {
+          const stored = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
+          const hasOthers = stored.some(
+            (p) => p.catchId !== selected.catchId && (p.currentHp ?? 0) > 0,
+          );
+          if (hasOthers) setPhase('faint');
+          else navigateToMap(navigate);
+        } else {
+          addLog('무엇을 할까?');
+          setPhase('select');
+        }
+      });
+    } else {
+      // 기절 후 교체: 상대 공격 없이 바로 선택 화면으로
+      onQueueEmpty(() => {
+        addLog('무엇을 할까?');
+        setPhase('select');
+      });
+    }
+  };
+
+  // 가방에서 아이템 선택 → 볼이면 포획, 나머지는 포켓몬 선택 단계로
+  const handleBagSelect = (tab, item) => {
+    if (tab === 'ball') {
+      const ep = JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null');
+      if (!ep) return;
+
+      // 볼 count 차감
+      const bag = JSON.parse(sessionStorage.getItem('bag') || '{}');
+      sessionStorage.setItem(
+        'bag',
+        JSON.stringify({
+          ...bag,
+          ball: (bag.ball ?? [])
+            .map((i) =>
+              i.name === item.name ? { ...i, count: i.count - 1 } : i,
+            )
+            .filter((i) => i.count > 0),
+        }),
+      );
+
+      const caught = tryCatch(ep, item.name);
+
+      // 볼 던질 때 이미지 교체
+      addLog(`${ep.name}에게 ${item.name}을(를) 던졌다!`, () => {
+        window.dispatchEvent(
+          new CustomEvent('catchAttempt', { detail: { id: ep.id } }),
+        );
+      });
+
+      advance();
+      setPhase('executing');
+
+      if (caught) {
+        addLog(`야생 ${ep.name}을(를) 잡았다!`);
+        const pokemonBox = JSON.parse(
+          sessionStorage.getItem('pokemonBox') || '[]',
+        );
+        pokemonBox.push({ ...ep, catchId: uuidv4() });
+        sessionStorage.setItem('pokemonBox', JSON.stringify(pokemonBox));
+        onQueueEmpty(() => navigateToMap(navigate));
+      } else {
+        addLog(`${ep.name}이(가) 탈출했다!`, () => {
+          window.dispatchEvent(new CustomEvent('catchRelease'));
+        });
+        const result = executeEnemyTurn();
+        onQueueEmpty(() => {
+          if (result === 'player-faint') {
+            const stored = JSON.parse(
+              sessionStorage.getItem('isMyPokemon') || '[]',
+            );
+            const hasOthers = stored.some(
+              (p) =>
+                p.catchId !== currentPokemon?.catchId && (p.currentHp ?? 0) > 0,
+            );
+            if (hasOthers) setPhase('faint');
+            else navigateToMap(navigate);
+          } else {
+            addLog('무엇을 할까?');
+            setPhase('select');
+          }
+        });
+      }
+      return;
+    }
+    setPendingItem({ tab, item });
+    setPhase('bag-target');
+  };
+
+  // 아이템을 적용할 포켓몬 선택 후 처리
+  const handleBagTargetSelect = (target) => {
+    const { tab, item } = pendingItem;
+    setPendingItem(null);
+
+    const healed = Math.min(
+      (target.currentHp ?? 0) + (item.healAmount ?? 0),
+      target.maxHp ?? target.baseStats?.hp ?? 0,
+    );
+    const updated = { ...target, currentHp: healed };
+
+    const isMyPokemon = JSON.parse(
+      sessionStorage.getItem('isMyPokemon') || '[]',
+    );
+    sessionStorage.setItem(
+      'isMyPokemon',
+      JSON.stringify(
+        isMyPokemon.map((p) => (p.catchId === target.catchId ? updated : p)),
+      ),
+    );
+    const cp = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
+    if (cp?.catchId === target.catchId) {
+      sessionStorage.setItem('currentPokemon', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('currentPokemonUpdated'));
+    }
+
+    const bag = JSON.parse(sessionStorage.getItem('bag') || '{}');
+    sessionStorage.setItem(
+      'bag',
+      JSON.stringify({
+        ...bag,
+        [tab]: (bag[tab] ?? [])
+          .map((i) => (i.name === item.name ? { ...i, count: i.count - 1 } : i))
+          .filter((i) => i.count > 0),
+      }),
+    );
+
+    addLog(`${target.name}에게 ${item.name}을(를) 사용했다!`);
+    advance();
+    setPhase('executing');
+
+    const result = executeEnemyTurn();
+    onQueueEmpty(() => {
+      if (result === 'player-faint') {
+        const stored = JSON.parse(
+          sessionStorage.getItem('isMyPokemon') || '[]',
+        );
+        const hasOthers = stored.some(
+          (p) =>
+            p.catchId !== currentPokemon?.catchId && (p.currentHp ?? 0) > 0,
+        );
+        if (hasOthers) setPhase('faint');
+        else navigateToMap(navigate);
+      } else {
+        addLog('무엇을 할까?');
+        setPhase('select');
+      }
+    });
   };
 
   // 기술 선택 후 턴 실행
@@ -197,7 +349,6 @@ export default function BattlePage() {
           (p) =>
             p.catchId !== currentPokemon?.catchId && (p.currentHp ?? 0) > 0,
         );
-        setMoveIndex(0);
         if (hasOthers) {
           setPhase('faint');
         } else {
@@ -209,6 +360,20 @@ export default function BattlePage() {
 
   const renderBottomPanel = () => {
     switch (phase) {
+      case 'bag-target':
+        return (
+          <div style={{ display: 'flex', gap: '-5px' }}>
+            <LogComponent
+              displayText={displayText}
+              waiting={waiting}
+              size='short'
+            />
+            <PokemonSelectPanel
+              mode='target'
+              onSelect={handleBagTargetSelect}
+            />
+          </div>
+        );
       case 'faint':
         return (
           <div style={{ display: 'flex', gap: '-5px' }}>
@@ -218,10 +383,7 @@ export default function BattlePage() {
               size='short'
             />
             <FaintPanel
-              onSwitch={() => {
-                setMoveIndex(0);
-                setPhase('pokemon');
-              }}
+              onSwitch={() => setPhase('pokemon')}
               onEscape={() => navigate('/map')}
             />
           </div>
@@ -234,12 +396,7 @@ export default function BattlePage() {
               waiting={waiting}
               size='short'
             />
-            <MovePanel
-              moves={ACTION_MENU}
-              moveIndex={moveIndex}
-              onMove={setMoveIndex}
-              onSelect={handleActionSelect}
-            />
+            <MovePanel moves={ACTION_MENU} onSelect={handleActionSelect} />
           </div>
         );
       case 'fight':
@@ -248,12 +405,10 @@ export default function BattlePage() {
             <LogComponent
               displayText={displayText}
               waiting={waiting}
-              size='short'
+              size='skill'
             />
-            <MovePanel
-              moves={currentPokemon?.moves?.map((m) => m.koName)}
-              moveIndex={moveIndex}
-              onMove={setMoveIndex}
+            <FightPanel
+              moves={currentPokemon?.moves}
               onSelect={handleFightSelect}
             />
           </div>
@@ -266,28 +421,18 @@ export default function BattlePage() {
               waiting={waiting}
               size='short'
             />
-            <PokemonSelectPanel
-              selectedIndex={moveIndex}
-              onMove={setMoveIndex}
-              onSelect={handlePokemonSelect}
-            />
+            <PokemonSelectPanel onSelect={handlePokemonSelect} />
           </div>
         );
       case 'bag':
         return (
-          <div style={{ position: 'relative', display: 'flex', gap: '-5px' }}>
-            <div></div>
+          <div style={{ display: 'flex', gap: '-5px' }}>
             <LogComponent
               displayText={displayText}
               waiting={waiting}
               size='short'
             />
-            <MovePanel
-              moves={moveIndex}
-              moveIndex={moveIndex}
-              onMove={setMoveIndex}
-              onSelect={handleFightSelect}
-            />
+            <BagPanel onSelect={handleBagSelect} />
           </div>
         );
       default:

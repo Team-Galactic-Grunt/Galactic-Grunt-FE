@@ -112,13 +112,12 @@ export function useBattle({ addLog }) {
         const effectText = effectivenessText(multiplier);
 
         if (isPlayer) {
-          // 공격 시점에 sessionStorage에서 최신 HP를 읽어 데미지 적용
-          const ep = JSON.parse(
-            sessionStorage.getItem('enemyPokemon') || 'null',
-          );
+          const ep = JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null');
           const newHp = Math.max(0, (ep?.currentHp ?? 0) - damage);
-          updateEnemyInStorage(newHp);
-          addLog(`${attacker.name}은(는) ${move.koName}을(를) 사용했다!`);
+          // 공격 로그가 화면에 뜨는 순간 HP 바 업데이트
+          addLog(`${attacker.name}은(는) ${move.koName}을(를) 사용했다!`, () => {
+            updateEnemyInStorage(newHp);
+          });
           if (effectText) addLog(effectText);
 
           if (newHp <= 0) {
@@ -127,16 +126,12 @@ export function useBattle({ addLog }) {
             handleExpGain();
           }
         } else {
-          const cp = JSON.parse(
-            sessionStorage.getItem('currentPokemon') || 'null',
-          );
+          const cp = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
           const newHp = Math.max(0, (cp?.currentHp ?? 0) - damage);
-          // currentHp만 깎음 — baseStats.hp(최대 HP 스탯)는 건드리지 않음
-          updatePlayerInStorage(player.catchId, (p) => ({
-            ...p,
-            currentHp: newHp,
-          }));
-          addLog(`${attacker.name}은(는) ${move.koName}을(를) 사용했다!`);
+          // 공격 로그가 화면에 뜨는 순간 HP 바 업데이트
+          addLog(`${attacker.name}은(는) ${move.koName}을(를) 사용했다!`, () => {
+            updatePlayerInStorage(player.catchId, (p) => ({ ...p, currentHp: newHp }));
+          });
           if (effectText) addLog(effectText);
 
           if (newHp <= 0) {
@@ -159,5 +154,39 @@ export function useBattle({ addLog }) {
     [addLog],
   );
 
-  return { executeTurn };
+  // 아이템 사용 턴: 적만 공격 (플레이어는 아이템을 씀)
+  // returns 'continue' | 'player-faint'
+  const executeEnemyTurn = useCallback(() => {
+    const player = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
+    const enemy = JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null');
+    if (!player || !enemy) return 'continue';
+
+    const validMoves = enemy.moves.filter((m) => m.power);
+    const move = validMoves.length
+      ? validMoves[Math.floor(Math.random() * validMoves.length)]
+      : enemy.moves[0];
+
+    if (!move?.power) {
+      addLog(`${enemy.name}은(는) ${move?.koName}을(를) 사용했다!`);
+      return 'continue';
+    }
+
+    const { damage, multiplier } = calcDamage(enemy, move, player);
+    const effectText = effectivenessText(multiplier);
+    const cp = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
+    const newHp = Math.max(0, (cp?.currentHp ?? 0) - damage);
+
+    addLog(`${enemy.name}은(는) ${move.koName}을(를) 사용했다!`, () => {
+      updatePlayerInStorage(player.catchId, (p) => ({ ...p, currentHp: newHp }));
+    });
+    if (effectText) addLog(effectText);
+
+    if (newHp <= 0) {
+      addLog(`${player.name}이(가) 쓰러졌다!`);
+      return 'player-faint';
+    }
+    return 'continue';
+  }, [addLog]);
+
+  return { executeTurn, executeEnemyTurn };
 }

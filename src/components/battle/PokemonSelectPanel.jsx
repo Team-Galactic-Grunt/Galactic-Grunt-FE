@@ -3,16 +3,8 @@ import styles from './movePanel.module.css';
 import { syncCurrentPokemon } from '../../utils/syncCurrentPokemon';
 import { exchangeCurrentPokemon } from '../../utils/exchangeCurrentPokemon';
 
-export default function PokemonSelectPanel({
-  selectedIndex,
-  onMove,
-  onSelect,
-}) {
-  const pokemon = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
-  const currentPokemon = JSON.parse(
-    sessionStorage.getItem('currentPokemon') || 'null',
-  );
-
+export default function PokemonSelectPanel({ onSelect, mode = 'switch' }) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [toast, setToast] = useState(null); // null | 'active' | 'fainted'
   const itemRefs = useRef([]);
 
@@ -23,33 +15,36 @@ export default function PokemonSelectPanel({
   useEffect(() => {
     const handleKey = (e) => {
       const list = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
-      const active = JSON.parse(
-        sessionStorage.getItem('currentPokemon') || 'null',
-      );
-      if (e.key === 'ArrowUp')
-        onMove((i) => (i - 1 + list.length) % list.length);
-      if (e.key === 'ArrowDown') onMove((i) => (i + 1) % list.length);
+      const active = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
+      if (e.key === 'ArrowUp') setSelectedIndex((i) => (i - 1 + list.length) % list.length);
+      if (e.key === 'ArrowDown') setSelectedIndex((i) => (i + 1) % list.length);
       if (e.code === 'KeyZ') {
         const selected = list[selectedIndex];
-        if (selected?.catchId === active?.catchId) {
-          setToast('active');
-          setTimeout(() => setToast(null), 1000);
-        } else if ((selected?.currentHp ?? 0) <= 0) {
-          setToast('fainted');
-          setTimeout(() => setToast(null), 1000);
+        if (mode === 'target') {
+          // 아이템 대상 선택: 교체 없이 그냥 선택한 포켓몬만 전달
+          if (selected) onSelect(selected);
         } else {
-          const prevHp =
-            JSON.parse(sessionStorage.getItem('currentPokemon') || 'null')
-              ?.currentHp ?? 0;
-          exchangeCurrentPokemon(selectedIndex);
-          onSelect(selected, prevHp);
+          if (selected?.catchId === active?.catchId) {
+            setToast('active');
+            setTimeout(() => setToast(null), 1000);
+          } else if ((selected?.currentHp ?? 0) <= 0) {
+            setToast('fainted');
+            setTimeout(() => setToast(null), 1000);
+          } else {
+            const prevHp = active?.currentHp ?? 0;
+            exchangeCurrentPokemon(selectedIndex);
+            onSelect(selected, prevHp);
+          }
         }
       }
       e.preventDefault();
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [selectedIndex, onMove, onSelect]);
+  }, [selectedIndex, onSelect, mode]);
+
+  const pokemon = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
+  const currentPokemon = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
 
   return (
     <div className={styles.panel} style={{ position: 'relative' }}>
@@ -83,15 +78,8 @@ export default function PokemonSelectPanel({
               {p.currentHp ?? 0}/{p.maxHp ?? 0}
             </span>
             {p.catchId === currentPokemon?.catchId && (
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '30px',
-                  textAlign: 'right',
-                }}
-              >
-                {' '}
-                ★
+              <span style={{ display: 'inline-block', width: '30px', textAlign: 'right' }}>
+                {' '}★
               </span>
             )}
           </div>

@@ -5,13 +5,23 @@ export default function EnemyPokemon({ eventZone }) {
   const [enemyPokemon, setEnemyPokemon] = useState(
     () => JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null'),
   );
+  const [catchSprite, setCatchSprite] = useState(null); // 볼 던질 때 이미지 교체
 
   useEffect(() => {
     const sync = () => {
       setEnemyPokemon(JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null'));
     };
+    const onCatch = (e) => setCatchSprite(`/src/assets/images/bag_images/${e.detail.id}.png`);
+    const onRelease = () => setCatchSprite(null);
+
     window.addEventListener('enemyPokemonUpdated', sync);
-    return () => window.removeEventListener('enemyPokemonUpdated', sync);
+    window.addEventListener('catchAttempt', onCatch);
+    window.addEventListener('catchRelease', onRelease);
+    return () => {
+      window.removeEventListener('enemyPokemonUpdated', sync);
+      window.removeEventListener('catchAttempt', onCatch);
+      window.removeEventListener('catchRelease', onRelease);
+    };
   }, []);
 
   const maxHp = enemyPokemon?.maxHp ?? enemyPokemon?.baseStats?.hp ?? 1;
@@ -59,7 +69,7 @@ export default function EnemyPokemon({ eventZone }) {
       <div style={{ width: '300px', height: '300px', position: 'relative' }}>
         <div
           className={`${styles.pokemon} ${styles.enemy_pokemon}`}
-          style={{ backgroundImage: `url(${enemyPokemon?.frontSprite})` }}
+          style={{ backgroundImage: `url(${catchSprite ?? enemyPokemon?.frontSprite})` }}
         ></div>
         <div
           className={`${styles.ground} ${styles.enemy_ground}`}

@@ -19,8 +19,9 @@ export default function FaintPanel({ onSwitch, onEscape }) {
   useEffect(() => {
     const handleKey = (e) => {
       const opts = getOptions();
-      if (e.key === 'ArrowUp') setSelectedIndex((i) => (i - 1 + opts.length) % opts.length);
-      if (e.key === 'ArrowDown') setSelectedIndex((i) => (i + 1) % opts.length);
+      if (e.key === 'ArrowRight')
+        setSelectedIndex((i) => (i - 1 + opts.length) % opts.length);
+      if (e.key === 'ArrowLeft') setSelectedIndex((i) => (i + 1) % opts.length);
       if (e.code === 'KeyZ') {
         if (opts[selectedIndex] === '교체하기') {
           onSwitch();
