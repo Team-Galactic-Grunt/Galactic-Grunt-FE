@@ -19,7 +19,10 @@ export function useBattleLog() {
       cb?.();
       return;
     }
-    const msg = msgQueueRef.current.shift();
+    const item = msgQueueRef.current.shift();
+    const msg = typeof item === 'string' ? item : item.msg;
+    const onShow = typeof item === 'object' ? item.onShow : null;
+    onShow?.();
     currentMsgRef.current = msg;
     let idx = 0;
     isTypingRef.current = true;
@@ -40,8 +43,8 @@ export function useBattleLog() {
   }, []);
 
   const addLog = useCallback(
-    (msg) => {
-      msgQueueRef.current.push(msg);
+    (msg, onShow) => {
+      msgQueueRef.current.push(onShow ? { msg, onShow } : msg);
       if (!isTypingRef.current && !waitingForInputRef.current) {
         startNextMessage();
       }

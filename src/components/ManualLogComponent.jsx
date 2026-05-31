@@ -12,9 +12,11 @@ export default function ManualLogComponent({ displayText, waiting, advance }) {
   }, [waiting, advance]);
 
   return (
-    <div className={styles.log}>
-      <p className={styles.log_text}>{displayText}</p>
-      {waiting && <span className={styles.log_cursor}>▼</span>}
+    <div className={styles.log} style={{ width: '1080px' }}>
+      <div className={styles.inner_log}>
+        <p className={styles.log_text}>{displayText}</p>
+      </div>
+      {/* {waiting && <span className={styles.log_cursor}>▼</span>} */}
     </div>
   );
 }

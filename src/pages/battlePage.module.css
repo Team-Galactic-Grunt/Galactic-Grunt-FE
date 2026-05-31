@@ -5,6 +5,7 @@
   background-size: cover;
   background-repeat: no-repeat;
   overflow: hidden;
+  border-radius: 8px;
   font-family: 'pokemon_font';
 }
 
@@ -63,4 +64,3 @@
   background-position: center;
   z-index: 20;
 }
-

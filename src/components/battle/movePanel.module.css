@@ -1,22 +1,38 @@
 .panel {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 540px;
+  width: 480px;
   height: 166px;
-  background-image: url('/src/assets/images/battle_images/big_msg.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  padding: 20px 30px;
+  /* background-image: url('/src/assets/images/battle_images/big_msg.png'); */
+  /* background-size: cover;
+  background-repeat: no-repeat; */
+
+  padding: 5px;
+  background-color: white;
+  border: 5px solid rgb(82, 82, 82);
+  border-radius: 10px;
+
   box-sizing: border-box;
   font-family: 'pokemon_font';
   font-size: 22px;
   color: #333;
+  margin-left: -5px;
+}
+
+.inner_panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0px 10px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 5px solid rgb(82, 82, 82);
+  border-radius: 4px;
+  padding: 8px 0px 18px 40px;
 }
 
 .move {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
+  /* padding: 8px 12px; */
   cursor: default;
 }
 
@@ -26,4 +42,17 @@
 
 .cursor {
   font-size: 18px;
+  margin-right: 8px;
+}
+
+.inner_panel::-webkit-scrollbar {
+  display: none;
+}
+
+.save_toast {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 14px;
+  color: #555;
 }
