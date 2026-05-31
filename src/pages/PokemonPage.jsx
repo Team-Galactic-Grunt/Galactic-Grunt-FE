@@ -3,6 +3,27 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import styles from "./pokemonpage.module.css";
 
+const TYPE_COLORS = {
+  NORMAL: "#A8A77A",
+  FIRE: "#EE8130",
+  WATER: "#6390F0",
+  ELECTRIC: "#F7D02C",
+  GRASS: "#7AC74C",
+  ICE: "#96D9D6",
+  FIGHTING: "#C22E28",
+  POISON: "#A33EA1",
+  GROUND: "#E2BF65",
+  FLYING: "#A98FF3",
+  PSYCHIC: "#F95587",
+  BUG: "#A6B91A",
+  ROCK: "#B6A136",
+  GHOST: "#735797",
+  DRAGON: "#6F35FC",
+  DARK: "#705746",
+  STEEL: "#B7B7CE",
+  FAIRY: "#D685AD",
+};
+
 const MAX_BOX_COUNT = 5;
 const MAX_PARTY = 5;
 const MAX_BOX_ROW = 4;
@@ -11,7 +32,7 @@ const MAX_BOX_COL = 5;
 function PokemonPage({ onClose, usageItem }) {
   const navigate = useNavigate();
 
-  // 🔥 1. 추가됨: 아이템 효과 전담 계산 함수 (parseInt 적용 완료!)
+  // 아이템 효과 전담 계산 함수 (parseInt)
   const applyItemEffect = (pokemon, item) => {
     if (!item || !item.func) {
       return { success: false, message: "이 아이템은 여기서 쓸 수 없다!" };
@@ -150,7 +171,7 @@ function PokemonPage({ onClose, usageItem }) {
         return;
       }
 
-      // 🔥 대화창 제어 (아이템 효과 함수 연동)
+      // 대화창 제어
       if (dialogType !== "") {
         if (
           dialogType === "FULL_HP" ||
@@ -172,11 +193,11 @@ function PokemonPage({ onClose, usageItem }) {
             if (confirmIndex === 0) {
               const targetPokemon = partyData[partyIndex];
 
-              // 🔥 만들어둔 만능 함수로 계산!
+            
               const result = applyItemEffect(targetPokemon, usageItem);
 
               if (result.success) {
-                // 1) 포켓몬 피 채우고 저장
+                //  포켓몬 피 채우고 저장
                 const newPartyData = [...partyData];
                 newPartyData[partyIndex] = {
                   ...targetPokemon,
@@ -432,21 +453,23 @@ function PokemonPage({ onClose, usageItem }) {
                 swapSource.boxCol === c;
               const val = (pokeData[currentBox - 1] || [])[idx];
 
-              return (
+             return (  /* 박스안의 포켓몬들 애니메이션 */
                 <div
                   key={`box-${idx}`}
                   className={`${styles["box-slot"]} ${isFocused ? styles.focused : ""} ${val?.name ? styles["occupied"] : ""} ${isSwapSource ? styles["swap-source"] : ""}`}
-                  style={
-                    val?.name ? { backgroundImage: `url(${val.iconUrl})` } : {}
-                  }
-                />
+                >
+                  {}
+                  {val?.name && (
+                    <img src={val.iconUrl} alt={val.name} className={styles["box-pokemon-img"]} />
+                  )}
+                </div>
               );
             },
           )}
         </div>
       </div>
 
-      {/* CSS 모듈을 적용한 상세 정보 영역 */}
+      {}
       <div className={styles["details-section"]}>
         {focusedPokemon?.name ? (
           <div className={styles["details-content"]}>
@@ -455,6 +478,7 @@ function PokemonPage({ onClose, usageItem }) {
               alt={focusedPokemon.name}
               className={styles["details-img"]}
             />
+            
             <div className={styles["name-level-wrap"]}>
               <div className={styles["details-level"]}>
                 Lv. {focusedPokemon.level}
@@ -463,10 +487,15 @@ function PokemonPage({ onClose, usageItem }) {
                 {focusedPokemon.name}
               </div>
             </div>
+           {/*  타입 색상 적용 */}
             <div className={styles["details-types"]}>
               {focusedPokemon.types?.map((type, i) => (
-                <span key={i} className={styles["type-badge"]}>
-                  {type}
+                <span 
+                  key={i} 
+                  className={styles["type-badge"]}
+                  style={{ backgroundColor: TYPE_COLORS[type.toUpperCase()] || "#e0e0e0" }}
+                >
+                  {type.toUpperCase()}
                 </span>
               ))}
             </div>
