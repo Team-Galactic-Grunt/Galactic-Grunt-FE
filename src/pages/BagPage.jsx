@@ -64,9 +64,11 @@ export default function BagPage() {
 
   const realIndex = getRealIndex(globalIndex);
   const currentPocket = pockets[realIndex];
-  const items = bag[currentPocket.id] ?? [];
-  const currentItem = items[itemIndex];
+  // 🔥 수정 1: count가 0보다 큰 아이템만 남겨서 진짜 '보여줄' 리스트만 만듭니다.
+  const items = (bag[currentPocket.id] ?? []).filter((item) => item.count > 0);
 
+  // 🔥 수정 2: 해당 주머니가 텅 비어서 items가 아예 없을 때 에러가 나지 않도록 기본값(빈 객체)을 줍니다.
+  const currentItem = items[itemIndex] || { count: 0, desc: "", id: "" };
   const translateX = VIEWPORT_W / 2 - ICON_WIDTH / 2 - globalIndex * ICON_WIDTH;
 
   useEffect(() => {
@@ -158,7 +160,10 @@ export default function BagPage() {
         setGlobalIndex((prev) => prev - 1);
         setItemIndex(0);
       } else if (e.key === "ArrowDown") {
-        setItemIndex((prev) => Math.min(prev + 1, items.length - 1));
+        // 🔥 수정 3: 아이템이 없을 때(length가 0일 때) -1이 되는 것을 방지
+        setItemIndex((prev) =>
+          Math.min(prev + 1, Math.max(0, items.length - 1)),
+        );
       } else if (e.key === "ArrowUp") {
         setItemIndex((prev) => Math.max(prev - 1, 0));
       }
@@ -252,30 +257,28 @@ export default function BagPage() {
         >
           {items.map((item, idx) => {
             return (
-              item.count !== 0 && (
-                <div
-                  key={idx}
-                  ref={idx === itemIndex ? focusedRowRef : null}
-                  style={{ display: "flex", alignItems: "center" }}
-                  className={`${styles["item-row"]}${idx === itemIndex ? ` ${styles["focused"]}` : ""}`}
-                >
-                  <span>{item.name}</span>
-                  <span style={{ display: "flex", alignItems: "center" }}>
-                    <span style={{ display: "inline-block", height: "45px" }}>
-                      x
-                    </span>
-                    <span
-                      style={{
-                        width: "45px",
-                        display: "inline-block",
-                        textAlign: "right",
-                      }}
-                    >
-                      {item.count}
-                    </span>
+              <div
+                key={idx}
+                ref={idx === itemIndex ? focusedRowRef : null}
+                style={{ display: "flex", alignItems: "center" }}
+                className={`${styles["item-row"]}${idx === itemIndex ? ` ${styles["focused"]}` : ""}`}
+              >
+                <span>{item.name}</span>
+                <span style={{ display: "flex", alignItems: "center" }}>
+                  <span style={{ display: "inline-block", height: "45px" }}>
+                    x
                   </span>
-                </div>
-              )
+                  <span
+                    style={{
+                      width: "45px",
+                      display: "inline-block",
+                      textAlign: "right",
+                    }}
+                  >
+                    {item.count}
+                  </span>
+                </span>
+              </div>
             );
           })}
 
