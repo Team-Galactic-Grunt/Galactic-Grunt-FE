@@ -69,12 +69,10 @@ export default function BagPage() {
 
   const translateX = VIEWPORT_W / 2 - ICON_WIDTH / 2 - globalIndex * ICON_WIDTH;
 
-  // 포커스된 아이템 행 자동 스크롤
   useEffect(() => {
     focusedRowRef.current?.scrollIntoView({ block: "nearest" });
   }, [itemIndex, globalIndex]);
 
-  // 키보드 입력
   useEffect(() => {
     const handleKeyDown = (e) => {
       console.log("이벤트 test", e.key);
