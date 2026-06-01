@@ -33,6 +33,8 @@ function updateEnemyInStorage(newHp) {
 
 export function useBattle({ addLog }) {
   // returns 'continue' | 'enemy-faint' | 'player-faint'
+  const STRUGGLE = { koName: '발버둥', fixedDamage: 10 };
+
   const executeTurn = useCallback(
     (moveIdx) => {
       const player = JSON.parse(
@@ -43,7 +45,18 @@ export function useBattle({ addLog }) {
       );
       if (!player || !enemy) return 'continue';
 
-      const playerMove = player.moves[moveIdx];
+      const allPPZero = player.moves.every((m) => (m.currentpp ?? 0) <= 0);
+      const playerMove = allPPZero ? STRUGGLE : player.moves[moveIdx];
+
+      // PP 차감 (발버둥이 아닐 때)
+      if (!allPPZero) {
+        updatePlayerInStorage(player.catchId, (p) => ({
+          ...p,
+          moves: p.moves.map((m, i) =>
+            i === moveIdx ? { ...m, currentpp: Math.max(0, (m.currentpp ?? 0) - 1) } : m,
+          ),
+        }));
+      }
       // power가 있는 기술만 적 AI가 선택, 없으면 첫 번째로 fallback
       const validEnemyMoves = enemy.moves.filter((m) => m.power);
       const enemyMove = validEnemyMoves.length
@@ -61,65 +74,70 @@ export function useBattle({ addLog }) {
       // 적 쓰러진 직후 경험치 획득 및 레벨업 처리
       const handleExpGain = () => {
         const expGain = enemy.exp ?? 0;
-        // 이 시점 sessionStorage에는 이미 데미지 반영된 HP가 저장되어 있음
-        const currentHp =
-          JSON.parse(sessionStorage.getItem('currentPokemon') || 'null')
-            ?.currentHp ?? 0;
         const newCurrentExp = (player.currentExp ?? 0) + expGain;
-        addLog(`${player.name}은 경험치 ${expGain}를 얻었다!`);
+        const isLevelUp = newCurrentExp >= (player.needExp ?? Infinity);
 
-        if (newCurrentExp >= (player.needExp ?? Infinity)) {
-          const g = player.statGrowth ?? {};
-          const hpGain = g.hp ?? 0;
+        // 경험치 로그가 화면에 뜨는 순간 EXP 바 업데이트
+        addLog(`${player.name}은 경험치 ${expGain}를 얻었다!`, () => {
+          if (isLevelUp) {
+            const g = player.statGrowth ?? {};
+            const hpGain = g.hp ?? 0;
+            const currentHp =
+              JSON.parse(sessionStorage.getItem('currentPokemon') || 'null')
+                ?.currentHp ?? 0;
+            updatePlayerInStorage(player.catchId, (p) => ({
+              ...p,
+              level: p.level + 1,
+              currentExp: Math.max(0, newCurrentExp - p.needExp),
+              needExp: Math.floor(p.needExp * 1.2),
+              currentHp: currentHp + hpGain,
+              maxHp: (p.maxHp ?? p.baseStats.hp) + hpGain,
+              baseStats: {
+                ...p.baseStats,
+                hp: p.baseStats.hp + hpGain,
+                attack: p.baseStats.attack + (g.attack ?? 0),
+                defense: p.baseStats.defense + (g.defense ?? 0),
+                speed: p.baseStats.speed + (g.speed ?? 0),
+              },
+            }));
+          } else {
+            updatePlayerInStorage(player.catchId, (p) => ({
+              ...p,
+              currentExp: newCurrentExp,
+            }));
+          }
+          syncCurrentPokemon();
+        });
 
-          updatePlayerInStorage(player.catchId, (p) => ({
-            ...p,
-            level: p.level + 1,
-            currentExp: Math.max(0, newCurrentExp - p.needExp),
-            needExp: Math.floor(p.needExp * 1.2),
-            currentHp: currentHp + hpGain,
-            maxHp: (p.maxHp ?? p.baseStats.hp) + hpGain,
-            baseStats: {
-              ...p.baseStats,
-              hp: p.baseStats.hp + hpGain,
-              attack: p.baseStats.attack + (g.attack ?? 0),
-              defense: p.baseStats.defense + (g.defense ?? 0),
-              speed: p.baseStats.speed + (g.speed ?? 0),
-            },
-          }));
-
-          addLog(`${player.name}은(는) 레벨업 했다!`);
-        } else {
-          updatePlayerInStorage(player.catchId, (p) => ({
-            ...p,
-            currentExp: newCurrentExp,
-          }));
-        }
-        syncCurrentPokemon();
+        if (isLevelUp) addLog(`${player.name}은(는) 레벨업 했다!`);
       };
 
       const doAttack = (attacker, move, isPlayer) => {
         if (result !== 'continue') return;
 
-        // power 없는 기술은 데미지 없이 로그만 출력
-        if (!move.power) {
+        const defender = isPlayer ? enemy : player;
+        let damage = 0;
+        let effectText = '';
+
+        if (move.fixedDamage) {
+          damage = move.fixedDamage;
+        } else if (move.power) {
+          const calc = calcDamage(attacker, move, defender);
+          damage = calc.damage;
+          effectText = effectivenessText(calc.multiplier);
+        } else {
+          // 상태이상 등 데미지 없는 기술
           addLog(`${attacker.name}은(는) ${move.koName}을(를) 사용했다!`);
           return;
         }
 
-        const defender = isPlayer ? enemy : player;
-        const { damage, multiplier } = calcDamage(attacker, move, defender);
-        const effectText = effectivenessText(multiplier);
-
         if (isPlayer) {
           const ep = JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null');
           const newHp = Math.max(0, (ep?.currentHp ?? 0) - damage);
-          // 공격 로그가 화면에 뜨는 순간 HP 바 업데이트
           addLog(`${attacker.name}은(는) ${move.koName}을(를) 사용했다!`, () => {
             updateEnemyInStorage(newHp);
           });
           if (effectText) addLog(effectText);
-
           if (newHp <= 0) {
             result = 'enemy-faint';
             addLog(`야생 ${enemy.name}이(가) 쓰러졌다!`);
@@ -128,12 +146,10 @@ export function useBattle({ addLog }) {
         } else {
           const cp = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
           const newHp = Math.max(0, (cp?.currentHp ?? 0) - damage);
-          // 공격 로그가 화면에 뜨는 순간 HP 바 업데이트
           addLog(`${attacker.name}은(는) ${move.koName}을(를) 사용했다!`, () => {
             updatePlayerInStorage(player.catchId, (p) => ({ ...p, currentHp: newHp }));
           });
           if (effectText) addLog(effectText);
-
           if (newHp <= 0) {
             result = 'player-faint';
             addLog(`${player.name}이(가) 쓰러졌다!`);

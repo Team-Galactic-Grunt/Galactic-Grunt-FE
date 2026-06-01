@@ -7,7 +7,7 @@ export const postReport = async ({
   pokemonBox,
   pokedex,
 }) => {
-  console.log(position, bag, isMyPokemon, pokemonBox);
+  console.log(position, bag, isMyPokemon, pokemonBox, pokedex);
   try {
     const response = await axios.post(
       // 'http://localhost:3000/api/postReport',
