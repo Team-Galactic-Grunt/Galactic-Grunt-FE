@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import AdminBagSection from "./AdminBagSection.jsx";
-import AdminDexSection from "./AdminDexSection.jsx";
+import AdminBagSection from "../components/admin/AdminBagSection.jsx";
+import AdminDexSection from "../components/admin/AdminDexSection.jsx";
 import AdminTabs from "./AdminTabs.jsx";
 import styles from "./adminPage.module.css";
 
@@ -31,16 +31,18 @@ export default function AdminPage() {
     <>
       <div className={styles.page}>
         <div className={styles.shell}>
-          <section className={styles.hero}>
-            <div className={styles.heroCopy}>
-              <p className={styles.eyebrow}>관리자 도구</p>
-              <h1 className={styles.title}>아이템 관리 및 도감 해금</h1>
-              <p className={styles.subtitle}>
-                지닌 물건 수량과 포켓몬 도감 상태를 한 화면에서 관리합니다.
-              </p>
-            </div>
-          </section>
-          <AdminTabs activeTab={activeTab} onChange={setActiveTab} />
+          <div className={styles.stickyHeader}>
+            <section className={styles.hero}>
+              <div className={styles.heroCopy}>
+                <p className={styles.eyebrow}>관리자 도구</p>
+                <h1 className={styles.title}>아이템 관리 및 도감 해금</h1>
+                <p className={styles.subtitle}>
+                  지닌 물건 수량과 포켓몬 도감 상태를 한 화면에서 관리합니다.
+                </p>
+              </div>
+            </section>
+            <AdminTabs activeTab={activeTab} onChange={setActiveTab} />
+          </div>
           {activeTab === "bag" && <AdminBagSection />}
           {activeTab === "dex" && <AdminDexSection />}
         </div>

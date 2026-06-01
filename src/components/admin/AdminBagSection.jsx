@@ -1,8 +1,8 @@
 // src/pages/components/AdminBagSection.jsx
 import { useState, useEffect } from "react";
-import styles from "./adminPage.module.css";
-import { getBagItems } from "../api/getBagItems";
-import { postBagItems } from "../api/postBagItems";
+import styles from "../../pages/adminPage.module.css";
+import { getBagItems } from "../../api/getBagItems";
+import { postBagItems } from "../../api/postBagItems";
 
 export default function AdminBagSection() {
   const [bagItems, setBagItems] = useState(null);
