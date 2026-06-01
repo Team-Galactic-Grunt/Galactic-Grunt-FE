@@ -1,10 +1,8 @@
 import { BrowserRouter } from 'react-router-dom';
 import { Router } from './shared/Router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BgmProvider } from './context/BgmContext';
-
-import { getAllPokemon } from "./api/getAllPokemon";
 
 async function getFunction() {
   // getAllPokemon().then((res) => {
@@ -12,8 +10,8 @@ async function getFunction() {
   // });
   try {
     const response = await axios.get(
-      // 'https://galactic-gruent-be.vercel.app/api/getInitData',
-      'http://localhost:3000/api/getInitData',
+      'https://galactic-gruent-be.vercel.app/api/getInitData',
+      // 'http://localhost:3000/api/getInitData',
     );
     console.log('Fetched Pokémon:', response.data.result);
     const { position, bag, isMyPokemon, pokemonBox, pokedex } =
@@ -39,9 +37,25 @@ async function getFunction() {
   }
 }
 function App() {
+  const [ready, setReady] = useState(false);
+  // const navigate = useNavigate();
+
   useEffect(() => {
-    getFunction();
+    getFunction().finally(() => setReady(true));
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+
+        // Insert your custom action here
+        console.log('Spacebar was pressed!');
+        // navigate('/map');
+        window.location.href = '/map'; // 페이지 새로고침과 함께 이동
+      }
+    });
   }, []);
+
+  if (!ready) return null;
+
   return (
     <BrowserRouter>
       <BgmProvider>

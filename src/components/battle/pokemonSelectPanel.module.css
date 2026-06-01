@@ -1,0 +1,39 @@
+.panel {
+  width: 560px;
+  background-color: transparent;
+  border: 5px solid rgb(82, 82, 82);
+  border-radius: 8px;
+  padding: 15px 30px;
+  box-sizing: border-box;
+  font-family: 'pokemon_font';
+  font-size: 22px;
+}
+
+.move {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0px 10px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 5px solid rgb(82, 82, 82);
+  border-radius: 4px;
+  padding: 8px 0px 18px 40px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+  color: #333;
+}
+
+.active {
+  color: #888;
+}
+
+.cursor {
+  font-size: 18px;
+  width: 30px;
+  display: inline-block;
+}

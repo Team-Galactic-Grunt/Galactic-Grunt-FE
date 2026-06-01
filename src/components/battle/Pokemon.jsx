@@ -1,53 +1,65 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import styles from './pokemon.module.css';
 
-export default function Pokemon({ pokemon, eventZone, isEnemy, currentHp: hpProp }) {
-  const currentHp = hpProp ?? pokemon?.baseStats?.hp ?? 0;
+export default function Pokemon({ eventZone }) {
+  const [currentPokemon, setCurrentPokemon] = useState(() =>
+    JSON.parse(sessionStorage.getItem('currentPokemon') || 'null'),
+  );
+
+  useEffect(() => {
+    const sync = () => {
+      setCurrentPokemon(
+        JSON.parse(sessionStorage.getItem('currentPokemon') || 'null'),
+      );
+    };
+    window.addEventListener('currentPokemonUpdated', sync);
+    return () => window.removeEventListener('currentPokemonUpdated', sync);
+  }, [currentPokemon]);
 
   return (
-    <div
-      className={`${isEnemy ? styles.stage_enemy : styles.stage_player} ${styles.stage}`}
-    >
-      <div
-        className={`${styles.status} ${isEnemy ? styles.enemy_status : styles.player_status}`}
-      >
-        <div
-          style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div>{pokemon?.name}</div>
-          <div>Lv. {pokemon?.level}</div>
-        </div>
-
-        <div
-          style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}
-          className={styles.no_bold_font}
-        >
-          HP
+    <div className={`${styles.stage_player} ${styles.stage}`}>
+      <div className={`${styles.status} ${styles.player_status}`}>
+        <div style={{ padding: '10px 20px' }}>
           <div
             style={{
-              position: 'relative',
               width: '100%',
-              height: '10px',
-              backgroundColor: 'gray',
-              marginLeft: '20px',
+              display: 'flex',
+              justifyContent: 'space-between',
             }}
           >
+            <div>{currentPokemon?.name}</div>
+            <div>Lv. {currentPokemon?.level}</div>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              fontWeight: 'bold',
+            }}
+            className={styles.no_bold_font}
+          >
+            HP
             <div
               style={{
-                position: 'absolute',
-                width: `${(currentHp / pokemon?.baseStats?.hp) * 100}%`,
-                height: '100%',
-                backgroundColor: 'green',
+                position: 'relative',
+                width: '100%',
+                height: '10px',
+                backgroundColor: 'gray',
+                marginLeft: '20px',
               }}
-            ></div>
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  width: `${((currentPokemon?.currentHp ?? 0) / (currentPokemon?.maxHp ?? 1)) * 100}%`,
+                  height: '100%',
+                  backgroundColor: 'green',
+                }}
+              ></div>
+            </div>
           </div>
-        </div>
 
-        {!isEnemy && (
           <div
             style={{
               textAlign: 'right',
@@ -56,28 +68,40 @@ export default function Pokemon({ pokemon, eventZone, isEnemy, currentHp: hpProp
               fontWeight: 'bold',
             }}
           >
-            {currentHp} / {pokemon?.baseStats?.hp || 0}
+            {currentPokemon?.currentHp ?? 0} / {currentPokemon?.maxHp ?? 0}
           </div>
-        )}
+        </div>
+
+        <div>
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '8px',
+              backgroundColor: 'lightgray',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                width: `${((currentPokemon?.currentExp ?? 0) / (currentPokemon?.needExp ?? 10000)) * 100}%`,
+                height: '100%',
+                backgroundColor: 'skyblue',
+              }}
+            ></div>
+          </div>
+        </div>
       </div>
-      <div
-        style={{
-          //   border: '1px solid yellow',
-          width: '300px',
-          height: '300px',
-          position: 'relative',
-        }}
-      >
+
+      <div style={{ width: '300px', height: '300px', position: 'relative' }}>
         <div
-          className={`${styles.pokemon} ${isEnemy ? styles.enemy_pokemon : styles.player_pokemon}`}
-          style={{
-            backgroundImage: `url(${isEnemy ? pokemon?.frontSprite : pokemon?.backSprite})`,
-          }}
+          className={`${styles.pokemon} ${styles.player_pokemon}`}
+          style={{ backgroundImage: `url(${currentPokemon?.backSprite})` }}
         ></div>
         <div
-          className={`${styles.ground} ${isEnemy ? styles.enemy_ground : styles.player_ground}`}
+          className={`${styles.ground} ${styles.player_ground}`}
           style={{
-            backgroundImage: `url(/src/assets/images/battle_images/${isEnemy ? `${eventZone}_enemy_stage` : `${eventZone}_stage`}.png)`,
+            backgroundImage: `url(/src/assets/images/battle_images/${eventZone}_stage.png)`,
           }}
         />
       </div>

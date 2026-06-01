@@ -98,6 +98,22 @@ const spriteMap = {
 
 const MENU_ITEMS = ['포켓몬', '도감', '가방', '레포트', '???', '닫는다'];
 
+// 아이템 획득(count:1) + 포덱스 미포획(catch:false) 조건 충족 시 조우할 전설 포켓몬
+const ITEM_TO_LEGENDARY = {
+  금강옥: 483, // 디아루가
+  백옥: 484, // 펄기아
+  백금옥: 487, // 기라티나
+  '천계의 피리': 493, // 아르세우스
+};
+
+// 맵에 배치할 중요 아이템 타일: { c, r, name } — name은 bag.important 아이템 이름과 일치해야 함
+const ITEM_TILES = [
+  { c: 4, r: 24, name: '금강옥' },
+  { c: 38, r: 28, name: '백옥' },
+  { c: 24, r: 3, name: '백금옥' },
+  { c: 21, r: 8, name: '천계의 피리' },
+];
+
 // --- 유틸리티 ---
 function zoneToCells(zone) {
   const cells = [];
@@ -141,6 +157,9 @@ export default function MapPage() {
   const playerRef = useRef(null); // useEffect에서 초기화
   const keysRef = useRef({});
   const eventTileMapRef = useRef(new Map());
+  const itemTileMapRef = useRef(new Map());
+  // 아이템 위치 → 전설 조우 정보 (아이템 획득 후에도 유지)
+  const legendaryTileMapRef = useRef(new Map());
   const loopRunningRef = useRef(false);
   const fadeStateRef = useRef(null);
 
@@ -151,9 +170,15 @@ export default function MapPage() {
   const menuOpenRef = useRef(false);
   const [menuIndex, setMenuIndex] = useState(0);
   const menuIndexRef = useRef(0);
+
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const reportModalOpenRef = useRef(false);
+
+  const [secretModalOpen, setSecretModalOpen] = useState(false);
+  const secretModalOpenRef = useRef(false);
+
   const [saveToast, setSaveToast] = useState(false);
+  const [itemToast, setItemToast] = useState(null);
 
   const position = sessionStorage.getItem('position')
     ? JSON.parse(sessionStorage.getItem('position'))
@@ -161,6 +186,7 @@ export default function MapPage() {
   const bag = sessionStorage.getItem('bag')
     ? JSON.parse(sessionStorage.getItem('bag'))
     : null;
+
   const isMyPokemon = sessionStorage.getItem('isMyPokemon')
     ? JSON.parse(sessionStorage.getItem('isMyPokemon'))
     : null;
@@ -201,11 +227,54 @@ export default function MapPage() {
       });
     });
 
+    if (!imagesRef.current['monsterball']) {
+      const img = new Image();
+      img.src = '/src/assets/images/bag_images/monsterball.png';
+      imagesRef.current['monsterball'] = img;
+    }
+
     // 인카운터 이벤트 맵 생성
     const EVENT_COUNT = 12;
     Object.entries(zones).forEach(([zoneName, zoneData]) => {
       const selected = pickRandom(zoneToCells(zoneData), EVENT_COUNT);
       selected.forEach((key) => eventTileMapRef.current.set(key, zoneName));
+    });
+
+    // 중요 아이템 타일 등록
+    // - bag.important에 있고 count === 0인 아이템만 맵에 표시
+    // - 장애물 위에 놓이면 Z를 눌러도 닿을 수 없으므로 경고 출력
+    // - 좌표가 겹치면 마지막 항목만 등록되므로 ITEM_TILES 좌표는 고유해야 함
+    const savedBag = JSON.parse(sessionStorage.getItem('bag') || '{}');
+    const importantItems = savedBag.important ?? [];
+    console.log('[ITEM] bag.important 전체:', importantItems);
+    ITEM_TILES.forEach(({ c, r, name }) => {
+      if (isBlocked(c, r)) {
+        // 장애물 타일에 아이템을 배치하면 플레이어가 Z로 닿을 수 없음
+        console.warn(
+          `[ITEM] '${name}' 좌표(col=${c}, row=${r})가 장애물 위에 있음`,
+        );
+      }
+      const item = importantItems.find((i) => i.name === name);
+      if (!item) {
+        // ITEM_TILES의 name이 bag.important의 이름과 불일치
+        console.warn(`[ITEM] '${name}' 이(가) bag.important에 없음`);
+        return;
+      }
+      if (item.count === 0) {
+        itemTileMapRef.current.set(`${c},${r}`, name);
+        console.log(`[ITEM] '${name}' 등록 완료: col=${c}, row=${r}`);
+      } else {
+        // count >= 1 → 이미 획득한 아이템, 표시하지 않음
+        console.log(`[ITEM] '${name}' 이미 획득됨 (count=${item.count})`);
+      }
+      // 전설 포켓몬과 연결된 아이템 타일은 아이템 획득 여부와 무관하게 항상 등록
+      const pokemonId = ITEM_TO_LEGENDARY[name];
+      if (item && pokemonId) {
+        legendaryTileMapRef.current.set(`${c},${r}`, {
+          itemName: name,
+          pokemonId,
+        });
+      }
     });
 
     // 초기 위치 계산
@@ -260,6 +329,42 @@ export default function MapPage() {
     // 키보드 이벤트
     const handleKeyDown = async (e) => {
       if (!e.repeat) keysRef.current[e.key] = true;
+
+      if (secretModalOpenRef.current) {
+        if (e.code === 'KeyZ') {
+          secretModalOpenRef.current = false;
+          setSecretModalOpen(false);
+          sessionStorage.setItem(
+            'position',
+            JSON.stringify({
+              x: playerRef.current.x,
+              y: playerRef.current.y,
+              direction: playerRef.current.direction,
+            }),
+          );
+
+          // bag.important count:1 + pokedex catch:false 조건을 만족하는 첫 번째 전설 포켓몬 ID
+          const currentBag = JSON.parse(sessionStorage.getItem('bag') || '{}');
+          const currentPokedex = JSON.parse(
+            sessionStorage.getItem('pokedex') || '[]',
+          );
+          const id =
+            Object.entries(ITEM_TO_LEGENDARY).find(([itemName, pokemonId]) => {
+              const item = (currentBag.important ?? []).find(
+                (i) => i.name === itemName,
+              );
+              const dexEntry = currentPokedex.find((p) => p.id === pokemonId);
+              return item?.count === 1 && dexEntry?.catch === false;
+            })?.[1] ?? null;
+          stop();
+          navigate('/secret', { state: { id } });
+        } else if (e.code === 'KeyX') {
+          secretModalOpenRef.current = false;
+          setSecretModalOpen(false);
+        }
+        e.preventDefault();
+        return;
+      }
 
       if (reportModalOpenRef.current) {
         if (e.code === 'KeyZ') {
@@ -319,17 +424,8 @@ export default function MapPage() {
               }),
             );
             navigate('/pokemon');
-          } else if (MENU_ITEMS[menuIndexRef.current] === '???') {
-            // sessionStorage.setItem(
-            //   'position',
-            //   JSON.stringify({
-            //     x: playerRef.current.x,
-            //     y: playerRef.current.y,
-            //     direction: playerRef.current.direction,
-            //   }),
-            // );
+
             console.log('맵 이동');
-            // navigate('/pokemon');
           } else if (MENU_ITEMS[menuIndexRef.current] === '도감') {
             sessionStorage.setItem(
               'position',
@@ -355,6 +451,19 @@ export default function MapPage() {
             setMenuOpen(false);
             reportModalOpenRef.current = true;
             setReportModalOpen(true);
+          } else if (MENU_ITEMS[menuIndexRef.current] === '???') {
+            menuOpenRef.current = false;
+            setMenuOpen(false);
+            sessionStorage.setItem(
+              'position',
+              JSON.stringify({
+                x: playerRef.current.x,
+                y: playerRef.current.y,
+                direction: playerRef.current.direction,
+              }),
+            );
+            secretModalOpenRef.current = true;
+            setSecretModalOpen(true);
           }
         } else if (e.code === 'KeyX') {
           menuOpenRef.current = false;
@@ -364,6 +473,82 @@ export default function MapPage() {
         }
         e.preventDefault();
         return;
+      }
+
+      // Z키: 플레이어 현재 타일 또는 바라보는 방향 타일에 아이템이 있으면 획득
+      if (e.code === 'KeyZ') {
+        const player = playerRef.current;
+        const col = Math.floor(player.x / TILE);
+        const row = Math.floor(player.y / TILE);
+        const facingDeltas = {
+          front: [0, 1],
+          back: [0, -1],
+          left: [-1, 0],
+          right: [1, 0],
+        };
+        const [dc, dr] = facingDeltas[player.direction];
+        // 바라보는 방향 타일 우선, 없으면 현재 서 있는 타일 확인
+        const checkKeys = [`${col + dc},${row + dr}`, `${col},${row}`];
+        for (const key of checkKeys) {
+          if (itemTileMapRef.current.has(key)) {
+            const itemName = itemTileMapRef.current.get(key);
+            itemTileMapRef.current.delete(key);
+            const currentBag = JSON.parse(
+              sessionStorage.getItem('bag') || '{}',
+            );
+            const updatedImportant = (currentBag.important ?? []).map((i) =>
+              i.name === itemName ? { ...i, count: i.count + 1 } : i,
+            );
+            sessionStorage.setItem(
+              'bag',
+              JSON.stringify({ ...currentBag, important: updatedImportant }),
+            );
+            setItemToast(itemName);
+            setTimeout(() => setItemToast(null), 2000);
+            break;
+          }
+
+          // 아이템은 이미 획득했지만 전설 조우 조건 충족 시 배틀 시작
+          if (legendaryTileMapRef.current.has(key)) {
+            const { itemName, pokemonId } =
+              legendaryTileMapRef.current.get(key);
+            const currentBag = JSON.parse(
+              sessionStorage.getItem('bag') || '{}',
+            );
+            const item = (currentBag.important ?? []).find(
+              (i) => i.name === itemName,
+            );
+            const pokedex = JSON.parse(
+              sessionStorage.getItem('pokedex') || '[]',
+            );
+            const dexEntry = pokedex.find((p) => p.id === pokemonId);
+
+            // 아이템 획득(count:1)이고 아직 포획 안 한 경우에만 조우
+            if (item?.count === 1 && dexEntry?.catch === false) {
+              fadeStateRef.current = { zone: 'legendary' };
+              play(battleBgm, 0.3);
+              Object.keys(keysRef.current).forEach(
+                (k) => (keysRef.current[k] = false),
+              );
+              transitionRef.current.start(() => {
+                sessionStorage.setItem(
+                  'position',
+                  JSON.stringify({
+                    x: playerRef.current.x,
+                    y: playerRef.current.y,
+                    direction: playerRef.current.direction,
+                  }),
+                );
+                sessionStorage.setItem('eventZone', 'legendary');
+                sessionStorage.setItem('legendaryId', String(pokemonId));
+                sessionStorage.setItem('status', 'true');
+                loopRunningRef.current = false;
+                navigate('/battle');
+              });
+            }
+            break;
+          }
+        }
       }
 
       if (e.code === 'KeyC') {
@@ -411,7 +596,11 @@ export default function MapPage() {
       player.currentFrame = WALK_CYCLE[player.cycleIndex];
       player.cycleIndex = (player.cycleIndex + 1) % 4;
 
-      if (isBlocked(nextCol, nextRow)) {
+      // 아이템 타일도 획득 전까지는 통행 불가 — 획득 후 itemTileMapRef에서 제거되면 자동으로 열림
+      if (
+        isBlocked(nextCol, nextRow) ||
+        itemTileMapRef.current.has(`${nextCol},${nextRow}`)
+      ) {
         player.isBumping = true;
         player.bumpTimer = 0;
         return;
@@ -450,7 +639,7 @@ export default function MapPage() {
           const tileKey = `${arrivedCol},${arrivedRow}`;
 
           if (eventTileMapRef.current.has(tileKey)) {
-            // play(battleBgm, 0.2);
+            play(battleBgm, 0.2);
             const zone = eventTileMapRef.current.get(tileKey);
             eventTileMapRef.current.delete(tileKey);
 
@@ -552,20 +741,37 @@ export default function MapPage() {
         );
       }
 
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      // ctx.font = 'bold 11px sans-serif';
+      // ctx.textAlign = 'center';
+      // ctx.textBaseline = 'middle';
 
-      for (const [key] of eventTileMapRef.current) {
-        const [ec, er] = key.split(',').map(Number);
-        const ex = ec * TILE + TILE / 2;
-        const ey = er * TILE + TILE / 2;
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
-        ctx.beginPath();
-        ctx.arc(ex, ey, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#111';
-        ctx.fillText('!', ex, ey);
+      // for (const [key] of eventTileMapRef.current) {
+      //   const [ec, er] = key.split(',').map(Number);
+      //   const ex = ec * TILE + TILE / 2;
+      //   const ey = er * TILE + TILE / 2;
+      //   ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
+      //   ctx.beginPath();
+      //   ctx.arc(ex, ey, 6, 0, Math.PI * 2);
+      //   ctx.fill();
+      //   ctx.fillStyle = '#111';
+      //   ctx.fillText('!', ex, ey);
+      // }
+
+      const ballImg = imagesRef.current['monsterball'];
+      if (ballImg && ballImg.complete && ballImg.naturalWidth > 0) {
+        const ballSize = TILE * 0.7;
+        for (const [key] of itemTileMapRef.current) {
+          const [ic, ir] = key.split(',').map(Number);
+          const ix = ic * TILE + TILE / 2;
+          const iy = ir * TILE + TILE / 2;
+          ctx.drawImage(
+            ballImg,
+            Math.round(ix - ballSize / 2),
+            Math.round(iy - ballSize / 2),
+            ballSize,
+            ballSize,
+          );
+        }
       }
 
       const spriteName = spriteMap[player.direction][player.currentFrame];
@@ -653,7 +859,18 @@ export default function MapPage() {
             <p>z: 예&nbsp;&nbsp;x: 아니오</p>
           </div>
         )}
+        {secretModalOpen && (
+          <div className={styles.report_modal}>
+            <p>비밀 장소로 이동하겠습니까?</p>
+            <p>z: 예&nbsp;&nbsp;x: 아니오</p>
+          </div>
+        )}
         {saveToast && <div className={styles.save_toast}>저장했습니다</div>}
+        {itemToast && (
+          <div className={styles.save_toast}>
+            {itemToast}을(를) 획득했습니다!
+          </div>
+        )}
         <canvas ref={canvasRef} id='game-canvas' width='1080' height='720' />
       </div>
     </>

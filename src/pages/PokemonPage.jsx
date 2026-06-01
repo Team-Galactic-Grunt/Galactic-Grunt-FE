@@ -117,14 +117,9 @@ function PokemonPage({ onClose, usageItem }) {
   const [partyData, setPartyData] = useState(() => {
     const storedParty = sessionStorage.getItem("isMyPokemon");
     const party = storedParty ? JSON.parse(storedParty) : [];
-    if (party.length > 0) {
-      const initialParty = [{}, {}, {}, {}, {}, {}];
-      return initialParty.map((val, index) =>
-        party[index] ? party[index] : val,
-      );
-    }
+    if (party.length > 0) return party;
     alert("정상적인 접근이 아닙니다.");
-    return [{}, {}, {}, {}, {}, {}];
+    return [];
   });
 
   const handlePrevBox = () =>
