@@ -1,10 +1,12 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from 'react-router-dom';
 // import HomePage from '../pages/HomePage';
 import MapPage from '../pages/MapPage';
 import BattlePage from '../pages/BattlePage';
 import BagPage from '../pages/BagPage';
 import PokemonPage from '../pages/PokemonPage';
 import DexPage from '../pages/DexPage';
+import SecretPage from '../pages/SecretPage';
+import AdminPage from '../pages/AdminPage';
 import DefaultLayout from '../layout/DefaultLayout';
 
 export function Router() {
@@ -20,7 +22,7 @@ export function Router() {
         <Route path='/pokedex' element={<DexPage />} />
         <Route path='/secret' element={<SecretPage />} />
       </Route>
-      <Route path="/admin" element={<AdminPage />} />
+      <Route path='/admin' element={<AdminPage />} />
     </Routes>
   );
 }
