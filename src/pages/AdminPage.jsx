@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import AdminBagSection from "../components/admin/AdminBagSection.jsx";
-import AdminDexSection from "../components/admin/AdminDexSection.jsx";
-import AdminTabs from "./AdminTabs.jsx";
-import styles from "./adminPage.module.css";
+import AdminBagSection from "../components/admin/AdminBagSection";
+import AdminDexSection from "../components/admin/AdminDexSection";
+import AdminTabs from "../components/admin/AdminTabs";
+import styles from "../pages/AdminPage.module.css";
 
 export default function AdminPage() {
   // const [items, setItems] = useState([]);

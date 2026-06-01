@@ -1,4 +1,4 @@
-import styles from "./adminPage.module.css";
+import styles from "../../pages/AdminPage.module.css";
 
 const tabs = [
   { id: "bag", label: "아이템 조정" },
