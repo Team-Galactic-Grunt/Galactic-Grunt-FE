@@ -65,11 +65,13 @@ const zones = {
     { c: 24, r: 7, w: 2, h: 1 },
     { c: 30, r: 7, w: 3, h: 1 },
   ],
-  sea: [
-    { c: 31, r: 11, w: 3, h: 1 },
-    { c: 31, r: 12, w: 5, h: 2 },
+  sea1: [
     { c: 4, r: 20, w: 8, h: 1 },
     { c: 4, r: 21, w: 11, h: 4 },
+  ],
+  sea2: [
+    { c: 31, r: 11, w: 3, h: 1 },
+    { c: 31, r: 12, w: 5, h: 2 },
   ],
   cave: [
     { c: 33, r: 19, w: 3, h: 1 },
@@ -147,6 +149,10 @@ function isBlocked(col, row) {
   );
 }
 
+function eventZoneCheck(zone) {
+  return zone === 'sea1' || zone === 'sea2' ? 'sea' : zone;
+}
+
 // 파일 시작
 export default function MapPage() {
   const navigate = useNavigate();
@@ -176,6 +182,7 @@ export default function MapPage() {
 
   const [secretModalOpen, setSecretModalOpen] = useState(false);
   const secretModalOpenRef = useRef(false);
+  const overlayTilesRef = useRef([]); // { x, y, imgKey }[]
 
   const [saveToast, setSaveToast] = useState(false);
   const [itemToast, setItemToast] = useState(null);
@@ -233,10 +240,47 @@ export default function MapPage() {
       imagesRef.current['monsterball'] = img;
     }
 
+    // 존 오버레이 이미지 로드
+    const OVERLAY_IMGS = {
+      grass1: 'grass_grass',
+      grass2: 'grass_grass',
+      sea2: 'grass_grass',
+      cave: 'cave_grass',
+      snow: 'snow_grass',
+    };
+    Object.values(OVERLAY_IMGS).forEach((name) => {
+      if (!imagesRef.current[name]) {
+        const img = new Image();
+        img.src = `/src/assets/images/${name}.png`;
+        imagesRef.current[name] = img;
+      }
+    });
+
+    // 존별 모든 타일 위치를 미리 계산 (14px = 1칸 → TILE 크기로 스케일)
+    const tiles = [];
+    Object.entries(OVERLAY_IMGS).forEach(([zoneName, imgKey]) => {
+      for (const rect of zones[zoneName] ?? []) {
+        for (let r = rect.r; r < rect.r + rect.h; r++) {
+          for (let c = rect.c; c < rect.c + rect.w; c++) {
+            tiles.push({ x: c * TILE, y: r * TILE, r, imgKey });
+          }
+        }
+      }
+    });
+    overlayTilesRef.current = tiles;
+
     // 인카운터 이벤트 맵 생성
-    const EVENT_COUNT = 12;
+    const EVENT_COUNT = {
+      grass1: 12,
+      grass2: 12,
+      snow: 12,
+      sea1: 8,
+      sea2: 4,
+      cave: 12,
+    };
     Object.entries(zones).forEach(([zoneName, zoneData]) => {
-      const selected = pickRandom(zoneToCells(zoneData), EVENT_COUNT);
+      const count = EVENT_COUNT[zoneName] ?? 12;
+      const selected = pickRandom(zoneToCells(zoneData), count);
       selected.forEach((key) => eventTileMapRef.current.set(key, zoneName));
     });
 
@@ -507,47 +551,6 @@ export default function MapPage() {
             setTimeout(() => setItemToast(null), 2000);
             break;
           }
-
-          // 아이템은 이미 획득했지만 전설 조우 조건 충족 시 배틀 시작
-          if (legendaryTileMapRef.current.has(key)) {
-            const { itemName, pokemonId } =
-              legendaryTileMapRef.current.get(key);
-            const currentBag = JSON.parse(
-              sessionStorage.getItem('bag') || '{}',
-            );
-            const item = (currentBag.important ?? []).find(
-              (i) => i.name === itemName,
-            );
-            const pokedex = JSON.parse(
-              sessionStorage.getItem('pokedex') || '[]',
-            );
-            const dexEntry = pokedex.find((p) => p.id === pokemonId);
-
-            // 아이템 획득(count:1)이고 아직 포획 안 한 경우에만 조우
-            if (item?.count === 1 && dexEntry?.catch === false) {
-              fadeStateRef.current = { zone: 'legendary' };
-              play(battleBgm, 0.3);
-              Object.keys(keysRef.current).forEach(
-                (k) => (keysRef.current[k] = false),
-              );
-              transitionRef.current.start(() => {
-                sessionStorage.setItem(
-                  'position',
-                  JSON.stringify({
-                    x: playerRef.current.x,
-                    y: playerRef.current.y,
-                    direction: playerRef.current.direction,
-                  }),
-                );
-                sessionStorage.setItem('eventZone', 'legendary');
-                sessionStorage.setItem('legendaryId', String(pokemonId));
-                sessionStorage.setItem('status', 'true');
-                loopRunningRef.current = false;
-                navigate('/battle');
-              });
-            }
-            break;
-          }
         }
       }
 
@@ -655,7 +658,14 @@ export default function MapPage() {
             play(battleBgm, 0.3);
 
             transitionRef.current.start(() => {
-              const VALID_ZONES = ['grass1', 'grass2', 'snow', 'sea', 'cave'];
+              const VALID_ZONES = [
+                'grass1',
+                'grass2',
+                'snow',
+                'sea1',
+                'sea2',
+                'cave',
+              ];
               if (!VALID_ZONES.includes(fadeStateRef.current?.zone)) {
                 alert(
                   `잘못된 요청입니다. (zone: ${fadeStateRef.current?.zone})`,
@@ -671,7 +681,10 @@ export default function MapPage() {
                   direction: player.direction,
                 }),
               );
-              sessionStorage.setItem('eventZone', fadeStateRef.current.zone);
+              sessionStorage.setItem(
+                'eventZone',
+                eventZoneCheck(fadeStateRef.current?.zone),
+              );
               sessionStorage.setItem('status', 'true');
               loopRunningRef.current = false;
               navigate('/battle');
@@ -741,21 +754,22 @@ export default function MapPage() {
         );
       }
 
-      // ctx.font = 'bold 11px sans-serif';
-      // ctx.textAlign = 'center';
-      // ctx.textBaseline = 'middle';
+      // 몬스터 출현 및 아이템 타일 표시
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
 
-      // for (const [key] of eventTileMapRef.current) {
-      //   const [ec, er] = key.split(',').map(Number);
-      //   const ex = ec * TILE + TILE / 2;
-      //   const ey = er * TILE + TILE / 2;
-      //   ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
-      //   ctx.beginPath();
-      //   ctx.arc(ex, ey, 6, 0, Math.PI * 2);
-      //   ctx.fill();
-      //   ctx.fillStyle = '#111';
-      //   ctx.fillText('!', ex, ey);
-      // }
+      for (const [key] of eventTileMapRef.current) {
+        const [ec, er] = key.split(',').map(Number);
+        const ex = ec * TILE + TILE / 2;
+        const ey = er * TILE + TILE / 2;
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
+        ctx.beginPath();
+        ctx.arc(ex, ey, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#111';
+        ctx.fillText('!', ex, ey);
+      }
 
       const ballImg = imagesRef.current['monsterball'];
       if (ballImg && ballImg.complete && ballImg.naturalWidth > 0) {
@@ -774,6 +788,21 @@ export default function MapPage() {
         }
       }
 
+      const playerRow = Math.floor(player.y / TILE);
+
+      // 1패스: 플레이어 행보다 위쪽 오버레이 → 캐릭터 뒤에
+      for (const tile of overlayTilesRef.current) {
+        if (tile.r >= playerRow) continue;
+        const overlayImg = imagesRef.current[tile.imgKey];
+        if (
+          !overlayImg ||
+          !overlayImg.complete ||
+          overlayImg.naturalWidth === 0
+        )
+          continue;
+        ctx.drawImage(overlayImg, tile.x, tile.y + TILE / 2, TILE, TILE / 2);
+      }
+
       const spriteName = spriteMap[player.direction][player.currentFrame];
       const img = imagesRef.current[spriteName];
       if (!img || !img.complete || img.naturalWidth === 0) return;
@@ -787,6 +816,19 @@ export default function MapPage() {
         w,
         h,
       );
+
+      // 2패스: 플레이어 행 이하 오버레이 → 캐릭터 앞에
+      for (const tile of overlayTilesRef.current) {
+        if (tile.r < playerRow) continue;
+        const overlayImg = imagesRef.current[tile.imgKey];
+        if (
+          !overlayImg ||
+          !overlayImg.complete ||
+          overlayImg.naturalWidth === 0
+        )
+          continue;
+        ctx.drawImage(overlayImg, tile.x, tile.y + TILE / 2, TILE, TILE / 2);
+      }
     }
 
     function gameLoop() {

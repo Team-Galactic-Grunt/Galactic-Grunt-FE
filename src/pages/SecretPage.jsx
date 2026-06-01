@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { useBgm } from '../context/BgmContext';
-import { battleBgm, mainBgm } from '../assets/bgm';
+import { battleBgm, secretBattleBgm } from '../assets/bgm';
 import secretMapUrl from '/src/assets/images/secret_map.png'; // 720×1283 맵 이미지
 import styles from './secretPage.module.css';
 import BattleTransition from '../components/animation/BattleTransition';
@@ -107,6 +107,8 @@ export default function SecretPage() {
   const { state } = useLocation();
   const pokemonId = state?.id ?? null;
 
+  console.log(pokemonId);
+
   const secret_pokemon = SECRET_POKEMON_BASE.map((p) => ({
     ...p,
     imgs: pokemonId
@@ -149,7 +151,8 @@ export default function SecretPage() {
     // pokedex에서 이미 포획(catch: true)된 포켓몬은 등록하지 않음 → 이미지 미표시 + 통과 가능
     const pokedex = JSON.parse(sessionStorage.getItem('pokedex') || '[]');
     secret_pokemon.forEach((p, i) => {
-      const isCaught = pokemonId != null &&
+      const isCaught =
+        pokemonId != null &&
         pokedex.find((entry) => entry.id === pokemonId)?.catch === true;
       if (isCaught) return;
 
@@ -213,15 +216,15 @@ export default function SecretPage() {
         const [dc, dr] = faceDeltas[player.direction];
         const checkKey = `${col + dc},${row + dr}`;
         if (secretPokemonMapRef.current.has(checkKey)) {
-          play(battleBgm, 0.3);
+          play(secretBattleBgm, 0.3);
           Object.keys(keysRef.current).forEach(
             (k) => (keysRef.current[k] = false),
           );
           transitionRef.current.start(() => {
             loopRunningRef.current = false;
-            sessionStorage.setItem('eventZone', 'legendary');
-            sessionStorage.setItem('legendaryId', String(pokemonId));
-            navigate('/battle');
+            sessionStorage.setItem('eventZone', '???');
+            // sessionStorage.setItem('legendaryId', String(pokemonId));
+            navigate('/battle', { state: { id: pokemonId } });
           });
           return;
         }
