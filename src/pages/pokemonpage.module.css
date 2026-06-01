@@ -1,6 +1,8 @@
 /* pokemonpage.module.css */
 /* pokemonpage.module.css  */
 
+/* 모든 글자 색상 #555 */
+
 .game-screen {
   display: flex;
   gap: 20px;
@@ -9,8 +11,9 @@
   box-sizing: border-box;
   /* 왼쪽/중간/오른쪽 박스가 똑같은 높이로 억지로 늘어나는거 방지 */
   align-items: flex-start;
-  background-color: black;
+  background-color: rgb(187, 187, 187);
   height: 100%;
+  color: #555;
 }
 
 .party-area {
@@ -19,30 +22,31 @@
   flex-direction: column;
 
   gap: 8px;
-  margin-top: 40px;
+  margin-top: 55px;
 }
 
 .party-slot {
-  height: 80px; /* 모든 박스의 높이를 똑같이 고정 */
+  height: 65px; /* 모든 박스의 높이를 똑같이 고정 */
   overflow: hidden; /* 글자가 박스를 삐져나가면 잘라냄 */
   white-space: nowrap; /* 글자가 다음 줄로 넘어가는거 방지 */
 
-  margin-left: 10px;
+  /* margin-left: 10px; */
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  padding-left: 15px;
-  background: gray;
+  /* padding-left: 5px; */
+  padding-right: 5px;
+  background: whitesmoke;
   border: 3px solid transparent;
   border-radius: 20px;
   font-weight: bold;
 }
 
 .party-pokemon-img {
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   object-fit: contain;
-  margin-right: 10px;
+  margin-right: 5px;
   flex-shrink: 0;
 }
 
@@ -57,23 +61,25 @@
   justify-content: space-between;
   align-items: center;
   background: white;
-  padding: 8px 20px;
+  padding: 8px 25px;
   border: 3px solid transparent;
-  border-radius: 20px;
+  border-radius: 99px;
   margin-bottom: 10px;
   font-weight: bold;
-  font-size: 1.1rem;
-  border: 1px solid green;
+  font-size: 12px;
+  font-family: "pokemon_font";
+  /* border: 1px solid green; */
 }
 
 .arrow {
   cursor: pointer;
   color: #555;
   transition: 0.1s;
+  font-family: sans-serif;
 }
 
 .arrow:hover {
-  color: #ff3b3b;
+  color: #555;
   transform: scale(1.2);
 }
 
@@ -82,7 +88,7 @@
   grid-template-columns: repeat(6, 80px);
   grid-template-rows: repeat(5, 80px);
   gap: 5px;
-  background: #fad5ea; /* 가운데 박스 색 */
+  background: white; /* 가운데 박스 색 */
   padding: 10px;
   box-sizing: border-box;
   width: fit-content;
@@ -92,17 +98,17 @@
 }
 
 .box-slot {
-  background: #fad5ea;
+  background: white;
   border: 3px solid transparent;
   border-radius: 8px;
 }
 
 .focused {
   border-color: #ff3b3b !important;
-  box-shadow: 0 0 10px rgba(255, 59, 59, 0.6) !important;
+  box-shadow: 0 0 5px rgba(255, 59, 59, 0.6) !important;
   transform: scale(1.05); /* translateX(10px) 제외: margin-left로 해결 */
   transition: all 0.1s ease-in-out;
-  background-color: #fad5ea; /* 포커스 색 */
+  background-color: white; /* 포커스 색 */
   z-index: 10;
 }
 
@@ -116,7 +122,7 @@
 }
 
 .occupied {
-  background-color: #fad5ea; /* 중앙 개별 박스 */
+  background-color: white; /* 중앙 개별 박스 */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -127,7 +133,7 @@
   font-size: 0.9rem;
 }
 
- /* 통통 애니메이션 */
+/* 통통 애니메이션 */
 .party-slot.focused .party-pokemon-img,
 .party-slot:hover .party-pokemon-img,
 .box-slot.focused .box-pokemon-img,
@@ -136,7 +142,7 @@
 }
 
 .box-pokemon-img {
-  width: 90%; 
+  width: 90%;
   height: 90%;
   object-fit: contain;
 }
@@ -145,15 +151,12 @@
   width: 280px;
   height: 520px;
 
- 
-  border: 6px solid #4a4a4a;
+  /* border: 2px solid #d6d6d6; */
   border-radius: 15px;
   padding: 15px;
-  
-
   background: linear-gradient(180deg, #fdfbf7 0%, #e8e4d9 100%);
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.1); 
-  
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+
   margin-left: 8px;
   display: flex;
   flex-direction: column;
@@ -161,14 +164,14 @@
   overflow-y: auto;
 
   font-family: "pokemon_font", sans-serif;
-  margin-top: 40px;
+  margin-top: 56px;
 }
 
 .details-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #333;
+  color: #555;
 }
 
 .details-img {
@@ -186,12 +189,12 @@
 
 .details-level {
   font-size: 15px;
-  margin-bottom: 0px; 
+  margin-bottom: 0px;
 }
 
 .name-level-wrap {
   display: flex;
-  align-items: baseline; 
+  align-items: baseline;
   gap: 10px; /* 이름 레벨 간격 */
   margin-bottom: 10px;
 }
@@ -203,13 +206,13 @@
 }
 
 .type-badge {
-  padding: 4px 16px; 
-  border-radius: 10px; 
+  padding: 4px 16px;
+  border-radius: 10px;
   color: white;
   font-size: 14px;
   font-weight: bold;
-  letter-spacing: 1px; 
-  
+  letter-spacing: 1px;
+
   border: 1px solid rgba(0, 0, 0, 0.3);
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.7);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -235,6 +238,7 @@
   margin-bottom: 8px;
   border-radius: 5px;
   font-size: 15px;
+  color: #555;
 }
 
 .move-name {
@@ -262,7 +266,7 @@
   box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
   font-family: "pokemon_font", sans-serif;
   font-size: 24px;
-  color: #333;
+  color: #555;
   z-index: 200;
 }
 
@@ -299,7 +303,7 @@
   box-sizing: border-box;
   font-family: "pokemon_font", sans-serif;
   font-size: 24px;
-  color: #333;
+  color: #555;
   z-index: 100;
   box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
 }
@@ -330,4 +334,15 @@
   width: 24px;
   color: red;
   display: inline-block;
+}
+
+/* 기절한 포켓몬 (HP 0) 상태 */
+.fainted {
+  background-color: #ffd6d6 !important; /* 살짝 적빛(붉은색) 바탕 */
+  color: #8b3a3a !important; /* 글씨도 어둡고 붉게 */
+}
+
+/* 기절한 포켓몬 이미지처리 */
+.fainted img {
+  filter: grayscale(60%) opacity(70%);
 }
