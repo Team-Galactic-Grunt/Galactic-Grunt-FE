@@ -86,7 +86,7 @@ export default function Pokemon({ eventZone }) {
                 position: 'absolute',
                 width: `${((currentPokemon?.currentExp ?? 0) / (currentPokemon?.needExp ?? 10000)) * 100}%`,
                 height: '100%',
-                backgroundColor: 'blue',
+                backgroundColor: 'skyblue',
               }}
             ></div>
           </div>

@@ -5,7 +5,7 @@ import { postBattlePokemon } from '../api/postBattlePokemon';
 import { useBattleLog } from '../hooks/useBattleLog';
 import { useBattle } from '../hooks/useBattle';
 import { useBgm } from '../context/BgmContext';
-import { battleBgm } from '../assets/bgm';
+import { battleBgm, secretBattleBgm } from '../assets/bgm';
 import { navigateToMap } from '../utils/navigateToMap';
 import { tryCatch } from '../utils/calcCatchRate';
 import LogComponent from '../components/LogComponent';
@@ -63,12 +63,17 @@ export default function BattlePage() {
 
   const { displayText, waiting, addLog, advance, onQueueEmpty } =
     useBattleLog();
-  // const { play, stop } = useBgm();
+  const { play, stop } = useBgm();
   const { executeTurn, executeEnemyTurn } = useBattle({ addLog });
 
   // 마운트: BGM + 화면 열기 + 포켓몬 fetch
   useEffect(() => {
-    // play(battleBgm, 0.2);
+    const eventZone = sessionStorage.getItem('eventZone');
+    if (eventZone === 'legendary') {
+      play(secretBattleBgm, 0.2);
+    } else {
+      play(battleBgm, 0.2);
+    }
     openRef.current.start();
 
     if (currentIndex === -1) {
@@ -90,7 +95,11 @@ export default function BattlePage() {
       }
     });
 
-    postBattlePokemon({ eventZone, avgLevel, pokemonId: legendaryId ?? undefined })
+    postBattlePokemon({
+      eventZone,
+      avgLevel,
+      pokemonId: legendaryId ?? undefined,
+    })
       .then((data) => {
         setEnemy(data);
         sessionStorage.setItem('enemyPokemon', JSON.stringify(data));
@@ -181,7 +190,9 @@ export default function BattlePage() {
       const result = executeEnemyTurn();
       onQueueEmpty(() => {
         if (result === 'player-faint') {
-          const stored = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
+          const stored = JSON.parse(
+            sessionStorage.getItem('isMyPokemon') || '[]',
+          );
           const hasOthers = stored.some(
             (p) => p.catchId !== selected.catchId && (p.currentHp ?? 0) > 0,
           );
@@ -452,12 +463,16 @@ export default function BattlePage() {
       <div
         className={styles.wrap_battle}
         style={{
-          backgroundImage: `url(/src/assets/images/battle_images/${eventZoneCheck(eventZone)}_bg.png)`,
+          backgroundImage: `url(/src/assets/images/battle_images/${eventZoneCheck(eventZone || 'cave')}_bg.png)`,
           height: '554px',
         }}
       >
-        {enemy && <EnemyPokemon eventZone={eventZoneCheck(eventZone)} />}
-        {showPlayer && <Pokemon eventZone={eventZoneCheck(eventZone)} />}
+        {enemy && (
+          <EnemyPokemon eventZone={eventZoneCheck(eventZone || 'cave')} />
+        )}
+        {showPlayer && (
+          <Pokemon eventZone={eventZoneCheck(eventZone || 'cave')} />
+        )}
       </div>
 
       <div style={{ display: 'flex', width: '1080px' }}>

@@ -10,8 +10,8 @@ async function getFunction() {
   // });
   try {
     const response = await axios.get(
-      // 'https://galactic-gruent-be.vercel.app/api/getInitData',
-      'http://localhost:3000/api/getInitData',
+      'https://galactic-gruent-be.vercel.app/api/getInitData',
+      // 'http://localhost:3000/api/getInitData',
     );
     console.log('Fetched Pokémon:', response.data.result);
     const { position, bag, isMyPokemon, pokemonBox, pokedex } =

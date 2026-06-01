@@ -100,16 +100,16 @@ const MENU_ITEMS = ['포켓몬', '도감', '가방', '레포트', '???', '닫는
 
 // 아이템 획득(count:1) + 포덱스 미포획(catch:false) 조건 충족 시 조우할 전설 포켓몬
 const ITEM_TO_LEGENDARY = {
-  '금강옥': 483,   // 디아루가
-  '백옥': 484,     // 펄기아
-  '백금옥': 487,   // 기라티나
+  금강옥: 483, // 디아루가
+  백옥: 484, // 펄기아
+  백금옥: 487, // 기라티나
   '천계의 피리': 493, // 아르세우스
 };
 
 // 맵에 배치할 중요 아이템 타일: { c, r, name } — name은 bag.important 아이템 이름과 일치해야 함
 const ITEM_TILES = [
   { c: 4, r: 24, name: '금강옥' },
-  { c: 38, r: 29, name: '백옥' },
+  { c: 38, r: 28, name: '백옥' },
   { c: 24, r: 3, name: '백금옥' },
   { c: 21, r: 8, name: '천계의 피리' },
 ];
@@ -186,11 +186,6 @@ export default function MapPage() {
   const bag = sessionStorage.getItem('bag')
     ? JSON.parse(sessionStorage.getItem('bag'))
     : null;
-  const { important } = bag ?? {};
-  const pokedex = JSON.parse(sessionStorage.getItem('pokedex'));
-  const secret = pokedex.filter(
-    (p) => p.id === 483 || p.id === 484 || p.id === 487 || p.id === 493,
-  );
 
   const isMyPokemon = sessionStorage.getItem('isMyPokemon')
     ? JSON.parse(sessionStorage.getItem('isMyPokemon'))
@@ -232,6 +227,12 @@ export default function MapPage() {
       });
     });
 
+    if (!imagesRef.current['monsterball']) {
+      const img = new Image();
+      img.src = '/src/assets/images/bag_images/monsterball.png';
+      imagesRef.current['monsterball'] = img;
+    }
+
     // 인카운터 이벤트 맵 생성
     const EVENT_COUNT = 12;
     Object.entries(zones).forEach(([zoneName, zoneData]) => {
@@ -269,7 +270,10 @@ export default function MapPage() {
       // 전설 포켓몬과 연결된 아이템 타일은 아이템 획득 여부와 무관하게 항상 등록
       const pokemonId = ITEM_TO_LEGENDARY[name];
       if (item && pokemonId) {
-        legendaryTileMapRef.current.set(`${c},${r}`, { itemName: name, pokemonId });
+        legendaryTileMapRef.current.set(`${c},${r}`, {
+          itemName: name,
+          pokemonId,
+        });
       }
     });
 
@@ -341,12 +345,18 @@ export default function MapPage() {
 
           // bag.important count:1 + pokedex catch:false 조건을 만족하는 첫 번째 전설 포켓몬 ID
           const currentBag = JSON.parse(sessionStorage.getItem('bag') || '{}');
-          const currentPokedex = JSON.parse(sessionStorage.getItem('pokedex') || '[]');
-          const id = Object.entries(ITEM_TO_LEGENDARY).find(([itemName, pokemonId]) => {
-            const item = (currentBag.important ?? []).find((i) => i.name === itemName);
-            const dexEntry = currentPokedex.find((p) => p.id === pokemonId);
-            return item?.count === 1 && dexEntry?.catch === false;
-          })?.[1] ?? null;
+          const currentPokedex = JSON.parse(
+            sessionStorage.getItem('pokedex') || '[]',
+          );
+          const id =
+            Object.entries(ITEM_TO_LEGENDARY).find(([itemName, pokemonId]) => {
+              const item = (currentBag.important ?? []).find(
+                (i) => i.name === itemName,
+              );
+              const dexEntry = currentPokedex.find((p) => p.id === pokemonId);
+              return item?.count === 1 && dexEntry?.catch === false;
+            })?.[1] ?? null;
+          stop();
           navigate('/secret', { state: { id } });
         } else if (e.code === 'KeyX') {
           secretModalOpenRef.current = false;
@@ -483,11 +493,16 @@ export default function MapPage() {
           if (itemTileMapRef.current.has(key)) {
             const itemName = itemTileMapRef.current.get(key);
             itemTileMapRef.current.delete(key);
-            const currentBag = JSON.parse(sessionStorage.getItem('bag') || '{}');
+            const currentBag = JSON.parse(
+              sessionStorage.getItem('bag') || '{}',
+            );
             const updatedImportant = (currentBag.important ?? []).map((i) =>
               i.name === itemName ? { ...i, count: i.count + 1 } : i,
             );
-            sessionStorage.setItem('bag', JSON.stringify({ ...currentBag, important: updatedImportant }));
+            sessionStorage.setItem(
+              'bag',
+              JSON.stringify({ ...currentBag, important: updatedImportant }),
+            );
             setItemToast(itemName);
             setTimeout(() => setItemToast(null), 2000);
             break;
@@ -495,23 +510,35 @@ export default function MapPage() {
 
           // 아이템은 이미 획득했지만 전설 조우 조건 충족 시 배틀 시작
           if (legendaryTileMapRef.current.has(key)) {
-            const { itemName, pokemonId } = legendaryTileMapRef.current.get(key);
-            const currentBag = JSON.parse(sessionStorage.getItem('bag') || '{}');
-            const item = (currentBag.important ?? []).find((i) => i.name === itemName);
-            const pokedex = JSON.parse(sessionStorage.getItem('pokedex') || '[]');
+            const { itemName, pokemonId } =
+              legendaryTileMapRef.current.get(key);
+            const currentBag = JSON.parse(
+              sessionStorage.getItem('bag') || '{}',
+            );
+            const item = (currentBag.important ?? []).find(
+              (i) => i.name === itemName,
+            );
+            const pokedex = JSON.parse(
+              sessionStorage.getItem('pokedex') || '[]',
+            );
             const dexEntry = pokedex.find((p) => p.id === pokemonId);
 
             // 아이템 획득(count:1)이고 아직 포획 안 한 경우에만 조우
             if (item?.count === 1 && dexEntry?.catch === false) {
               fadeStateRef.current = { zone: 'legendary' };
               play(battleBgm, 0.3);
-              Object.keys(keysRef.current).forEach((k) => (keysRef.current[k] = false));
+              Object.keys(keysRef.current).forEach(
+                (k) => (keysRef.current[k] = false),
+              );
               transitionRef.current.start(() => {
-                sessionStorage.setItem('position', JSON.stringify({
-                  x: playerRef.current.x,
-                  y: playerRef.current.y,
-                  direction: playerRef.current.direction,
-                }));
+                sessionStorage.setItem(
+                  'position',
+                  JSON.stringify({
+                    x: playerRef.current.x,
+                    y: playerRef.current.y,
+                    direction: playerRef.current.direction,
+                  }),
+                );
                 sessionStorage.setItem('eventZone', 'legendary');
                 sessionStorage.setItem('legendaryId', String(pokemonId));
                 sessionStorage.setItem('status', 'true');
@@ -612,7 +639,7 @@ export default function MapPage() {
           const tileKey = `${arrivedCol},${arrivedRow}`;
 
           if (eventTileMapRef.current.has(tileKey)) {
-            // play(battleBgm, 0.2);
+            play(battleBgm, 0.2);
             const zone = eventTileMapRef.current.get(tileKey);
             eventTileMapRef.current.delete(tileKey);
 
@@ -714,32 +741,37 @@ export default function MapPage() {
         );
       }
 
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      // ctx.font = 'bold 11px sans-serif';
+      // ctx.textAlign = 'center';
+      // ctx.textBaseline = 'middle';
 
-      for (const [key] of eventTileMapRef.current) {
-        const [ec, er] = key.split(',').map(Number);
-        const ex = ec * TILE + TILE / 2;
-        const ey = er * TILE + TILE / 2;
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
-        ctx.beginPath();
-        ctx.arc(ex, ey, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#111';
-        ctx.fillText('!', ex, ey);
-      }
+      // for (const [key] of eventTileMapRef.current) {
+      //   const [ec, er] = key.split(',').map(Number);
+      //   const ex = ec * TILE + TILE / 2;
+      //   const ey = er * TILE + TILE / 2;
+      //   ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
+      //   ctx.beginPath();
+      //   ctx.arc(ex, ey, 6, 0, Math.PI * 2);
+      //   ctx.fill();
+      //   ctx.fillStyle = '#111';
+      //   ctx.fillText('!', ex, ey);
+      // }
 
-      for (const [key] of itemTileMapRef.current) {
-        const [ic, ir] = key.split(',').map(Number);
-        const ix = ic * TILE + TILE / 2;
-        const iy = ir * TILE + TILE / 2;
-        ctx.fillStyle = 'rgba(100, 200, 255, 0.9)';
-        ctx.beginPath();
-        ctx.arc(ix, iy, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#111';
-        ctx.fillText('★', ix, iy);
+      const ballImg = imagesRef.current['monsterball'];
+      if (ballImg && ballImg.complete && ballImg.naturalWidth > 0) {
+        const ballSize = TILE * 0.7;
+        for (const [key] of itemTileMapRef.current) {
+          const [ic, ir] = key.split(',').map(Number);
+          const ix = ic * TILE + TILE / 2;
+          const iy = ir * TILE + TILE / 2;
+          ctx.drawImage(
+            ballImg,
+            Math.round(ix - ballSize / 2),
+            Math.round(iy - ballSize / 2),
+            ballSize,
+            ballSize,
+          );
+        }
       }
 
       const spriteName = spriteMap[player.direction][player.currentFrame];

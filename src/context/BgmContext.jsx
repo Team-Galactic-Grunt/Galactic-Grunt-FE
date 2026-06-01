@@ -1,11 +1,17 @@
-import { createContext, useContext, useRef, useEffect, useCallback } from 'react';
-import { battleBgm, mainBgm } from '../assets/bgm';
+import {
+  createContext,
+  useContext,
+  useRef,
+  useEffect,
+  useCallback,
+} from 'react';
+import { battleBgm, mainBgm, secretBattleBgm } from '../assets/bgm';
 
 const BgmContext = createContext(null);
 
 // 모듈 로드 시점에 미리 로딩
 const cache = new Map();
-[battleBgm, mainBgm].forEach((src) => {
+[battleBgm, mainBgm, secretBattleBgm].forEach((src) => {
   const audio = new Audio(src);
   audio.preload = 'auto';
   audio.loop = true;
@@ -22,7 +28,13 @@ export function BgmProvider({ children }) {
         if (audio === audioRef.current) {
           audio.play().catch(() => {});
         } else {
-          audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(() => {});
+          audio
+            .play()
+            .then(() => {
+              audio.pause();
+              audio.currentTime = 0;
+            })
+            .catch(() => {});
         }
       });
       window.removeEventListener('keydown', unlock);
