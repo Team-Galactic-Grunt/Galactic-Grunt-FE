@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import styles from './battlePage.module.css';
 import { postBattlePokemon } from '../api/postBattlePokemon';
 import { useBattleLog } from '../hooks/useBattleLog';
 import { useBattle } from '../hooks/useBattle';
 import { useBgm } from '../context/BgmContext';
 import { battleBgm, secretBattleBgm } from '../assets/bgm';
-import { navigateToMap } from '../utils/navigateToMap';
 import { tryCatch } from '../utils/calcCatchRate';
 import { setPokedexWatch, setPokedexCatch } from '../utils/updatePokedex';
 import LogComponent from '../components/LogComponent';
@@ -41,21 +40,18 @@ function playAudio(url) {
 export default function BattlePage() {
   const eventZone = sessionStorage.getItem('eventZone');
   // 전설 포켓몬 조우 시 MapPage에서 저장한 ID — 사용 후 즉시 제거
-  const legendaryId = sessionStorage.getItem('legendaryId')
-    ? Number(sessionStorage.getItem('legendaryId'))
-    : null;
-  if (legendaryId) sessionStorage.removeItem('legendaryId');
 
   const myPokemon = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
   const removeEmptyObject = myPokemon.filter((p) => Object.keys(p).length > 0);
   const currentIndex = removeEmptyObject.findIndex(
     (pokemon) => pokemon.currentHp !== 0,
   );
-
-  console.log(currentIndex);
   // const bag = JSON.parse(sessionStorage.getItem('bag') || '[]');
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const { pokemonId } = location.state || {};
+  // console.log('BattlePage received pokemonId:', pokemonId);
   const [enemy, setEnemy] = useState(null);
   const [currentPokemon, setCurrentPokemon] = useState(null);
   const [showPlayer, setShowPlayer] = useState(false);
@@ -75,7 +71,7 @@ export default function BattlePage() {
   // 마운트: BGM + 화면 열기 + 포켓몬 fetch
   useEffect(() => {
     const eventZone = sessionStorage.getItem('eventZone');
-    if (eventZone === 'legendary') {
+    if (pokemonId) {
       play(secretBattleBgm, 0.2);
     } else {
       play(battleBgm, 0.2);
@@ -109,7 +105,7 @@ export default function BattlePage() {
     postBattlePokemon({
       eventZone,
       avgLevel,
-      pokemonId: legendaryId ?? undefined,
+      pokemonId: pokemonId ?? undefined,
     })
       .then((data) => {
         setEnemy(data);
@@ -166,6 +162,16 @@ export default function BattlePage() {
     setPhase((prev) => (prev === 'intro' ? 'select' : prev));
   }, [waiting, advance]);
 
+  // currentPokemonUpdated 이벤트 수신 → currentPokemon state 동기화 (PP 등 실시간 반영)
+  useEffect(() => {
+    const handler = () => {
+      const updated = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
+      if (updated) setCurrentPokemon(updated);
+    };
+    window.addEventListener('currentPokemonUpdated', handler);
+    return () => window.removeEventListener('currentPokemonUpdated', handler);
+  }, []);
+
   // 전멸 시: 로그 표시 → 전체 HP 회복 → 맵으로
   const handleBlackout = () => {
     addLog('싸울 수 있는 포켓몬이 없다..');
@@ -176,7 +182,10 @@ export default function BattlePage() {
       sessionStorage.setItem(
         'isMyPokemon',
         JSON.stringify(
-          stored.map((p) => ({ ...p, currentHp: p.maxHp ?? p.baseStats?.hp ?? 0 })),
+          stored.map((p) => ({
+            ...p,
+            currentHp: p.maxHp ?? p.baseStats?.hp ?? 0,
+          })),
         ),
       );
       exitTransitionRef.current.start(() => navigate('/map'));
@@ -286,7 +295,9 @@ export default function BattlePage() {
         pokemonBox.push({ ...ep, catchId: uuidv4() });
         sessionStorage.setItem('pokemonBox', JSON.stringify(pokemonBox));
         setPokedexCatch(ep.id);
-        onQueueEmpty(() => navigateToMap(navigate));
+        onQueueEmpty(() =>
+          exitTransitionRef.current.start(() => navigate('/map')),
+        );
       } else {
         addLog(`${ep.name}이(가) 탈출했다!`, () => {
           window.dispatchEvent(new CustomEvent('catchRelease'));
@@ -386,7 +397,7 @@ export default function BattlePage() {
         addLog('무엇을 할까?');
         setPhase('select');
       } else if (result === 'enemy-faint') {
-        navigateToMap(navigate);
+        exitTransitionRef.current.start(() => navigate('/map'));
       } else if (result === 'player-faint') {
         const stored = JSON.parse(
           sessionStorage.getItem('isMyPokemon') || '[]',
@@ -499,15 +510,19 @@ export default function BattlePage() {
       <div
         className={styles.wrap_battle}
         style={{
-          backgroundImage: `url(/src/assets/images/battle_images/${eventZoneCheck(eventZone || 'cave')}_bg.png)`,
+          backgroundImage: `url(/src/assets/images/battle_images/${eventZoneCheck(eventZone === '???' ? 'cave' : eventZone)}_bg.png)`,
           height: '554px',
         }}
       >
         {enemy && (
-          <EnemyPokemon eventZone={eventZoneCheck(eventZone || 'cave')} />
+          <EnemyPokemon
+            eventZone={eventZoneCheck(eventZone === '???' ? 'cave' : eventZone)}
+          />
         )}
         {showPlayer && (
-          <Pokemon eventZone={eventZoneCheck(eventZone || 'cave')} />
+          <Pokemon
+            eventZone={eventZoneCheck(eventZone === '???' ? 'cave' : eventZone)}
+          />
         )}
       </div>
 

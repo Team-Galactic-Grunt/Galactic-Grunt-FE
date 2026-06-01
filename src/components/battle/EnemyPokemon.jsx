@@ -2,16 +2,19 @@ import { useEffect, useState } from 'react';
 import styles from './pokemon.module.css';
 
 export default function EnemyPokemon({ eventZone }) {
-  const [enemyPokemon, setEnemyPokemon] = useState(
-    () => JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null'),
+  const [enemyPokemon, setEnemyPokemon] = useState(() =>
+    JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null'),
   );
   const [catchSprite, setCatchSprite] = useState(null); // 볼 던질 때 이미지 교체
 
   useEffect(() => {
     const sync = () => {
-      setEnemyPokemon(JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null'));
+      setEnemyPokemon(
+        JSON.parse(sessionStorage.getItem('enemyPokemon') || 'null'),
+      );
     };
-    const onCatch = (e) => setCatchSprite(`/src/assets/images/bag_images/${e.detail.id}.png`);
+    const onCatch = (e) =>
+      setCatchSprite(`/src/assets/images/bag_images/${e.detail.id}.png`);
     const onRelease = () => setCatchSprite(null);
 
     window.addEventListener('enemyPokemonUpdated', sync);
@@ -34,32 +37,48 @@ export default function EnemyPokemon({ eventZone }) {
         style={{ padding: '10px 20px' }}
       >
         <div
-          style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '5px',
+          }}
         >
           <div>{enemyPokemon?.name}</div>
-          <div>Lv. {enemyPokemon?.level}</div>
+          <div>
+            <span
+              style={{
+                display: 'inline-block',
+                color: '#555',
+                width: '20px',
+                fontSize: '10px',
+                textShadow:
+                  '-0.2px -0.2px 0 #555, 0.2px -0.2px 0 #555, -0.2px 0.2px 0 #555, 0.2px 0.2px 0 #555',
+              }}
+            >
+              Lv
+            </span>
+            <span
+              style={{
+                display: 'inline-block',
+                color: '#555',
+              }}
+            >
+              {enemyPokemon?.level}
+            </span>
+          </div>
         </div>
 
-        <div
-          style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}
-          className={styles.no_bold_font}
-        >
-          HP
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              height: '10px',
-              backgroundColor: 'gray',
-              marginLeft: '20px',
-            }}
-          >
+        <div className={styles.wrap_bar}>
+          <span className={styles.hp_font}>HP</span>
+
+          <div className={styles.bar_base}>
             <div
               style={{
                 position: 'absolute',
-                width: `${(currentHp / maxHp) * 100}%`,
                 height: '100%',
-                backgroundColor: 'green',
+                width: `${(currentHp / maxHp) * 100}%`,
+                backgroundColor: `${currentHp / maxHp > 0.5 ? '#5ce74c' : currentHp / maxHp > 0.2 ? '#f5a623' : '#d0021b'}`,
               }}
             ></div>
           </div>
@@ -69,7 +88,9 @@ export default function EnemyPokemon({ eventZone }) {
       <div style={{ width: '300px', height: '300px', position: 'relative' }}>
         <div
           className={`${styles.pokemon} ${styles.enemy_pokemon}`}
-          style={{ backgroundImage: `url(${catchSprite ?? enemyPokemon?.frontSprite})` }}
+          style={{
+            backgroundImage: `url(${catchSprite ?? enemyPokemon?.frontSprite})`,
+          }}
         ></div>
         <div
           className={`${styles.ground} ${styles.enemy_ground}`}

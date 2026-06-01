@@ -7,9 +7,11 @@ function updatePokedexEntry(id, fields) {
 }
 
 export function setPokedexWatch(id) {
+  console.log('Updating Pokedex entry for id:', id, 'to watch: true');
   updatePokedexEntry(id, { watch: true });
 }
 
 export function setPokedexCatch(id) {
+  console.log('Updating Pokedex entry for id:', id, 'to catch: true');
   updatePokedexEntry(id, { catch: true });
 }

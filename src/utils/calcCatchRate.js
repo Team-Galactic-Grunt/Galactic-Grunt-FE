@@ -1,4 +1,4 @@
-const BALL_BONUS = { 몬스터볼: 10, 슈퍼볼: 20, 하이퍼볼: 30 };
+const BALL_BONUS = { 몬스터볼: 10, 슈퍼볼: 20, 하이퍼볼: 255 };
 
 export function calcCatchRate(enemy, ballName) {
   const maxHp = enemy.maxHp ?? enemy.baseStats?.hp ?? 1;
