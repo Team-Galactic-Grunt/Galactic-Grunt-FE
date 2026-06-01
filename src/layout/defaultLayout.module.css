@@ -5,8 +5,12 @@
   width: 100%;
   min-width: 1180px;
   height: 100vh;
+  min-height: 820px;
   background-color: #cdcdcd;
   padding: 0 50px;
+  background-image: url('/src/assets/images/bg2.png');
+  background-size: cover;
+  background-position: center;
 }
 
 .wrap_outlet {
@@ -16,4 +20,5 @@
   /* border: 5px solid #000; */
   border-radius: 10px;
   margin: 40px auto;
+  border: '5px solid lightgray';
 }

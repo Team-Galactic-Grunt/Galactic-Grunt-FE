@@ -8,6 +8,7 @@ import { useBgm } from '../context/BgmContext';
 import { battleBgm, secretBattleBgm } from '../assets/bgm';
 import { navigateToMap } from '../utils/navigateToMap';
 import { tryCatch } from '../utils/calcCatchRate';
+import { setPokedexWatch, setPokedexCatch } from '../utils/updatePokedex';
 import LogComponent from '../components/LogComponent';
 import MovePanel from '../components/battle/MovePanel';
 import PokemonSelectPanel from '../components/battle/PokemonSelectPanel';
@@ -15,6 +16,7 @@ import FaintPanel from '../components/battle/FaintPanel';
 import Pokemon from '../components/battle/Pokemon';
 import EnemyPokemon from '../components/battle/EnemyPokemon';
 import OpenTransition from '../components/animation/OpenTransition';
+import BattleTransition from '../components/animation/BattleTransition';
 import FightPanel from '../components/battle/FightPanel';
 import BagPanel from '../components/battle/BagPanel';
 import { v4 as uuidv4 } from 'uuid';
@@ -45,9 +47,12 @@ export default function BattlePage() {
   if (legendaryId) sessionStorage.removeItem('legendaryId');
 
   const myPokemon = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
-  const currentIndex = myPokemon.findIndex(
+  const removeEmptyObject = myPokemon.filter((p) => Object.keys(p).length > 0);
+  const currentIndex = removeEmptyObject.findIndex(
     (pokemon) => pokemon.currentHp !== 0,
   );
+
+  console.log(currentIndex);
   // const bag = JSON.parse(sessionStorage.getItem('bag') || '[]');
 
   const navigate = useNavigate();
@@ -60,6 +65,7 @@ export default function BattlePage() {
   const audioStepRef = useRef(0);
   const prevWaitingRef = useRef(false);
   const openRef = useRef(null);
+  const exitTransitionRef = useRef(null);
 
   const { displayText, waiting, addLog, advance, onQueueEmpty } =
     useBattleLog();
@@ -81,12 +87,17 @@ export default function BattlePage() {
       navigate('/map');
       return;
     }
-
+    console.log('Current Pokemon:', removeEmptyObject.length);
     const avgLevel = Math.floor(
-      myPokemon.reduce((sum, p) => sum + (p.level ?? 0), 0) / 4,
+      myPokemon.reduce((sum, p) => sum + (p.level ?? 0), 0) /
+        removeEmptyObject.length,
     );
 
-    console.log('Calculated average level:', avgLevel);
+    console.log(
+      'Calculated average level:',
+      avgLevel,
+      Math.floor(myPokemon.reduce((sum, p) => sum + (p.level ?? 0), 0)),
+    );
 
     window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyX') {
@@ -102,12 +113,13 @@ export default function BattlePage() {
     })
       .then((data) => {
         setEnemy(data);
+        setPokedexWatch(data.id);
         sessionStorage.setItem('enemyPokemon', JSON.stringify(data));
         sessionStorage.setItem(
           'currentPokemon',
           JSON.stringify(
-            myPokemon[
-              myPokemon.findIndex((pokemon) => pokemon.currentHp !== 0)
+            removeEmptyObject[
+              removeEmptyObject.findIndex((pokemon) => pokemon.currentHp !== 0)
             ] || null,
           ),
         );
@@ -117,10 +129,10 @@ export default function BattlePage() {
         //   (pokemon) => pokemon.currentHp !== 0,
         // );
         if (currentIndex !== -1) {
-          setCurrentPokemon(myPokemon[currentIndex]);
+          setCurrentPokemon(removeEmptyObject[currentIndex]);
           addLog(`야생 ${data.name}이(가) 나타났다!`);
           playAudio(data.cryUrl);
-          addLog(`가랏! ${myPokemon[currentIndex].name}!`);
+          addLog(`가랏! ${removeEmptyObject[currentIndex].name}!`);
           addLog('무엇을 할까?');
         }
       })
@@ -154,6 +166,23 @@ export default function BattlePage() {
     setPhase((prev) => (prev === 'intro' ? 'select' : prev));
   }, [waiting, advance]);
 
+  // 전멸 시: 로그 표시 → 전체 HP 회복 → 맵으로
+  const handleBlackout = () => {
+    addLog('싸울 수 있는 포켓몬이 없다..');
+    addLog('빛나는 눈앞이 캄캄해졌다');
+    setPhase('executing');
+    onQueueEmpty(() => {
+      const stored = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
+      sessionStorage.setItem(
+        'isMyPokemon',
+        JSON.stringify(
+          stored.map((p) => ({ ...p, currentHp: p.maxHp ?? p.baseStats?.hp ?? 0 })),
+        ),
+      );
+      exitTransitionRef.current.start(() => navigate('/map'));
+    });
+  };
+
   // 행동 메뉴 선택 (싸운다 / 포켓몬 / 가방 / 도망가기)
   const handleActionSelect = (idx) => {
     switch (idx) {
@@ -167,7 +196,12 @@ export default function BattlePage() {
         setPhase('bag');
         break;
       case 3: // 도망가기
-        navigateToMap(navigate);
+        addLog('무사히 도망쳤다!');
+        advance();
+        setPhase('executing');
+        onQueueEmpty(() => {
+          exitTransitionRef.current.start(() => navigate('/map'));
+        });
         break;
       default:
         break;
@@ -197,7 +231,7 @@ export default function BattlePage() {
             (p) => p.catchId !== selected.catchId && (p.currentHp ?? 0) > 0,
           );
           if (hasOthers) setPhase('faint');
-          else navigateToMap(navigate);
+          else handleBlackout();
         } else {
           addLog('무엇을 할까?');
           setPhase('select');
@@ -251,6 +285,7 @@ export default function BattlePage() {
         );
         pokemonBox.push({ ...ep, catchId: uuidv4() });
         sessionStorage.setItem('pokemonBox', JSON.stringify(pokemonBox));
+        setPokedexCatch(ep.id);
         onQueueEmpty(() => navigateToMap(navigate));
       } else {
         addLog(`${ep.name}이(가) 탈출했다!`, () => {
@@ -267,7 +302,7 @@ export default function BattlePage() {
                 p.catchId !== currentPokemon?.catchId && (p.currentHp ?? 0) > 0,
             );
             if (hasOthers) setPhase('faint');
-            else navigateToMap(navigate);
+            else handleBlackout();
           } else {
             addLog('무엇을 할까?');
             setPhase('select');
@@ -332,7 +367,7 @@ export default function BattlePage() {
             p.catchId !== currentPokemon?.catchId && (p.currentHp ?? 0) > 0,
         );
         if (hasOthers) setPhase('faint');
-        else navigateToMap(navigate);
+        else handleBlackout();
       } else {
         addLog('무엇을 할까?');
         setPhase('select');
@@ -363,7 +398,7 @@ export default function BattlePage() {
         if (hasOthers) {
           setPhase('faint');
         } else {
-          navigateToMap(navigate);
+          handleBlackout();
         }
       }
     });
@@ -460,6 +495,7 @@ export default function BattlePage() {
   return (
     <div style={{ backgroundColor: 'rgb(82, 82, 82)' }}>
       <OpenTransition ref={openRef} />
+      <BattleTransition ref={exitTransitionRef} />
       <div
         className={styles.wrap_battle}
         style={{
