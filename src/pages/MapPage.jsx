@@ -497,7 +497,9 @@ export default function MapPage() {
             reportModalOpenRef.current = true;
             setReportModalOpen(true);
           } else if (MENU_ITEMS[menuIndexRef.current] === '???') {
-            const hasImportant = (bagRef.current.important ?? []).some((i) => i.count > 0);
+            const hasImportant = (bagRef.current.important ?? []).some(
+              (i) => i.count > 0,
+            );
             if (hasImportant) {
               menuOpenRef.current = false;
               setMenuOpen(false);
@@ -541,8 +543,8 @@ export default function MapPage() {
           if (itemTileMapRef.current.has(key)) {
             const itemName = itemTileMapRef.current.get(key);
             itemTileMapRef.current.delete(key);
-            const updatedImportant = (bagRef.current.important ?? []).map((i) =>
-              i.name === itemName ? { ...i, count: i.count + 1 } : i,
+            const updatedImportant = (bagRef.current.important ?? []).map(
+              (i) => (i.name === itemName ? { ...i, count: i.count + 1 } : i),
             );
             bagRef.current = { ...bagRef.current, important: updatedImportant };
             sessionStorage.setItem('bag', JSON.stringify(bagRef.current));
@@ -880,33 +882,39 @@ export default function MapPage() {
 
       <div id='wrap' className={styles.wrap}>
         {menuOpen && (
-          <div className={styles.menu}>
-            {MENU_ITEMS.map((item, i) => {
-              if (item === '???' && !hasImportant) return null;
-              return (
-                <div
-                  key={item}
-                  className={`${styles.menu_item} ${menuIndex === i ? styles.menu_item_selected : ''}`}
-                >
-                  {menuIndex === i && (
-                    <span className={styles.menu_cursor}>▶ </span>
-                  )}
-                  {item}
-                </div>
-              );
-            })}
+          <div className={styles.wrap_menu}>
+            <div className={styles.menu}>
+              {MENU_ITEMS.map((item, i) => {
+                if (item === '???' && !hasImportant) return null;
+                return (
+                  <div
+                    key={item}
+                    className={`${styles.menu_item} ${menuIndex === i ? styles.menu_item_selected : ''}`}
+                  >
+                    {menuIndex === i && (
+                      <span className={styles.menu_cursor}>▶ </span>
+                    )}
+                    {item}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
         {reportModalOpen && (
-          <div className={styles.report_modal}>
-            <p>저장하시겠습니까?</p>
-            <p>z: 예&nbsp;&nbsp;x: 아니오</p>
+          <div className={styles.wrap_report_modal}>
+            <div className={styles.report_modal}>
+              <p>저장하시겠습니까?</p>
+              <p>z: 예&nbsp;&nbsp;x: 아니오</p>
+            </div>
           </div>
         )}
         {secretModalOpen && (
-          <div className={styles.report_modal}>
-            <p>비밀 장소로 이동하겠습니까?</p>
-            <p>z: 예&nbsp;&nbsp;x: 아니오</p>
+          <div className={styles.wrap_report_modal}>
+            <div className={styles.report_modal}>
+              <p>비밀 장소로 이동하겠습니까?</p>
+              <p>z: 예&nbsp;&nbsp;x: 아니오</p>
+            </div>
           </div>
         )}
         {saveToast && <div className={styles.save_toast}>저장했습니다</div>}
