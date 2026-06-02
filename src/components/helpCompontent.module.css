@@ -1,0 +1,44 @@
+.wrap_bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #00000090;
+  z-index: 40;
+}
+.wrap_help {
+  display: flex;
+  /* flex-direction: column; */
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  top: 350px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: fit-content;
+  height: fit-content;
+  /* background-color: white; */
+  border-radius: 10px;
+  /* padding: 30px; */
+}
+
+.wrap_key_info {
+  display: flex;
+  gap: 20px;
+  font-family: 'pokemon_font';
+  font-size: 22px;
+  color: white;
+  text-shadow: 2px 2px 0px #4e4e4e;
+  align-items: center;
+
+  /* margin-top: 20px; */
+}
+
+.key_img {
+  width: 80px;
+  height: 80px;
+}
+
+.arrow_img {
+  width: 200px;
+  height: 150px;
+}

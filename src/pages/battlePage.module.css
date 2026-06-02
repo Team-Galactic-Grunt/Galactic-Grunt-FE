@@ -4,7 +4,8 @@
   width: 1080px;
   background-size: cover;
   background-repeat: no-repeat;
-  overflow: hidden;
+  background-color: #fff;
+  overflow: visible;
   /* border-radius: 8px; */
   font-family: 'pokemon_font';
 }
@@ -52,7 +53,9 @@
   left: 0;
   width: 400px;
   height: 100px;
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   z-index: 1;
 }
 

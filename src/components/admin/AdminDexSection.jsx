@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect } from "react";
-import styles from "./adminDexPage.module.css";
-import { getPokemonDex } from "../../api/getPokemonDex";
-import { postDex } from "../../api/postDex";
+import { useState, useMemo, useEffect } from 'react';
+import styles from './adminDexPage.module.css';
+import { getPokemonDex } from '../../api/getPokemonDex';
+import { postDex } from '../../api/postDex';
 
 /*
 포켓몬 이미지
@@ -16,6 +16,7 @@ export default function AdminDexSection() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveModal, setSaveModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   const dexPerPage = 18;
 
@@ -36,7 +37,7 @@ export default function AdminDexSection() {
   };
 
   useEffect(() => {
-    fetchDex();
+    fetchDex().finally(() => setIsLoading(false));
     // console.log(res);
   }, []);
 
@@ -96,93 +97,121 @@ export default function AdminDexSection() {
   };
 
   return (
-    <section className={styles.panel}>
-      <div className={styles.toolbar}>
-        <h2 className={styles.sectionTitle}>포켓몬 도감 해금</h2>
-      </div>
-
-      <div className={styles.dexList}>
-        {currentDex.map((card) => (
-          <div key={card.id} className={styles.card}>
-            <div
-              className={`${styles.spriteFrame} ${card.catch ? styles.caught : ""}`}
-            >
-              <img src={card.frontSprite} alt="pkm" className={styles.sprite} />
-            </div>
-
-            <div className={styles.dexId}>
-              #{card.id} {card.name}
-            </div>
-            <label>
-              <input
-                type="checkbox"
-                checked={card.watch}
-                onChange={(e) => WatchChange(card.id, e.target.checked)}
-              />
-              조우함
-            </label>
-
-            <label>
-              <input
-                type="checkbox"
-                checked={card.catch}
-                onChange={(e) => CatchChange(card.id, e.target.checked)}
-              />
-              포획
-            </label>
-          </div>
-        ))}
-      </div>
-
-      <div className={styles.pagination}>
-        <button
-          type="button"
-          className={styles.pageButton}
-          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-          disabled={currentPage === 1}
+    <>
+      {isLoading ? (
+        <div
+          style={{ marginTop: '20px', textAlign: 'center', fontSize: '22px' }}
         >
-          ◀
-        </button>
-
-        <div className={styles.pageInfo}>
-          {currentPage} / {totalPages || 1}
+          DEX LOADING...
         </div>
+      ) : (
+        <>
+          <section className={styles.panel}>
+            <div className={styles.toolbar}>
+              <h2 className={styles.sectionTitle}>포켓몬 도감 해금</h2>
+            </div>
 
-        <button
-          type="button"
-          className={styles.pageButton}
-          onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-          disabled={currentPage === totalPages || totalPages === 0}
-        >
-          ▶
-        </button>
-      </div>
+            <div className={styles.dexList}>
+              {currentDex.map((card) => (
+                <div key={card.id} className={styles.card}>
+                  <div
+                    className={`${styles.spriteFrame} ${card.catch ? styles.caught : ''}`}
+                  >
+                    <img
+                      src={card.frontSprite}
+                      alt='pkm'
+                      className={styles.sprite}
+                    />
+                  </div>
 
-      <div className={styles.changeBar}>
-        <button className={styles.changeButton} onClick={openSaveModal}>
-          저장
-        </button>
-      </div>
-      {saveModal && (
-        <div className={styles.saveCard}>
-          <div className={styles.isSave}>
-            <h2 className={styles.saveTitle}>저장하시겠습니까?</h2>
-            <p className={styles.saveText}>저장하면 서버에 반영됩니다.</p>
+                  <div className={styles.dexId}>
+                    #{card.id} {card.name}
+                  </div>
+                  <label>
+                    <input
+                      type='checkbox'
+                      checked={card.watch}
+                      onChange={(e) => WatchChange(card.id, e.target.checked)}
+                    />
+                    조우함
+                  </label>
 
-            <div className={styles.saveActions}>
+                  <label>
+                    <input
+                      type='checkbox'
+                      checked={card.catch}
+                      onChange={(e) => CatchChange(card.id, e.target.checked)}
+                    />
+                    포획
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.pagination}>
               <button
-                className={styles.saveCancel}
-                onClick={() => setSaveModal(false)}
+                type='button'
+                // className={styles.pageButton}
+                className={styles.pageButton}
+                style={{ padding: '1px 3px 0 0' }}
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
               >
-                취소
+                ◀
               </button>
-              <button className={styles.saveConfirm} onClick={confirmSave}>
-                확인
+
+              <div className={styles.pageInfo}>
+                {currentPage} / {totalPages || 1}
+              </div>
+
+              <button
+                type='button'
+                className={styles.pageButton}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
+                disabled={currentPage === totalPages || totalPages === 0}
+              >
+                ▶
               </button>
             </div>
-          </div>
-        </div>
+
+            <div className={styles.changeBar}>
+              <button
+                className={styles.changeButton}
+                onClick={() => setSaveModal(true)}
+              >
+                저장
+              </button>
+            </div>
+            {saveModal && (
+              <div className={styles.saveCard}>
+                <div className={styles.isSave}>
+                  <h2 className={styles.saveTitle}>저장하시겠습니까?</h2>
+                  <p className={styles.saveText}>
+                    바꾼 내용이 서버에 반영됩니다.
+                  </p>
+
+                  <div className={styles.saveActions}>
+                    <button
+                      className={styles.saveCancel}
+                      onClick={() => setSaveModal(false)}
+                    >
+                      취소
+                    </button>
+                    <button
+                      className={styles.saveConfirm}
+                      onClick={confirmSave}
+                    >
+                      확인
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+        </>
       )}
-    </section>
+    </>
   );
 }

@@ -8,8 +8,8 @@ export const postBattlePokemon = async ({ eventZone, avgLevel, pokemonId }) => {
   });
   try {
     const response = await axios.post(
-      'http://localhost:3000/api/postBattlePokemon',
-      // 'https://galactic-gruent-be.vercel.app/api/postBattlePokemon',
+      // 'http://localhost:3000/api/postBattlePokemon',
+      'https://galactic-gruent-be.vercel.app/api/postBattlePokemon',
       { eventZone, avgLevel, pokemonId },
     );
     console.log('Fetched Pokémon:', response);

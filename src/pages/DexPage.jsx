@@ -1,27 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./dexpage.module.css";
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './dexpage.module.css';
 
 // 🔥 타입별 색상표
 const TYPE_COLORS = {
-  NORMAL: "#A8A77A",
-  FIRE: "#EE8130",
-  WATER: "#6390F0",
-  ELECTRIC: "#F7D02C",
-  GRASS: "#7AC74C",
-  ICE: "#96D9D6",
-  FIGHTING: "#C22E28",
-  POISON: "#A33EA1",
-  GROUND: "#E2BF65",
-  FLYING: "#A98FF3",
-  PSYCHIC: "#F95587",
-  BUG: "#A6B91A",
-  ROCK: "#B6A136",
-  GHOST: "#735797",
-  DRAGON: "#6F35FC",
-  DARK: "#705746",
-  STEEL: "#B7B7CE",
-  FAIRY: "#D685AD",
+  NORMAL: '#A8A77A',
+  FIRE: '#EE8130',
+  WATER: '#6390F0',
+  ELECTRIC: '#F7D02C',
+  GRASS: '#7AC74C',
+  ICE: '#96D9D6',
+  FIGHTING: '#C22E28',
+  POISON: '#A33EA1',
+  GROUND: '#E2BF65',
+  FLYING: '#A98FF3',
+  PSYCHIC: '#F95587',
+  BUG: '#A6B91A',
+  ROCK: '#B6A136',
+  GHOST: '#735797',
+  DRAGON: '#6F35FC',
+  DARK: '#705746',
+  STEEL: '#B7B7CE',
+  FAIRY: '#D685AD',
 };
 
 export default function DexPage({ onClose }) {
@@ -29,16 +29,18 @@ export default function DexPage({ onClose }) {
 
   // 🔥 1. 데이터 동기화 로직이 포함된 도감 리스트 초기화
   const [dexList, setDexList] = useState(() => {
-    const pokedex = sessionStorage.getItem("pokedex");
+    const pokedex = sessionStorage.getItem('pokedex');
     const initialDex = pokedex ? JSON.parse(pokedex) : [];
 
-    const pokemonBox = JSON.parse(sessionStorage.getItem("pokemonBox")) || [];
-    const party = JSON.parse(sessionStorage.getItem("party")) || [];
+    const pokemonBox = JSON.parse(sessionStorage.getItem('pokemonBox')) || [];
+    const party = JSON.parse(sessionStorage.getItem('party')) || [];
 
     const allOwnedPokemons = [...pokemonBox, ...party];
 
     const syncedDex = initialDex.map((mon) => {
-      const isOwned = allOwnedPokemons.some((owned) => owned.id === mon.id);
+      const isOwned = allOwnedPokemons.some(
+        (owned) => owned.sinnhoId === mon.id,
+      );
       if (isOwned) {
         return { ...mon, watch: true, catch: true, isCaught: true };
       }
@@ -61,7 +63,7 @@ export default function DexPage({ onClose }) {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "x" || e.key === "X") {
+      if (e.key === 'x' || e.key === 'X') {
         if (onClose) onClose();
         else navigate(-1);
         return;
@@ -69,23 +71,23 @@ export default function DexPage({ onClose }) {
 
       if (dexList.length === 0) return;
 
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
       }
 
       setSelectedIndex((prev) => {
         let nextIndex = prev;
         switch (e.key) {
-          case "ArrowDown":
+          case 'ArrowDown':
             nextIndex = Math.min(prev + 1, dexList.length - 1);
             break;
-          case "ArrowUp":
+          case 'ArrowUp':
             nextIndex = Math.max(0, prev - 1);
             break;
-          case "ArrowRight":
+          case 'ArrowRight':
             nextIndex = Math.min(prev + 10, dexList.length - 1);
             break;
-          case "ArrowLeft":
+          case 'ArrowLeft':
             nextIndex = Math.max(0, prev - 10);
             break;
           default:
@@ -95,15 +97,15 @@ export default function DexPage({ onClose }) {
       });
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [dexList.length, navigate, onClose]);
 
   useEffect(() => {
     if (itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex].scrollIntoView({
-        behavior: "smooth",
-        block: "center",
+        behavior: 'smooth',
+        block: 'center',
       });
     }
   }, [selectedIndex]);
@@ -132,7 +134,7 @@ export default function DexPage({ onClose }) {
                   className={styles.pokemonImg}
                   style={{
                     // 미발견 시 실루엣 처리
-                    filter: !isSeen(selectedMon) ? "brightness(0)" : "none",
+                    filter: !isSeen(selectedMon) ? 'brightness(0)' : 'none',
                   }}
                 />
               )}
@@ -149,12 +151,12 @@ export default function DexPage({ onClose }) {
                   <div className={styles.infoRow}>
                     <span
                       className={styles.infoLabel}
-                      style={{ width: "55px" }}
+                      style={{ width: '55px' }}
                     >
                       분류
                     </span>
                     <span>
-                      {selectedMon.genus || selectedMon.category || "분류 불명"}
+                      {selectedMon.genus || selectedMon.category || '분류 불명'}
                     </span>
                   </div>
 
@@ -162,7 +164,7 @@ export default function DexPage({ onClose }) {
                   <div className={styles.infoRow}>
                     <span
                       className={styles.infoLabel}
-                      style={{ width: "55px" }}
+                      style={{ width: '55px' }}
                     >
                       타입
                     </span>
@@ -170,7 +172,7 @@ export default function DexPage({ onClose }) {
                       {selectedMon.types ? (
                         selectedMon.types.map((t, i) => {
                           const typeUpper = t.toUpperCase();
-                          const badgeColor = TYPE_COLORS[typeUpper] || "#888";
+                          const badgeColor = TYPE_COLORS[typeUpper] || '#888';
                           return (
                             <span
                               key={i}
@@ -191,23 +193,23 @@ export default function DexPage({ onClose }) {
                   <div className={styles.infoRow}>
                     <span
                       className={styles.infoLabel}
-                      style={{ width: "35px" }}
+                      style={{ width: '35px' }}
                     >
                       키
                     </span>
                     <span className={styles.halfValue}>
-                      {selectedMon.height ? `${selectedMon.height} m` : "??? m"}
+                      {selectedMon.height ? `${selectedMon.height} m` : '??? m'}
                     </span>
                     <span
                       className={styles.infoLabel}
-                      style={{ width: "90px", marginLeft: "10px" }}
+                      style={{ width: '90px', marginLeft: '10px' }}
                     >
                       몸무게
                     </span>
                     <span className={styles.halfValue}>
                       {selectedMon.weight
                         ? `${selectedMon.weight} kg`
-                        : "??? kg"}
+                        : '??? kg'}
                     </span>
                   </div>
 
@@ -215,7 +217,7 @@ export default function DexPage({ onClose }) {
                   <div className={styles.descText}>
                     {selectedMon.description ||
                       selectedMon.desc ||
-                      "도감 설명 데이터가 없습니다."}
+                      '도감 설명 데이터가 없습니다.'}
                   </div>
                 </div>
               ) : (
@@ -233,7 +235,7 @@ export default function DexPage({ onClose }) {
                     key={pokemon.id || idx}
                     ref={(el) => (itemRefs.current[idx] = el)}
                     className={`${styles.listItem} ${
-                      idx === selectedIndex ? styles.active : ""
+                      idx === selectedIndex ? styles.active : ''
                     }`}
                     onClick={() => setSelectedIndex(idx)}
                   >
@@ -249,15 +251,15 @@ export default function DexPage({ onClose }) {
                       }}
                     ></div>
                     <span className={styles.monNo}>
-                      {String(pokemon.id || idx + 1).padStart(3, "0")}
+                      {String(pokemon.id || idx + 1).padStart(3, '0')}
                     </span>
                     <span className={styles.monName}>
-                      {!isSeen(pokemon) ? "???" : pokemon.name}
+                      {!isSeen(pokemon) ? '???' : pokemon.name}
                     </span>
                   </div>
                 ))
               ) : (
-                <div style={{ textAlign: "center", marginTop: "50px" }}>
+                <div style={{ textAlign: 'center', marginTop: '50px' }}>
                   데이터 없음
                 </div>
               )}

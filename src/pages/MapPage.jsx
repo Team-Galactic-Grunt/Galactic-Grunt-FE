@@ -6,6 +6,8 @@ import { battleBgm, mainBgm } from '../assets/bgm';
 import mainMapUrl from '/src/assets/images/main_map.png';
 import styles from './mapPage.module.css';
 import BattleTransition from '../components/animation/BattleTransition';
+import { Player } from '@lottiefiles/react-lottie-player';
+import loading from '../assets/images/loading.json';
 
 // --- 상수 ---
 const SCALE = 0.3;
@@ -187,6 +189,7 @@ export default function MapPage() {
 
   const [saveToast, setSaveToast] = useState(false);
   const [itemToast, setItemToast] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const position = sessionStorage.getItem('position')
     ? JSON.parse(sessionStorage.getItem('position'))
@@ -413,6 +416,7 @@ export default function MapPage() {
 
       if (reportModalOpenRef.current) {
         if (e.code === 'KeyZ') {
+          setIsLoading(true);
           // const position = JSON.parse(sessionStorage.getItem('position') || '{}');
           // const bag = JSON.parse(sessionStorage.getItem('bag') || '[]');
           // const isMyPokemon = JSON.parse(sessionStorage.getItem('isMyPokemon') || '[]');
@@ -432,6 +436,7 @@ export default function MapPage() {
             setSaveToast(true);
             setTimeout(() => setSaveToast(false), 1000);
           }
+          setIsLoading(false);
           reportModalOpenRef.current = false;
           setReportModalOpen(false);
         } else if (e.code === 'KeyX') {
@@ -906,13 +911,33 @@ export default function MapPage() {
             <div className={styles.report_modal}>
               <p>저장하시겠습니까?</p>
               <p>z: 예&nbsp;&nbsp;x: 아니오</p>
+              {isLoading && (
+                <Player
+                  autoplay
+                  loop
+                  src={loading}
+                  style={{
+                    position: 'absolute',
+                    bottom: '-25px',
+                    right: '-20px',
+                    width: '120px',
+                    height: '120px',
+                    zIndex: 10,
+                  }}
+                />
+              )}
             </div>
           </div>
         )}
         {secretModalOpen && (
           <div className={styles.wrap_report_modal}>
             <div className={styles.report_modal}>
-              <p>비밀 장소로 이동하겠습니까?</p>
+              <div>
+                <p>창기둥으로 이동하겠습니까?</p>
+                <p style={{ fontSize: '16px', marginTop: '-15px' }}>
+                  (진입 시 메뉴창을 열 수 없습니다.)
+                </p>
+              </div>
               <p>z: 예&nbsp;&nbsp;x: 아니오</p>
             </div>
           </div>
@@ -923,6 +948,7 @@ export default function MapPage() {
             {itemToast}을(를) 획득했습니다!
           </div>
         )}
+
         <canvas ref={canvasRef} id='game-canvas' width='1080' height='720' />
       </div>
     </>
