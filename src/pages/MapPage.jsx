@@ -766,21 +766,21 @@ export default function MapPage() {
       }
 
       // 몬스터 출현 및 아이템 타일 표시
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      // ctx.font = 'bold 11px sans-serif';
+      // ctx.textAlign = 'center';
+      // ctx.textBaseline = 'middle';
 
-      for (const [key] of eventTileMapRef.current) {
-        const [ec, er] = key.split(',').map(Number);
-        const ex = ec * TILE + TILE / 2;
-        const ey = er * TILE + TILE / 2;
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
-        ctx.beginPath();
-        ctx.arc(ex, ey, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#111';
-        ctx.fillText('!', ex, ey);
-      }
+      // for (const [key] of eventTileMapRef.current) {
+      //   const [ec, er] = key.split(',').map(Number);
+      //   const ex = ec * TILE + TILE / 2;
+      //   const ey = er * TILE + TILE / 2;
+      //   ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
+      //   ctx.beginPath();
+      //   ctx.arc(ex, ey, 6, 0, Math.PI * 2);
+      //   ctx.fill();
+      //   ctx.fillStyle = '#111';
+      //   ctx.fillText('!', ex, ey);
+      // }
 
       const ballImg = imagesRef.current['monsterball'];
       if (ballImg && ballImg.complete && ballImg.naturalWidth > 0) {
