@@ -1,4 +1,4 @@
-import { BrowserRouter, useNavigate } from 'react-router-dom';
+import { BrowserRouter, useNavigate, useLocation } from 'react-router-dom';
 import { Router } from './shared/Router';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -40,6 +40,7 @@ function App() {
   const [ready, setReady] = useState(false);
   const [random, setRandom] = useState(null);
   // const navigate = useNavigate();
+  // const location = useLocation();
 
   useEffect(() => {
     const randomValue = Math.floor(Math.random() * 3) + 1;
@@ -65,18 +66,20 @@ function App() {
   return (
     <BrowserRouter>
       <BgmProvider>
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            backgroundImage: `url(/src/assets/images/intro_${random}.png)`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        ></div>
+        {window.location.pathname !== '/admin' && (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              backgroundImage: `url(/src/assets/images/intro_${random}.png)`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          ></div>
+        )}
         <Router />
       </BgmProvider>
     </BrowserRouter>

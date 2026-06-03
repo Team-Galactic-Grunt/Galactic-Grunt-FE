@@ -1,27 +1,26 @@
-/* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import styles from "./pokemonpage.module.css";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import styles from './pokemonpage.module.css';
 
 const TYPE_COLORS = {
-  NORMAL: "#A8A77A",
-  FIRE: "#EE8130",
-  WATER: "#6390F0",
-  ELECTRIC: "#F7D02C",
-  GRASS: "#7AC74C",
-  ICE: "#96D9D6",
-  FIGHTING: "#C22E28",
-  POISON: "#A33EA1",
-  GROUND: "#E2BF65",
-  FLYING: "#A98FF3",
-  PSYCHIC: "#F95587",
-  BUG: "#A6B91A",
-  ROCK: "#B6A136",
-  GHOST: "#735797",
-  DRAGON: "#6F35FC",
-  DARK: "#705746",
-  STEEL: "#B7B7CE",
-  FAIRY: "#D685AD",
+  NORMAL: '#A8A77A',
+  FIRE: '#EE8130',
+  WATER: '#6390F0',
+  ELECTRIC: '#F7D02C',
+  GRASS: '#7AC74C',
+  ICE: '#96D9D6',
+  FIGHTING: '#C22E28',
+  POISON: '#A33EA1',
+  GROUND: '#E2BF65',
+  FLYING: '#A98FF3',
+  PSYCHIC: '#F95587',
+  BUG: '#A6B91A',
+  ROCK: '#B6A136',
+  GHOST: '#735797',
+  DRAGON: '#6F35FC',
+  DARK: '#705746',
+  STEEL: '#B7B7CE',
+  FAIRY: '#D685AD',
 };
 
 const MAX_BOX_COUNT = 5;
@@ -35,7 +34,7 @@ function PokemonPage({ onClose, usageItem }) {
   // 아이템 효과 전담 계산 함수 (parseInt)
   const applyItemEffect = (pokemon, item) => {
     if (!item || !item.func) {
-      return { success: false, message: "이 아이템은 여기서 쓸 수 없다!" };
+      return { success: false, message: '이 아이템은 여기서 쓸 수 없다!' };
     }
 
     const { currentHp, maxHp } = pokemon;
@@ -44,7 +43,7 @@ function PokemonPage({ onClose, usageItem }) {
     // [부활 아이템]
     if (item.func.revive) {
       if (!isFainted)
-        return { success: false, message: "상태가 이상하지 않다!" };
+        return { success: false, message: '상태가 이상하지 않다!' };
       return {
         success: true,
         newHp: maxHp,
@@ -55,16 +54,16 @@ function PokemonPage({ onClose, usageItem }) {
     // [회복 아이템]
     if (item.func.heal) {
       if (isFainted)
-        return { success: false, message: "기절한 포켓몬에게는 쓸 수 없다!" };
+        return { success: false, message: '기절한 포켓몬에게는 쓸 수 없다!' };
       if (currentHp >= maxHp)
-        return { success: false, message: "체력이 이미 가득 차 있습니다!" };
+        return { success: false, message: '체력이 이미 가득 차 있습니다!' };
 
       let healAmount;
       const healValue = String(item.func.heal);
 
       // 퍼센트 회복 (예: 25%)
-      if (healValue.includes("%")) {
-        const percent = parseInt(healValue.replace("%", ""), 10);
+      if (healValue.includes('%')) {
+        const percent = parseInt(healValue.replace('%', ''), 10);
         healAmount = Math.floor(maxHp * (percent / 100));
       }
       // 고정 수치 회복 (예: 200)
@@ -81,18 +80,18 @@ function PokemonPage({ onClose, usageItem }) {
         message: `${pokemon.name}의 체력이 회복되었다!`,
       };
     }
-    return { success: false, message: "아무 일도 일어나지 않았다." };
+    return { success: false, message: '아무 일도 일어나지 않았다.' };
   };
 
   // 2. 상태 관리 (기존 상태 100% 보존)
-  const [currentArea, setCurrentArea] = useState("party");
+  const [currentArea, setCurrentArea] = useState('party');
   const [partyIndex, setPartyIndex] = useState(0);
   const [boxRow, setBoxRow] = useState(0);
   const [boxCol, setBoxCol] = useState(0);
   const [currentBox, setCurrentBox] = useState(1);
 
-  const [dialogType, setDialogType] = useState("");
-  const [dialogText, setDialogText] = useState("");
+  const [dialogType, setDialogType] = useState('');
+  const [dialogText, setDialogText] = useState('');
   const [confirmIndex, setConfirmIndex] = useState(0);
 
   const [isBoxMenuOpen, setIsBoxMenuOpen] = useState(false);
@@ -100,7 +99,7 @@ function PokemonPage({ onClose, usageItem }) {
   const [swapSource, setSwapSource] = useState(null);
 
   const [pokeData, setPokeData] = useState(() => {
-    const storedBox = sessionStorage.getItem("pokemonBox");
+    const storedBox = sessionStorage.getItem('pokemonBox');
     const pokemon = storedBox ? JSON.parse(storedBox) : [];
     if (pokemon.length > 0) {
       let initialPokemon = [[], [], [], [], []];
@@ -115,10 +114,10 @@ function PokemonPage({ onClose, usageItem }) {
   });
 
   const [partyData, setPartyData] = useState(() => {
-    const storedParty = sessionStorage.getItem("isMyPokemon");
+    const storedParty = sessionStorage.getItem('isMyPokemon');
     const party = storedParty ? JSON.parse(storedParty) : [];
     if (party.length > 0) return party;
-    alert("정상적인 접근이 아닙니다.");
+    alert('정상적인 접근이 아닙니다.');
     return [];
   });
 
@@ -132,14 +131,14 @@ function PokemonPage({ onClose, usageItem }) {
     const handleKeyDown = (e) => {
       if (
         [
-          "ArrowUp",
-          "ArrowDown",
-          "ArrowLeft",
-          "ArrowRight",
-          "z",
-          "Z",
-          "x",
-          "X",
+          'ArrowUp',
+          'ArrowDown',
+          'ArrowLeft',
+          'ArrowRight',
+          'z',
+          'Z',
+          'x',
+          'X',
         ].includes(e.key)
       ) {
         e.preventDefault();
@@ -147,11 +146,11 @@ function PokemonPage({ onClose, usageItem }) {
 
       // [기존 유지] 박스 메뉴가 열려있을 때
       if (isBoxMenuOpen) {
-        if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
           setBoxMenuIndex((prev) => (prev === 0 ? 1 : 0));
-        } else if (e.key === "x" || e.key === "X") {
+        } else if (e.key === 'x' || e.key === 'X') {
           setIsBoxMenuOpen(false);
-        } else if (e.key === "z" || e.key === "Z") {
+        } else if (e.key === 'z' || e.key === 'Z') {
           if (boxMenuIndex === 0) {
             setSwapSource({
               area: currentArea,
@@ -167,24 +166,24 @@ function PokemonPage({ onClose, usageItem }) {
       }
 
       // 대화창 제어
-      if (dialogType !== "") {
+      if (dialogType !== '') {
         if (
-          dialogType === "FULL_HP" ||
-          dialogType === "RESULT" ||
-          dialogType === "ERROR"
+          dialogType === 'FULL_HP' ||
+          dialogType === 'RESULT' ||
+          dialogType === 'ERROR'
         ) {
-          if (["z", "Z", "x", "X"].includes(e.key)) {
-            if (dialogType === "RESULT" && onClose) onClose();
-            setDialogType("");
-            setDialogText("");
+          if (['z', 'Z', 'x', 'X'].includes(e.key)) {
+            if (dialogType === 'RESULT' && onClose) onClose();
+            setDialogType('');
+            setDialogText('');
           }
-        } else if (dialogType === "CONFIRM") {
-          if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        } else if (dialogType === 'CONFIRM') {
+          if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
             setConfirmIndex((prev) => (prev === 0 ? 1 : 0));
-          } else if (e.key === "x" || e.key === "X") {
-            setDialogType("");
-            setDialogText("");
-          } else if (e.key === "z" || e.key === "Z") {
+          } else if (e.key === 'x' || e.key === 'X') {
+            setDialogType('');
+            setDialogText('');
+          } else if (e.key === 'z' || e.key === 'Z') {
             if (confirmIndex === 0) {
               const targetPokemon = partyData[partyIndex];
 
@@ -199,12 +198,12 @@ function PokemonPage({ onClose, usageItem }) {
                 };
                 setPartyData(newPartyData);
                 sessionStorage.setItem(
-                  "isMyPokemon",
+                  'isMyPokemon',
                   JSON.stringify(newPartyData),
                 );
 
                 // 2) 가방에서 아이템 개수 -1 깎기 로직
-                const currentBag = JSON.parse(sessionStorage.getItem("bag"));
+                const currentBag = JSON.parse(sessionStorage.getItem('bag'));
                 if (currentBag) {
                   for (const pocketCategory in currentBag) {
                     const itemInPocket = currentBag[pocketCategory].find(
@@ -215,15 +214,15 @@ function PokemonPage({ onClose, usageItem }) {
                       break;
                     }
                   }
-                  sessionStorage.setItem("bag", JSON.stringify(currentBag));
+                  sessionStorage.setItem('bag', JSON.stringify(currentBag));
                 }
 
-                setDialogType("RESULT");
+                setDialogType('RESULT');
                 setDialogText(result.message);
               }
             } else {
-              setDialogType("");
-              setDialogText("");
+              setDialogType('');
+              setDialogText('');
             }
           }
         }
@@ -232,21 +231,21 @@ function PokemonPage({ onClose, usageItem }) {
 
       // [기존 유지] 자리 바꾸기 (Swap) 로직
       if (swapSource !== null) {
-        if (e.key === "x" || e.key === "X") {
+        if (e.key === 'x' || e.key === 'X') {
           setSwapSource(null);
           return;
         }
-        if (e.key === "z" || e.key === "Z") {
+        if (e.key === 'z' || e.key === 'Z') {
           let newPartyData = [...partyData];
           let newPokeData = pokeData.map((box) => [...box]);
 
           const getPokemon = (loc) => {
-            if (loc.area === "party") return newPartyData[loc.partyIndex] || {};
+            if (loc.area === 'party') return newPartyData[loc.partyIndex] || {};
             const idx = loc.boxRow * (MAX_BOX_COL + 1) + loc.boxCol;
             return (newPokeData[loc.currentBox - 1] || [])[idx] || {};
           };
           const setPokemon = (loc, pokemon) => {
-            if (loc.area === "party") {
+            if (loc.area === 'party') {
               newPartyData[loc.partyIndex] = pokemon;
             } else {
               const idx = loc.boxRow * (MAX_BOX_COL + 1) + loc.boxCol;
@@ -272,9 +271,9 @@ function PokemonPage({ onClose, usageItem }) {
           setPartyData(newPartyData);
           setPokeData(newPokeData);
 
-          sessionStorage.setItem("isMyPokemon", JSON.stringify(newPartyData));
+          sessionStorage.setItem('isMyPokemon', JSON.stringify(newPartyData));
           sessionStorage.setItem(
-            "pokemonBox",
+            'pokemonBox',
             JSON.stringify(newPokeData.flat()),
           );
 
@@ -284,7 +283,7 @@ function PokemonPage({ onClose, usageItem }) {
       }
 
       // 뒤로가기
-      if (e.key === "x" || e.key === "X") {
+      if (e.key === 'x' || e.key === 'X') {
         if (onClose)
           onClose(); // 모달일 땐 닫고
         else navigate(-1); // 단독 페이지일 땐 뒤로가기
@@ -293,21 +292,21 @@ function PokemonPage({ onClose, usageItem }) {
 
       // Z키
       // Z키
-      if (e.key === "z" || e.key === "Z") {
+      if (e.key === 'z' || e.key === 'Z') {
         // 가방에서 아이템을 들고 왔을 때 (기력의조각 등을 써야 하므로 이건 통과시킴!)
-        if (usageItem && currentArea === "party") {
+        if (usageItem && currentArea === 'party') {
           // ... (기존 아이템 로직 그대로 유지) ...
           const targetPokemon = partyData[partyIndex];
           if (!targetPokemon.name) return;
 
           const result = applyItemEffect(targetPokemon, usageItem);
           if (!result.success) {
-            setDialogType("ERROR");
+            setDialogType('ERROR');
             setDialogText(result.message);
             return;
           }
 
-          setDialogType("CONFIRM");
+          setDialogType('CONFIRM');
           setDialogText(
             `${targetPokemon.name}에게 ${usageItem.name}을(를)\n사용하시겠습니까?`,
           );
@@ -317,7 +316,7 @@ function PokemonPage({ onClose, usageItem }) {
 
         // 🔥 일반 메뉴에서 진입했을 때 (아이템 없이 Z키를 눌렀을 때)
         const targetPokemon =
-          currentArea === "party"
+          currentArea === 'party'
             ? partyData[partyIndex]
             : (pokeData[currentBox - 1] || [])[
                 boxRow * (MAX_BOX_COL + 1) + boxCol
@@ -325,7 +324,7 @@ function PokemonPage({ onClose, usageItem }) {
 
         // HP가 0이면 에러창을 띄우고 메뉴(순서바꾸기 등)를 못 열게 막아버림!
         if (targetPokemon?.name && targetPokemon.currentHp <= 0) {
-          setDialogType("ERROR");
+          setDialogType('ERROR');
           setDialogText(
             `${targetPokemon.name}은(는) 기절해서\n명령을 들을 수 없다!`,
           );
@@ -339,44 +338,44 @@ function PokemonPage({ onClose, usageItem }) {
       }
 
       //  방향키 이동 로직
-      if (currentArea === "party") {
-        if (e.key === "ArrowDown")
+      if (currentArea === 'party') {
+        if (e.key === 'ArrowDown')
           setPartyIndex((prev) => Math.min(prev + 1, MAX_PARTY));
-        else if (e.key === "ArrowUp")
+        else if (e.key === 'ArrowUp')
           setPartyIndex((prev) => Math.max(prev - 1, 0));
-        else if (e.key === "ArrowRight") {
-          setCurrentArea("box");
+        else if (e.key === 'ArrowRight') {
+          setCurrentArea('box');
           setBoxCol(0);
           setBoxRow(Math.min(partyIndex, MAX_BOX_ROW));
         }
-      } else if (currentArea === "box") {
-        if (e.key === "ArrowDown")
+      } else if (currentArea === 'box') {
+        if (e.key === 'ArrowDown')
           setBoxRow((prev) => Math.min(prev + 1, MAX_BOX_ROW));
-        else if (e.key === "ArrowUp") {
-          if (boxRow === 0) setCurrentArea("header");
+        else if (e.key === 'ArrowUp') {
+          if (boxRow === 0) setCurrentArea('header');
           else setBoxRow((prev) => prev - 1);
-        } else if (e.key === "ArrowRight") {
+        } else if (e.key === 'ArrowRight') {
           if (boxCol === MAX_BOX_COL) {
             setBoxCol(0);
             setBoxRow((prev) => (prev === MAX_BOX_ROW ? 0 : prev + 1));
           } else setBoxCol((prev) => prev + 1);
-        } else if (e.key === "ArrowLeft") {
+        } else if (e.key === 'ArrowLeft') {
           if (boxCol === 0) {
-            setCurrentArea("party");
+            setCurrentArea('party');
             setPartyIndex(Math.min(boxRow, MAX_PARTY));
           } else setBoxCol((prev) => prev - 1);
         }
-      } else if (currentArea === "header") {
-        if (e.key === "ArrowDown") {
-          setCurrentArea("box");
+      } else if (currentArea === 'header') {
+        if (e.key === 'ArrowDown') {
+          setCurrentArea('box');
           setBoxRow(0);
-        } else if (e.key === "ArrowLeft") handlePrevBox();
-        else if (e.key === "ArrowRight") handleNextBox();
+        } else if (e.key === 'ArrowLeft') handlePrevBox();
+        else if (e.key === 'ArrowRight') handleNextBox();
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     currentArea,
     partyIndex,
@@ -396,57 +395,70 @@ function PokemonPage({ onClose, usageItem }) {
   ]);
 
   const focusedPokemon =
-    currentArea === "party"
+    currentArea === 'party'
       ? partyData[partyIndex]
       : (pokeData[currentBox - 1] || [])[boxRow * (MAX_BOX_COL + 1) + boxCol];
 
   return (
     <div
-      id="game-screen"
-      className={styles["game-screen"]}
-      style={{ position: "relative" }}
+      id='game-screen'
+      className={styles['game-screen']}
+      style={{ position: 'relative' }}
     >
       {/* 파티 영역 */}
-      <div className={styles["party-area"]} id="party-container">
+      <div className={styles['party-area']} id='party-container'>
         {partyData.map((val, idx) => {
           const isSwapSource =
-            swapSource?.area === "party" && swapSource.partyIndex === idx;
+            swapSource?.area === 'party' && swapSource.partyIndex === idx;
           return (
             <div
               key={`party-${idx}`}
-              className={`${styles["party-slot"]} ${currentArea === "party" && partyIndex === idx ? styles.focused : ""} ${isSwapSource ? styles["swap-source"] : ""} ${val.name && val.currentHp <= 0 ? styles.fainted : ""}`}
+              className={`${styles['party-slot']} ${currentArea === 'party' && partyIndex === idx ? styles.focused : ''} ${isSwapSource ? styles['swap-source'] : ''} ${val.name && val.currentHp <= 0 ? styles.fainted : ''}`}
             >
               {val.name && (
                 <img
                   src={val.iconUrl}
                   alt={val.name}
-                  className={styles["party-pokemon-img"]}
+                  className={styles['party-pokemon-img']}
                 />
               )}
               <div
                 style={{
-                  display: "flex",
-                  width: "100%",
-                  flexDirection: "column",
-                  fontFamily: "pokemon_font",
-                  fontSize: "12px",
-                  marinTop: "-2px",
+                  display: 'flex',
+                  width: '100%',
+                  flexDirection: 'column',
+                  fontFamily: 'pokemon_font',
+                  fontSize: '12px',
+                  marinTop: '-2px',
                 }}
               >
                 {val.name && (
-                  <span style={{ fontSize: "12px", marginBottom: "-2px" }}>
-                    <span style={{ fontSize: "10px", color: "#555" }}>
-                      Lv.{val.level}
-                    </span>{" "}
-                    <span style={{ fontWeight: "bold" }}>{val.name}</span>
+                  <span style={{ fontSize: '12px', marginBottom: '-2px' }}>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        color: '#555',
+                        wordSpacing: '-4px',
+                      }}
+                      className={val.currentHp <= 0 ? styles['fainted'] : ''}
+                    >
+                      Lv {val.level}
+                    </span>{' '}
+                    <span style={{ fontWeight: 'bold' }}>{val.name}</span>
                   </span>
                 )}
                 {val.name && (
                   <span>
-                    <span style={{ fontSize: "10px", color: "#555" }}>
-                      hp:{" "}
+                    <span
+                      className={styles['move-pp']}
+                      style={{ fontSize: '10px' }}
+                    >
+                      HP:{' '}
                     </span>
-                    <span style={{ fontSize: "10px", color: "#555" }}>
+                    <span
+                      className={styles['move-pp']}
+                      style={{ fontSize: '10px' }}
+                    >
                       {val.currentHp} / {val.maxHp}
                     </span>
                   </span>
@@ -458,29 +470,29 @@ function PokemonPage({ onClose, usageItem }) {
       </div>
 
       {/* 박스 영역 */}
-      <div className={styles["box-section"]}>
+      <div className={styles['box-section']}>
         <div
-          className={`${styles["box-header"]} ${currentArea === "header" ? styles.focused : ""}`}
+          className={`${styles['box-header']} ${currentArea === 'header' ? styles.focused : ''}`}
         >
           <div className={styles.arrow} onClick={handlePrevBox}>
             ◀
           </div>
-          <div className={styles["box-title"]}>박스 {currentBox}</div>
+          <div className={styles['box-title']}>박스 {currentBox}</div>
           <div className={styles.arrow} onClick={handleNextBox}>
             ▶
           </div>
         </div>
 
-        <div className={styles["box-area"]} id="box-container">
+        <div className={styles['box-area']} id='box-container'>
           {Array.from(
             { length: (MAX_BOX_ROW + 1) * (MAX_BOX_COL + 1) },
             (_, idx) => {
               const r = Math.floor(idx / (MAX_BOX_COL + 1));
               const c = idx % (MAX_BOX_COL + 1);
               const isFocused =
-                currentArea === "box" && boxRow === r && boxCol === c;
+                currentArea === 'box' && boxRow === r && boxCol === c;
               const isSwapSource =
-                swapSource?.area === "box" &&
+                swapSource?.area === 'box' &&
                 swapSource.currentBox === currentBox &&
                 swapSource.boxRow === r &&
                 swapSource.boxCol === c;
@@ -490,13 +502,13 @@ function PokemonPage({ onClose, usageItem }) {
                 /* 박스안의 포켓몬들 애니메이션 */
                 <div
                   key={`box-${idx}`}
-                  className={`${styles["box-slot"]} ${isFocused ? styles.focused : ""} ${val?.name ? styles["occupied"] : ""} ${isSwapSource ? styles["swap-source"] : ""}`}
+                  className={`${styles['box-slot']} ${isFocused ? styles.focused : ''} ${val?.name ? styles['occupied'] : ''} ${isSwapSource ? styles['swap-source'] : ''}`}
                 >
                   {val?.name && (
                     <img
                       src={val.iconUrl}
                       alt={val.name}
-                      className={styles["box-pokemon-img"]}
+                      className={styles['box-pokemon-img']}
                     />
                   )}
                 </div>
@@ -505,112 +517,142 @@ function PokemonPage({ onClose, usageItem }) {
           )}
         </div>
       </div>
-
-      {}
-      <div className={styles["details-section"]}>
+      <div className={styles['details-section']}>
         {focusedPokemon?.name ? (
-          <div className={styles["details-content"]}>
+          <div className={styles['details-content']}>
             <img
               src={focusedPokemon.frontSprite || focusedPokemon.iconUrl}
               alt={focusedPokemon.name}
-              className={styles["details-img"]}
+              className={styles['details-img']}
             />
-            <div className={styles["name-level-wrap"]}>
-              <div className={styles["details-level"]}>
-                Lv. {focusedPokemon.level}
+            <div className={styles['name-level-wrap']}>
+              <div className={styles['details-level']}>
+                Lv {focusedPokemon.level}
               </div>
-              <div className={styles["details-name"]}>
+              <div className={styles['details-name']}>
                 {focusedPokemon.name}
               </div>
             </div>
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "10px",
-                gap: "8px",
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '6px',
+                gap: '8px',
               }}
             >
               <div
                 style={{
-                  fontSize: "11px",
-                  fontWeight: "bold",
-                  color: "#555", // 글씨 색상도 살짝 게임처럼
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  color: '#555', // 글씨 색상도 살짝 게임처럼
                 }}
               >
                 Exp.
               </div>
               <div
                 style={{
-                  width: "180px",
-                  height: "4px",
-                  position: "relative",
-                  backgroundColor: "lightgray",
-                  borderRadius: "2px",
+                  width: '180px',
+                  height: '4px',
+                  position: 'relative',
+                  backgroundColor: 'lightgray',
+                  borderRadius: '2px',
                 }}
               >
                 <div
                   style={{
                     width: `${(focusedPokemon.currentExp / focusedPokemon.needExp) * 100}%`,
-                    height: "100%",
-                    position: "absolute",
+                    height: '100%',
+                    position: 'absolute',
                     top: 0,
                     left: 0,
-                    backgroundColor: "skyblue",
+                    backgroundColor: 'skyblue',
                   }}
                 ></div>
               </div>
             </div>
             {/*  타입 색상 적용 */}
-            <div className={styles["details-types"]}>
+            <div className={styles['details-types']}>
               {focusedPokemon.types?.map((type, i) => (
                 <span
                   key={i}
-                  className={styles["type-badge"]}
+                  className={styles['type-badge']}
                   style={{
                     backgroundColor:
-                      TYPE_COLORS[type.toUpperCase()] || "#e0e0e0",
+                      TYPE_COLORS[type.toUpperCase()] || '#e0e0e0',
                   }}
                 >
                   {type.toUpperCase()}
                 </span>
               ))}
             </div>
-            <div className={styles["moves-container"]}>
-              <div className={styles["moves-title"]}>기술 배치</div>
+            <div className={styles['moves-container']}>
+              <div className={styles['moves-title']}>스탯</div>
+              <div className={styles['wrap-stats']}>
+                <div className={styles['move-slot']} style={{ margin: 0 }}>
+                  <div className={styles['move-name']}>HP</div>
+                  <div className={styles['move-pp']}>
+                    {focusedPokemon.baseStats.hp}
+                  </div>
+                </div>
+
+                <div className={styles['move-slot']} style={{ margin: 0 }}>
+                  <div className={styles['move-name']}>ATK</div>
+                  <div className={styles['move-pp']}>
+                    {focusedPokemon.baseStats.attack}
+                  </div>
+                </div>
+
+                <div className={styles['move-slot']} style={{ margin: 0 }}>
+                  <div className={styles['move-name']}>DEF</div>
+                  <div className={styles['move-pp']}>
+                    {focusedPokemon.baseStats.defense}
+                  </div>
+                </div>
+
+                <div className={styles['move-slot']} style={{ margin: 0 }}>
+                  <div className={styles['move-name']}>SPD</div>
+                  <div className={styles['move-pp']}>
+                    {focusedPokemon.baseStats.speed}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className={styles['moves-container']}>
+              <div className={styles['moves-title']}>기술 배치</div>
               {focusedPokemon.moves && focusedPokemon.moves.length > 0 ? (
                 focusedPokemon.moves.map((move, i) => (
-                  <div key={i} className={styles["move-slot"]}>
-                    <span className={styles["move-name"]}>{move.koName}</span>
-                    <span>
+                  <div key={i} className={styles['move-slot']}>
+                    <div className={styles['move-name']}>{move.koName}</div>
+                    <div className={styles['move-pp']}>
                       {move.currentpp} / {move.maxpp}
-                    </span>
+                    </div>
                   </div>
                 ))
               ) : (
-                <div style={{ fontSize: "14px", color: "#555" }}>
+                <div style={{ fontSize: '14px', color: '#555' }}>
                   배운 기술이 없습니다.
                 </div>
               )}
             </div>
           </div>
         ) : (
-          <div className={styles["empty-details"]}>Empty</div>
+          <div className={styles['empty-details']}>Empty</div>
         )}
       </div>
 
       {/* 박스 액션 메뉴 */}
       {isBoxMenuOpen && (
-        <div className={styles["box-action-menu"]}>
-          <div className={styles["confirm-option"]}>
-            <span className={styles["confirm-cursor"]}>
-              {boxMenuIndex === 0 ? "▶" : ""}
+        <div className={styles['box-action-menu']}>
+          <div className={styles['confirm-option']}>
+            <span className={styles['confirm-cursor']}>
+              {boxMenuIndex === 0 ? '▶' : ''}
             </span>
             <span>순서바꾸기</span>
           </div>
-          <div className={styles["confirm-option"]}>
-            <span className={styles["confirm-cursor"]}>
-              {boxMenuIndex === 1 ? "▶" : ""}
+          <div className={styles['confirm-option']}>
+            <span className={styles['confirm-cursor']}>
+              {boxMenuIndex === 1 ? '▶' : ''}
             </span>
             <span>그만두기</span>
           </div>
@@ -618,20 +660,20 @@ function PokemonPage({ onClose, usageItem }) {
       )}
 
       {/* 메시지 다이얼로그 */}
-      {dialogType !== "" && (
-        <div className={styles["dialog-container"]}>
-          <div style={{ whiteSpace: "pre-line" }}>{dialogText}</div>
-          {dialogType === "CONFIRM" && (
-            <div className={styles["confirm-box"]}>
-              <div className={styles["confirm-option"]}>
-                <span className={styles["confirm-cursor"]}>
-                  {confirmIndex === 0 ? "▶" : ""}
+      {dialogType !== '' && (
+        <div className={styles['dialog-container']}>
+          <div style={{ whiteSpace: 'pre-line' }}>{dialogText}</div>
+          {dialogType === 'CONFIRM' && (
+            <div className={styles['confirm-box']}>
+              <div className={styles['confirm-option']}>
+                <span className={styles['confirm-cursor']}>
+                  {confirmIndex === 0 ? '▶' : ''}
                 </span>
                 <span>예</span>
               </div>
-              <div className={styles["confirm-option"]}>
-                <span className={styles["confirm-cursor"]}>
-                  {confirmIndex === 1 ? "▶" : ""}
+              <div className={styles['confirm-option']}>
+                <span className={styles['confirm-cursor']}>
+                  {confirmIndex === 1 ? '▶' : ''}
                 </span>
                 <span>아니오</span>
               </div>

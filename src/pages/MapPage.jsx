@@ -224,8 +224,13 @@ export default function MapPage() {
     //   console.log(timer);
     // }, 1000);
 
-    // 맵 이미지 로드
+    // 맵 이미지 로드 완료 후 루프 시작 (캐시된 경우 즉시 시작)
     mapImgRef.current.src = mainMapUrl;
+    if (mapImgRef.current.complete) {
+      startLoop();
+    } else {
+      mapImgRef.current.onload = () => startLoop();
+    }
 
     // 스프라이트 이미지 로드
     Object.values(spriteMap).forEach((dir) => {
@@ -867,8 +872,6 @@ export default function MapPage() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('pagehide', handlePageHide);
     window.addEventListener('beforeunload', handlePageHide);
-
-    startLoop();
 
     return () => {
       //   clearInterval(intervalId);

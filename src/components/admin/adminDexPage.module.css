@@ -187,7 +187,8 @@
   z-index: 1000;
 }
 
-.isSave {
+/* .isSave {
+  position: relative;
   width: min(100%, 420px);
   padding: 22px;
   border-radius: 20px;
@@ -198,6 +199,18 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+} */
+
+.isSave {
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #555555;
+  border-radius: 20px;
+  padding: 0px 50px 20px 50px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .saveTitle {

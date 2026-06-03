@@ -2,6 +2,9 @@ import { useState, useMemo, useEffect } from 'react';
 import styles from './adminDexPage.module.css';
 import { getPokemonDex } from '../../api/getPokemonDex';
 import { postDex } from '../../api/postDex';
+import SaveModal from './SaveModal';
+import { Player } from '@lottiefiles/react-lottie-player';
+import loading from '/src/assets/images/loading.json';
 
 /*
 포켓몬 이미지
@@ -185,29 +188,11 @@ export default function AdminDexSection() {
               </button>
             </div>
             {saveModal && (
-              <div className={styles.saveCard}>
-                <div className={styles.isSave}>
-                  <h2 className={styles.saveTitle}>저장하시겠습니까?</h2>
-                  <p className={styles.saveText}>
-                    바꾼 내용이 서버에 반영됩니다.
-                  </p>
-
-                  <div className={styles.saveActions}>
-                    <button
-                      className={styles.saveCancel}
-                      onClick={() => setSaveModal(false)}
-                    >
-                      취소
-                    </button>
-                    <button
-                      className={styles.saveConfirm}
-                      onClick={confirmSave}
-                    >
-                      확인
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <SaveModal
+                isSaving={isSaving}
+                setSaveModal={setSaveModal}
+                onClick={confirmSave}
+              />
             )}
           </section>
         </>

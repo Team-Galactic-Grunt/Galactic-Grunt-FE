@@ -15,6 +15,7 @@
   font-size: 22px;
   color: #333;
   margin-left: -5px;
+  z-index: 10;
 }
 
 .inner_panel {
