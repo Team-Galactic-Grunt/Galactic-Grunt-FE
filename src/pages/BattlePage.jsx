@@ -113,17 +113,10 @@ export default function BattlePage() {
         sessionStorage.setItem('enemyPokemon', JSON.stringify(data));
         sessionStorage.setItem(
           'currentPokemon',
-          JSON.stringify(
-            removeEmptyObject[
-              removeEmptyObject.findIndex((pokemon) => pokemon.currentHp !== 0)
-            ] || null,
-          ),
+          JSON.stringify(removeEmptyObject[currentIndex] || null),
         );
         window.dispatchEvent(new CustomEvent('enemyPokemonUpdated'));
         window.dispatchEvent(new CustomEvent('currentPokemonUpdated'));
-        // const currentIndex = myPokemon.findIndex(
-        //   (pokemon) => pokemon.currentHp !== 0,
-        // );
         if (currentIndex !== -1) {
           setCurrentPokemon(removeEmptyObject[currentIndex]);
           addLog(`야생 ${data.name}이(가) 나타났다!`);
@@ -165,7 +158,9 @@ export default function BattlePage() {
   // currentPokemonUpdated 이벤트 수신 → currentPokemon state 동기화 (PP 등 실시간 반영)
   useEffect(() => {
     const handler = () => {
-      const updated = JSON.parse(sessionStorage.getItem('currentPokemon') || 'null');
+      const updated = JSON.parse(
+        sessionStorage.getItem('currentPokemon') || 'null',
+      );
       if (updated) setCurrentPokemon(updated);
     };
     window.addEventListener('currentPokemonUpdated', handler);

@@ -204,6 +204,7 @@ export default function MapPage() {
   const pokemonBox = sessionStorage.getItem('pokemonBox')
     ? JSON.parse(sessionStorage.getItem('pokemonBox'))
     : null;
+  const pokedex = JSON.parse(sessionStorage.getItem('pokedex') || '[]');
 
   useEffect(() => {
     if (
@@ -292,6 +293,8 @@ export default function MapPage() {
       const selected = pickRandom(zoneToCells(zoneData), count);
       selected.forEach((key) => eventTileMapRef.current.set(key, zoneName));
     });
+
+    console.log(eventTileMapRef.current);
 
     // 중요 아이템 타일 등록
     // - bag.important에 있고 count === 0인 아이템만 맵에 표시
@@ -435,6 +438,7 @@ export default function MapPage() {
             bag,
             isMyPokemon,
             pokemonBox,
+            pokedex,
           });
           console.log(result);
           if (result.ok === true) {
