@@ -56,9 +56,12 @@ function App() {
         // Insert your custom action here
         console.log('Spacebar was pressed!');
         // navigate('/map');
-        if (window.location.pathname === '/') {
-          window.location.href = '/map'; // 페이지 새로고침과 함께 이동
-        }
+        // if (window.location.pathname === '/') {
+        window.location.href = '/map'; // 페이지 새로고침과 함께 이동
+        // }
+        // else{
+        //   console.log('/ 일 때만 눌림')
+        // }
       }
     });
   }, []);
