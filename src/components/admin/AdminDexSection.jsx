@@ -128,7 +128,7 @@ export default function AdminDexSection() {
                   </div>
 
                   <div className={styles.dexId}>
-                    #{card.id} {card.name}
+                    #{String(card.sinnohNo).padStart(3, '0')} {card.name}
                   </div>
                   <label>
                     <input

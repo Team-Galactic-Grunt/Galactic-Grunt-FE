@@ -251,7 +251,7 @@ export default function DexPage({ onClose }) {
                       }}
                     ></div>
                     <span className={styles.monNo}>
-                      {String(pokemon.id || idx + 1).padStart(3, '0')}
+                      {String(pokemon.sinnohNo || idx + 1).padStart(3, '0')}
                     </span>
                     <span className={styles.monName}>
                       {!isSeen(pokemon) ? '???' : pokemon.name}
