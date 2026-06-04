@@ -35,12 +35,10 @@ export default function DexPage({ onClose }) {
     const pokemonBox = JSON.parse(sessionStorage.getItem('pokemonBox')) || [];
     const party = JSON.parse(sessionStorage.getItem('party')) || [];
 
-    const allOwnedPokemons = [...pokemonBox, ...party];
+    const allOwnedPokemons = [...pokemonBox, ...party].filter(Boolean);
 
     const syncedDex = initialDex.map((mon) => {
-      const isOwned = allOwnedPokemons.some(
-        (owned) => owned.sinnhoId === mon.id,
-      );
+      const isOwned = allOwnedPokemons.some((owned) => owned.id === mon.id);
       if (isOwned) {
         return { ...mon, watch: true, catch: true, isCaught: true };
       }
